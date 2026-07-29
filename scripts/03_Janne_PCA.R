@@ -1,54 +1,16 @@
 
-
-
-str(data)
-
-
-
-###############################################
 # PART 3: PREPARE SPECIES MATRIX
 ###############################################
 # Your dataset structure:
 # columns 1–5 = metadata (Done?, Harvest, pot_ID, poll_no_poll, Poskey)
 # columns 6+ = species abundances
 
-species_data <- data[,7:ncol(data)]
+species_data <- data[,6:ncol(data)]
 
 # Replace NAs by 0 (important for community data)
 species_data <- species_data %>%
   mutate(across(everything(), ~replace_na(.x, 0)))
 
-# remove for now the columns that have non numeric values in the species columns (columns 6+)
-# Identify columns containing non-empty, non-numeric values
-bad_columns <- names(species_data)[
-  sapply(species_data, function(x) {
-    values <- trimws(as.character(x))
-
-    any(
-      !is.na(values) &
-      values != "" &
-      is.na(suppressWarnings(as.numeric(values)))
-    )
-  })
-]
-
-# See which columns will be removed
-bad_columns
-
-species_data <- species_data %>%
-  dplyr::select(-dplyr::all_of(bad_columns)) %>%
-  dplyr::mutate(
-    dplyr::across(
-      dplyr::everything(),
-      ~ as.numeric(dplyr::na_if(trimws(as.character(.x)), ""))
-    )
-  ) %>%
-  dplyr::mutate(
-    dplyr::across(
-      dplyr::everything(),
-      ~ tidyr::replace_na(.x, 0)
-    )
-  )
 
 # Remove columns with all zeros (rare in sparse data)
 species_data <- species_data[, colSums(species_data) > 0]
@@ -67,10 +29,8 @@ species_hel <- decostand(species_data, method = "hellinger")
 
 
 species0 <- species_hel %>%
-  dplyr::select(
-    dplyr::where(~ sum(.x, na.rm = TRUE) > 0)
-  ) %>%
-  dplyr::filter(rowSums(.) > 0)
+  select(where(~ sum(.x, na.rm = TRUE) > 0)) %>%   # remove empty species
+  filter(rowSums(.) > 0)                          # ✅ remove empty sites
 
 dca_res <- decorana(species0)
 print(dca_res) 
@@ -96,9 +56,8 @@ if (gradient_length < 3) {
 # PART 5: RUN MULTIPLE ORDINATION METHODS
 ###############################################
 
-
 ### 1. PCA (via RDA)
-pca_res <- rda(species0)
+pca_res <- rda(species_hel)
 
 ### 2. CA
 ca_res <- cca(species0)
@@ -155,83 +114,3 @@ data_env <- data %>%
       TRUE ~ NA_character_
     )
   )
-###############################################
-# PART 8: ADD GROUPING (OPTIONAL)
-###############################################
-# Example: color by pollination
-group <- factor(data_env$physiotope)
-
-ordiplot(nmds_res, type = "n")
-points(nmds_res, display = "sites", col = as.numeric(group), pch = 19)
-legend("topright", legend = levels(group), col = 1:length(levels(group)), pch = 19)
-
-
-###############################################
-# PART 8: ADD GROUPING TO PCA
-###############################################
-
-
-# Define grouping variable
-group <- factor(data_env$physiotope)
-
-# Define colours (adjust order if needed)
-col_vec <- c("#1F7579","#BD7C0D","#D7B116","#561D25","#2F8011")
-
-
-sp_scores <- scores(pca_res, display = "species", scaling = "symmetric")
-
-# Calculate distance from origin
-dist_sp <- sqrt(sp_scores[,1]^2 + sp_scores[,2]^2)
-
-# Select 3 most extreme species
-top3 <- names(sort(dist_sp, decreasing = TRUE))[1:3]
-top3
-# Base PCA plot
-plot(pca_res, display = "sites", type = "n", scaling = "symmetric")
-
-# Add sites (samples)
-points(pca_res,
-       display = "sites",
-       scaling = "symmetric",
-       pch = 19,
-       col = col_vec[group])
-
-# Add species (optional)
-points(pca_res,
-       display = "species",
-       scaling = "symmetric",
-       pch = 3,
-       col = "black")
-
-# Add species labels
-# set.seed(10)
-# ordipointlabel(pca_res,
-#                display = "species",
-#                scaling = "symmetric",
-#                add = TRUE)
-
-# Add ellipses per physiotope
-ordiellipse(pca_res,
-            groups = group,
-            draw = "polygon",
-            col = col_vec,
-            scaling = "symmetric",
-            kind = "sd",
-            conf = 0.4)
-
-# Add legend
-legend("topright",
-       legend = levels(group),
-       col = col_vec,
-       pch = 19,
-       bty = "n")
-
-species_out <- c("Anurida maritima", "Anthicus bimaculatus", "Linyphiidae")
-
-# Add ONLY top 3 species labels
-orditorp(pca_res,
-         display = "species",
-         scaling = "symmetric",
-         select = species_out,
-         col = "red")
-

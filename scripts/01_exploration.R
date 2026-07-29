@@ -7,9 +7,9 @@
 #
 #                       ---- SET UP & DATA TIDYING ----
 #
-# ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# ----::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::----
-# ---- LOAD PACKAGES & R VERSION CONTROL ----
+###############################################
+###############################################
+# PART 1: LOAD PACKAGES & R VERSION CONTROL ----
 
 # This code ensures that R is using renv, a version control package manager.   
 # Renv ensures that I can use the same package versions continuously. 
@@ -43,7 +43,7 @@ list_of_packages_used <- c("here", "ggplot2", "car",
                            "brglm2", "glmmTMB", "MuMIn", 
                            "gridExtra", "multcompView", "survival", 
                            "survminer", "readr", "lme4", "MASS",
-                           "minqa", "ggnewscale", "qqplotr", "tidyr"
+                           "minqa", "ggnewscale", "qqplotr", "tidyr", "stringr"
 )
 
 # Now we check which packages from the list are not installed yet. 
@@ -59,175 +59,56 @@ if(length(new_packages)) renv::install(new_packages)
 lapply(list_of_packages_used, library, character.only = TRUE)
 
 
-theme_set(theme_cowplot()) # to change the default ggplot2 theme to cowplot
-
-
 renv::snapshot(type = "implicit")  # to save a snapshot of my project package 
 # versions into a file called renv.lock
 
-# Keeps R environment clean by removing temporary variables from there. 
-rm(list_of_packages_used, new_packages)
 
-# ---- CREATE THEME ----
-# Here I create a standard plotting theme:
-st_theme <- theme_light(base_size = 12) +
-  theme(
-    panel.grid.major = element_line(color = "white"),
-    panel.grid.minor = element_blank(),
-    plot.title = element_text(hjust = 0.5, size = 14),
-    axis.title = element_text(size = 14),
-    axis.text = element_text(size = 12)
-  )
+###############################################
+# PART 2: LOAD DATA Macrofauna Fact 2026 ----
 
-??theme_light
-
-theme_set(st_theme)
-
-my_theme <- theme_minimal(base_size = 14) +
-  theme(
-    plot.background = element_rect(fill = "white", color = NA),
-    panel.background = element_rect(fill = "white", color = NA),
-    panel.border = element_blank(),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    axis.line = element_line(color = "grey50"),
-    axis.title = element_text(size = 14),
-    axis.text = element_text(size = 12),
-    plot.title = element_text(hjust = 0.5, size = 14)
-  )
-#
-# ----::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::----
-## ----  Zostera noltii sqaures Fact 2025 ----
-# ----::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::----
-# ---- LOAD RAW DATASET ----
-
-# First, load raw data from Google Drive
-# In google drive: file -> share with others -> choose sheet -> publish to web
-# FactMacrofauna link:
-Macrofauna <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=834923619&single=true&output=csv")
-
-Macrofauna
-view(Macrofauna)
-data <- Macrofauna
+# load in the data from the google drive 
+data <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=834923619&single=true&output=csv")
 
 str(data)
 
+# only take rows from the Dutch coast, heartbreak and kaap hoorn location 
+# these are the pot_ID's tht start with "KH", "KWA", "IJM", "SDL", "HBD", "Heartbreak"
 
-### script van Janne 
+data <- data %>%
+  filter(str_detect(pot_ID, "^(KH|KWA|IJM|SDL|HBD|Heartbreak)"))
 
+view(data)
 
-###############################################
-# PART 3: PREPARE SPECIES MATRIX
-###############################################
-# Your dataset structure:
-# columns 1–5 = metadata (Done?, Harvest, pot_ID, poll_no_poll, Poskey)
-# columns 6+ = species abundances
+str(data)
 
-species_data <- data[,6:ncol(data)]
+# now filter only the rows that have "done" in the first column the other ones can be ignored
 
-# Replace NAs by 0 (important for community data)
-species_data <- species_data %>%
-  mutate(across(everything(), ~replace_na(.x, 0)))
+data <- data %>%
+  filter(Done. == "done")
 
-# Remove columns with all zeros (rare in sparse data)
-species_data <- species_data[, colSums(species_data) > 0]
+view(data)
 
-# Optional: Hellinger transform (recommended for PCA)
-species_hel <- decostand(species_data, method = "hellinger")
+str(data)
 
-###############################################
-# PART 4: DETERMINE BEST ORDINATION METHOD
-###############################################
-# Key idea from Lefcheck:
-# Use DCA gradient length (axis 1) to decide:
-# < 3  -> linear methods (PCA, RDA)
-# 3–4  -> intermediate
-# > 4  -> unimodal methods (CA, CCA, NMDS)
+# replace all NA's with zero's
 
+data[is.na(data)] <- 0
 
-species0 <- species_hel %>%
-  select(where(~ sum(.x, na.rm = TRUE) > 0)) %>%   # remove empty species
-  filter(rowSums(.) > 0)                          # ✅ remove empty sites
+#???
+# see the vlaues that are not a numeric or NA ???
+unique(data$Anurida.maritima)
+unique(data$Cicadellidae.Nymph...88.)
+unique(data$Clubiona.sp.)
+unique(data$Diptera)
 
-dca_res <- decorana(species0)
-print(dca_res) 
-
-# Extract gradient length (first axis)
-gradient_length <- dca_res$evals[1]
-gradient_length
-
-cat("Gradient length (DCA axis 1):", gradient_length, "\n") # = 0.5 dus PCA RDA
-
-###############################################
-# INTERPRETATION RULE
-###############################################
-if (gradient_length < 3) {
-  cat("→ Linear methods recommended: PCA or RDA\n")
-} else if (gradient_length >= 3 & gradient_length <= 4) {
-  cat("→ Mixed methods: PCA or NMDS (compare both)\n")
-} else {
-  cat("→ Unimodal methods recommended: CA, CCA or NMDS\n")
-}
-
-###############################################
-# PART 5: RUN MULTIPLE ORDINATION METHODS
-###############################################
-
-### 1. PCA (via RDA)
-pca_res <- rda(species_hel)
-
-### 2. CA
-ca_res <- cca(species0)
-
-### 3. NMDS (Bray-Curtis distance)
-set.seed(123)
-nmds_res <- metaMDS(species0,
-                    distance = "bray",
-                    k = 2,
-                    trymax = 100)
-
-### 4. (Optional) CCA if environmental variables exist
-# Example placeholder (adapt if you have env variables)
-# env_data <- data[,c("poll_no_poll","Harvest")]
-# cca_res <- cca(species_data ~ poll_no_poll + Harvest, data = env_data)
-
-###############################################
-# PART 6: COMPARE MODEL QUALITY
-###############################################
-
-# NMDS stress (lower is better)
-nmds_res$stress
-
-# PCA explained variance
-summary(pca_res)
-
-# CA eigenvalues
-summary(ca_res)
-
-###############################################
-# PART 7: PLOTS
-###############################################
-
-### PCA plot
-plot(pca_res, main = "PCA")
-
-### CA plot
-plot(ca_res, main = "CA")
-
-### NMDS plot
-plot(nmds_res, type = "t", main = "NMDS")
-
-#####################################################################################
-library(stringr)
-
-data_env <- data %>%
-  mutate(
-    physiotope = case_when(
-      str_detect(pot_ID, "WS") ~ "wetstrip",
-      str_detect(pot_ID, "FD") ~ "foredune",
-      str_detect(pot_ID, "HD") ~ "highdensity",
-      str_detect(pot_ID, "LD") ~ "lowdensity",
-      str_detect(pot_ID, "_B_") ~ "bare",
-      TRUE ~ NA_character_
+non_numeric_rows <- data %>%
+  filter(
+    if_any(
+      7:ncol(data),
+      ~ !is.na(.) &
+        trimws(as.character(.)) != "" &
+        is.na(suppressWarnings(as.numeric(as.character(.))))
     )
   )
+
+view(non_numeric_rows)
