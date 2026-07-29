@@ -72,6 +72,12 @@ species0 <- species_hel %>%
   ) %>%
   dplyr::filter(rowSums(.) > 0)
 
+species1 <- species_data %>%
+  dplyr::select(
+    dplyr::where(~ sum(.x, na.rm = TRUE) > 0)
+  ) %>%
+  dplyr::filter(rowSums(.) > 0)
+
 dca_res <- decorana(species0)
 print(dca_res) 
 
@@ -105,15 +111,15 @@ ca_res <- cca(species0)
 
 ### 3. NMDS (Bray-Curtis distance)
 set.seed(123)
-nmds_res <- metaMDS(species0,
+nmds_res <- metaMDS(species1,
                     distance = "bray",
                     k = 2,
                     trymax = 100)
 
 ### 4. (Optional) CCA if environmental variables exist
 # Example placeholder (adapt if you have env variables)
-# env_data <- data[,c("poll_no_poll","Harvest")]
-# cca_res <- cca(species_data ~ poll_no_poll + Harvest, data = env_data)
+ #env_data <- data[,c("poll_no_poll","Harvest")]
+ #cca_res <- cca(species_data ~ poll_no_poll + Harvest, data = env_data)
 
 ###############################################
 # PART 6: COMPARE MODEL QUALITY
