@@ -77,7 +77,7 @@ str(data)
 data <- data %>%
   filter(str_detect(pot_ID, "^(KH|KWA|IJM|SDL|HBD|Heartbreak)"))
 
-view(data)
+# view(data)
 
 str(data)
 
@@ -86,7 +86,7 @@ str(data)
 data <- data %>%
   filter(Done. == "done")
 
-view(data)
+# view(data)
 
 str(data)
 
@@ -94,21 +94,4 @@ str(data)
 
 data[is.na(data)] <- 0
 
-#???
-# see the vlaues that are not a numeric or NA ???
-unique(data$Anurida.maritima)
-unique(data$Cicadellidae.Nymph...88.)
-unique(data$Clubiona.sp.)
-unique(data$Diptera)
 
-non_numeric_rows <- data %>%
-  filter(
-    if_any(
-      7:ncol(data),
-      ~ !is.na(.) &
-        trimws(as.character(.)) != "" &
-        is.na(suppressWarnings(as.numeric(as.character(.))))
-    )
-  )
-
-view(non_numeric_rows)

@@ -1,10 +1,5 @@
 
 
-
-str(data)
-
-
-
 ###############################################
 # PART 3: PREPARE SPECIES MATRIX
 ###############################################
@@ -32,26 +27,38 @@ bad_columns <- names(species_data)[
   })
 ]
 
-# See which columns will be removed
-bad_columns
+
+# remove some columns for now 
+
+columns_to_remove <- c(
+  "Anurida.maritima",
+  "Clubiona.sp.",
+ "Entomobryomorpha.sp.", 
+ "Entomobryomorpha.sp..2", 
+ "unknown", 
+ "Collembola.sp."
+)
 
 species_data <- species_data %>%
-  dplyr::select(-dplyr::all_of(bad_columns)) %>%
-  dplyr::mutate(
-    dplyr::across(
-      dplyr::everything(),
-      ~ as.numeric(dplyr::na_if(trimws(as.character(.x)), ""))
-    )
-  ) %>%
-  dplyr::mutate(
-    dplyr::across(
-      dplyr::everything(),
-      ~ tidyr::replace_na(.x, 0)
-    )
-  )
+  dplyr::select(-dplyr::all_of(columns_to_remove))
 
-# Remove columns with all zeros (rare in sparse data)
+str(species_data)
+
+# Remove columns and rows with all zeros (rare in sparse data)
 species_data <- species_data[, colSums(species_data) > 0]
+species_data[is.na(species_data)] <- 0
+species_data <- species_data[
+  rowSums(species_data, na.rm = TRUE) > 0,
+  ,
+  drop = FALSE
+]
+
+
+str(species_data)
+
+sum(rowSums(species_data, na.rm = TRUE) == 0)
+sum(colSums(species_data, na.rm = TRUE) == 0)
+
 
 # Optional: Hellinger transform (recommended for PCA)
 species_hel <- decostand(species_data, method = "hellinger")
@@ -65,27 +72,22 @@ species_hel <- decostand(species_data, method = "hellinger")
 # 3–4  -> intermediate
 # > 4  -> unimodal methods (CA, CCA, NMDS)
 
-
 species0 <- species_hel %>%
   dplyr::select(
     dplyr::where(~ sum(.x, na.rm = TRUE) > 0)
   ) %>%
-  dplyr::filter(rowSums(.) > 0)
-
-species1 <- species_data %>%
-  dplyr::select(
-    dplyr::where(~ sum(.x, na.rm = TRUE) > 0)
-  ) %>%
-  dplyr::filter(rowSums(.) > 0)
+  dplyr::filter(rowSums(.) > 0)                 # ✅ remove empty sites
 
 dca_res <- decorana(species0)
 print(dca_res) 
+
 
 # Extract gradient length (first axis)
 gradient_length <- dca_res$evals[1]
 gradient_length
 
-cat("Gradient length (DCA axis 1):", gradient_length, "\n") # = 0.5 dus PCA RDA
+cat("Gradient length (DCA axis 1):", gradient_length, "\n") 
+
 
 ###############################################
 # INTERPRETATION RULE
@@ -111,7 +113,7 @@ ca_res <- cca(species0)
 
 ### 3. NMDS (Bray-Curtis distance)
 set.seed(123)
-nmds_res <- metaMDS(species1,
+nmds_res <- metaMDS(species0,
                     distance = "bray",
                     k = 2,
                     trymax = 100)
@@ -141,8 +143,11 @@ summary(ca_res)
 ### PCA plot
 plot(pca_res, main = "PCA")
 
-### CA plot
-plot(ca_res, main = "CA")
+ordiplot(pca_res,type="n")
+orditorp(pca_res,display="species",col="red",air=0.01)
+orditorp(pca_res,display="sites",cex=1.25,air=0.01)
+
+
 
 ### NMDS plot
 plot(nmds_res, type = "t", main = "NMDS")
@@ -158,6 +163,10 @@ data_env <- data %>%
       str_detect(pot_ID, "HD") ~ "highdensity",
       str_detect(pot_ID, "LD") ~ "lowdensity",
       str_detect(pot_ID, "_B_") ~ "bare",
+      str_detect(pot_ID, "_B2_") ~ "bare2",
+      str_detect(pot_ID, "FD2") ~ "foredune2",
+      str_detect(pot_ID, "DS") ~ "drystrip",
+      
       TRUE ~ NA_character_
     )
   )
@@ -181,7 +190,7 @@ legend("topright", legend = levels(group), col = 1:length(levels(group)), pch = 
 group <- factor(data_env$physiotope)
 
 # Define colours (adjust order if needed)
-col_vec <- c("#1F7579","#BD7C0D","#D7B116","#561D25","#2F8011")
+col_vec <- c("#1F7579","#BD7C0D","#D7B116","#561D25","#2F8011", "#6F4FA3", "#4FA3C7", "#D85C41")  
 
 
 sp_scores <- scores(pca_res, display = "species", scaling = "symmetric")
