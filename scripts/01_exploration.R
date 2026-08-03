@@ -77,7 +77,8 @@ str(data)
 data <- data %>%
   filter(str_detect(pot_ID, "^(KH|KWA|IJM|SDL|HBD|Heartbreak)"))
 
-# view(data)
+
+view(data)
 
 str(data)
 

@@ -8,12 +8,14 @@
 # columns 6+ = species abundances
 
 species_data <- data[,7:ncol(data)]
+str(species_data)
 
 # Replace NAs by 0 (important for community data)
 species_data <- species_data %>%
   mutate(across(everything(), ~replace_na(.x, 0)))
 
-# remove for now the columns that have non numeric values in the species columns (columns 6+)
+str(species_data)
+
 # Identify columns containing non-empty, non-numeric values
 bad_columns <- names(species_data)[
   sapply(species_data, function(x) {
@@ -26,7 +28,6 @@ bad_columns <- names(species_data)[
     )
   })
 ]
-
 
 # remove some columns for now 
 
@@ -59,9 +60,7 @@ str(species_data)
 sum(rowSums(species_data, na.rm = TRUE) == 0)
 sum(colSums(species_data, na.rm = TRUE) == 0)
 
-
-# Optional: Hellinger transform (recommended for PCA)
-species_hel <- decostand(species_data, method = "hellinger")
+view(species_data)
 
 ###############################################
 # PART 4: DETERMINE BEST ORDINATION METHOD
@@ -72,21 +71,56 @@ species_hel <- decostand(species_data, method = "hellinger")
 # 3–4  -> intermediate
 # > 4  -> unimodal methods (CA, CCA, NMDS)
 
-species0 <- species_hel %>%
+species0 <- species_data %>%
   dplyr::select(
     dplyr::where(~ sum(.x, na.rm = TRUE) > 0)
   ) %>%
   dplyr::filter(rowSums(.) > 0)                 # ✅ remove empty sites
 
-dca_res <- decorana(species0)
-print(dca_res) 
 
+# see how my data is connected, becasue the first dca axis is exaclty 1, there is ecological disconnectedness
 
-# Extract gradient length (first axis)
-gradient_length <- dca_res$evals[1]
-gradient_length
+connectivity <- distconnected(
+  no.shared(species0),
+  trace = TRUE
+)
 
-cat("Gradient length (DCA axis 1):", gradient_length, "\n") 
+table(connectivity)
+
+# which rows differ? > 43? 
+
+split(
+  rownames(species0),
+  connectivity
+)
+
+# remove the group that doesn't have any species in common with the other group, so we can run DCA on the first group only
+species_group1 <- species0[connectivity == 1, , drop = FALSE]
+
+# Verwijder soorten die binnen deze groep niet voorkomen
+species_group1 <- species_group1[
+  ,
+  colSums(species_group1, na.rm = TRUE) > 0,
+  drop = FALSE
+]
+
+dca_group1 <- decorana(species_group1)
+
+print(dca_group1)
+
+axis_lengths <- apply(
+  dca_group1$rproj,
+  2,
+  function(x) diff(range(x))
+)
+
+gradient_length <- unname(axis_lengths[1])
+
+cat(
+  "Gradient length DCA axis 1:",
+  round(gradient_length, 3),
+  "\n"
+)
 
 
 ###############################################
@@ -104,24 +138,15 @@ if (gradient_length < 3) {
 # PART 5: RUN MULTIPLE ORDINATION METHODS
 ###############################################
 
-
-### 1. PCA (via RDA)
-pca_res <- rda(species0)
-
-### 2. CA
-ca_res <- cca(species0)
-
 ### 3. NMDS (Bray-Curtis distance)
 set.seed(123)
-nmds_res <- metaMDS(species0,
+nmds_res <- metaMDS(species_group1,
                     distance = "bray",
                     k = 2,
                     trymax = 100)
 
-### 4. (Optional) CCA if environmental variables exist
-# Example placeholder (adapt if you have env variables)
- #env_data <- data[,c("poll_no_poll","Harvest")]
- #cca_res <- cca(species_data ~ poll_no_poll + Harvest, data = env_data)
+nmds_res
+
 
 ###############################################
 # PART 6: COMPARE MODEL QUALITY
@@ -129,124 +154,67 @@ nmds_res <- metaMDS(species0,
 
 # NMDS stress (lower is better)
 nmds_res$stress
+stressplot(nmds_res)
+nrow(species_group1)
+nrow(unique(species_group1))
+site_scores <- as.data.frame(
+  scores(nmds_res, display = "sites")
+)
 
-# PCA explained variance
-summary(pca_res)
+site_scores$sample_id <- rownames(site_scores)
 
-# CA eigenvalues
-summary(ca_res)
+head(site_scores)
 
 ###############################################
 # PART 7: PLOTS
 ###############################################
 
-### PCA plot
-plot(pca_res, main = "PCA")
 
-ordiplot(pca_res,type="n")
-orditorp(pca_res,display="species",col="red",air=0.01)
-orditorp(pca_res,display="sites",cex=1.25,air=0.01)
+#####
+# zita zelf NMDS plot maken 
+#####
+
+# nu moeten we de metadata weer koppelen aan de site scores, zodat we kunnen zien welke samples bij elkaar horen
+
+# Voeg oorspronkelijke rijnummers toe als ID
+metadata_with_id <- data %>%
+  mutate(sample_id = as.character(row_number()))
+
+# De rownames van site_scores zijn normaal de behouden oorspronkelijke rijen
+metadata_group1 <- metadata_with_id %>%
+  filter(sample_id %in% rownames(site_scores)) %>%
+  arrange(match(sample_id, rownames(site_scores)))
 
 
 
-### NMDS plot
-plot(nmds_res, type = "t", main = "NMDS")
+nrow(metadata_group1)
+nrow(site_scores)
 
-#####################################################################################
-library(stringr)
+# checken of rij 43 erin zit? 
+"43" %in% metadata_group1$sample_id
+head(rownames(site_scores), 50)
 
-data_env <- data %>%
-  mutate(
-    physiotope = case_when(
-      str_detect(pot_ID, "WS") ~ "wetstrip",
-      str_detect(pot_ID, "FD") ~ "foredune",
-      str_detect(pot_ID, "HD") ~ "highdensity",
-      str_detect(pot_ID, "LD") ~ "lowdensity",
-      str_detect(pot_ID, "_B_") ~ "bare",
-      str_detect(pot_ID, "_B2_") ~ "bare2",
-      str_detect(pot_ID, "FD2") ~ "foredune2",
-      str_detect(pot_ID, "DS") ~ "drystrip",
-      
-      TRUE ~ NA_character_
-    )
+# maar het is nu sample_id 44, dus die moet er nog uit 
+metadata_group1 <- metadata_group1 %>%
+  dplyr::filter(Poskey != "2026NLSurv_23")
+
+
+metadata_group1 <- data %>%
+  mutate(sample_id = as.character(row_number())) %>%
+  filter(sample_id %in% rownames(site_scores)) %>%
+  arrange(match(sample_id, rownames(site_scores)))
+
+nrow(site_scores)
+nrow(metadata_group1)
+
+
+
+site_scores$sample_id <- rownames(site_scores)
+
+plot_data <- site_scores %>%
+  left_join(
+    metadata_group1,
+    by = "sample_id"
   )
-###############################################
-# PART 8: ADD GROUPING (OPTIONAL)
-###############################################
-# Example: color by pollination
-group <- factor(data_env$physiotope)
 
-ordiplot(nmds_res, type = "n")
-points(nmds_res, display = "sites", col = as.numeric(group), pch = 19)
-legend("topright", legend = levels(group), col = 1:length(levels(group)), pch = 19)
-
-
-###############################################
-# PART 8: ADD GROUPING TO PCA
-###############################################
-
-
-# Define grouping variable
-group <- factor(data_env$physiotope)
-
-# Define colours (adjust order if needed)
-col_vec <- c("#1F7579","#BD7C0D","#D7B116","#561D25","#2F8011", "#6F4FA3", "#4FA3C7", "#D85C41")  
-
-
-sp_scores <- scores(pca_res, display = "species", scaling = "symmetric")
-
-# Calculate distance from origin
-dist_sp <- sqrt(sp_scores[,1]^2 + sp_scores[,2]^2)
-
-# Select 3 most extreme species
-top3 <- names(sort(dist_sp, decreasing = TRUE))[1:3]
-top3
-# Base PCA plot
-plot(pca_res, display = "sites", type = "n", scaling = "symmetric")
-
-# Add sites (samples)
-points(pca_res,
-       display = "sites",
-       scaling = "symmetric",
-       pch = 19,
-       col = col_vec[group])
-
-# Add species (optional)
-points(pca_res,
-       display = "species",
-       scaling = "symmetric",
-       pch = 3,
-       col = "black")
-
-# Add species labels
-# set.seed(10)
-# ordipointlabel(pca_res,
-#                display = "species",
-#                scaling = "symmetric",
-#                add = TRUE)
-
-# Add ellipses per physiotope
-ordiellipse(pca_res,
-            groups = group,
-            draw = "polygon",
-            col = col_vec,
-            scaling = "symmetric",
-            kind = "sd",
-            conf = 0.4)
-
-# Add legend
-legend("topright",
-       legend = levels(group),
-       col = col_vec,
-       pch = 19,
-       bty = "n")
-
-species_out <- c("Anurida maritima", "Anthicus bimaculatus", "Linyphiidae")
-
-# Add ONLY top 3 species labels
-orditorp(pca_res,
-         display = "species",
-         scaling = "symmetric",
-         select = species_out,
-         col = "red")
 

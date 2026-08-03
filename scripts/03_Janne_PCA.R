@@ -114,3 +114,105 @@ data_env <- data %>%
       TRUE ~ NA_character_
     )
   )
+
+
+
+
+#####################################################################################
+library(stringr)
+
+data_env <- data %>%
+  mutate(
+    physiotope = case_when(
+      str_detect(pot_ID, "WS") ~ "wetstrip",
+      str_detect(pot_ID, "FD") ~ "foredune",
+      str_detect(pot_ID, "HD") ~ "highdensity",
+      str_detect(pot_ID, "LD") ~ "lowdensity",
+      str_detect(pot_ID, "_B_") ~ "bare",
+      str_detect(pot_ID, "_B2_") ~ "bare2",
+      str_detect(pot_ID, "FD2") ~ "foredune2",
+      str_detect(pot_ID, "DS") ~ "drystrip",
+      
+      TRUE ~ NA_character_
+    )
+  )
+###############################################
+# PART 8: ADD GROUPING (OPTIONAL)
+###############################################
+# Example: color by pollination
+group <- factor(data_env$physiotope)
+
+ordiplot(nmds_res, type = "n")
+points(nmds_res, display = "sites", col = as.numeric(group), pch = 19)
+legend("topright", legend = levels(group), col = 1:length(levels(group)), pch = 19)
+
+
+###############################################
+# PART 8: ADD GROUPING TO PCA
+###############################################
+
+
+# Define grouping variable
+group <- factor(data_env$physiotope)
+
+# Define colours (adjust order if needed)
+col_vec <- c("#1F7579","#BD7C0D","#D7B116","#561D25","#2F8011", "#6F4FA3", "#4FA3C7", "#D85C41")  
+
+
+sp_scores <- scores(pca_res, display = "species", scaling = "symmetric")
+
+# Calculate distance from origin
+dist_sp <- sqrt(sp_scores[,1]^2 + sp_scores[,2]^2)
+
+# Select 3 most extreme species
+top3 <- names(sort(dist_sp, decreasing = TRUE))[1:3]
+top3
+# Base PCA plot
+plot(pca_res, display = "sites", type = "n", scaling = "symmetric")
+
+# Add sites (samples)
+points(pca_res,
+       display = "sites",
+       scaling = "symmetric",
+       pch = 19,
+       col = col_vec[group])
+
+# Add species (optional)
+points(pca_res,
+       display = "species",
+       scaling = "symmetric",
+       pch = 3,
+       col = "black")
+
+# Add species labels
+# set.seed(10)
+# ordipointlabel(pca_res,
+#                display = "species",
+#                scaling = "symmetric",
+#                add = TRUE)
+
+# Add ellipses per physiotope
+ordiellipse(pca_res,
+            groups = group,
+            draw = "polygon",
+            col = col_vec,
+            scaling = "symmetric",
+            kind = "sd",
+            conf = 0.4)
+
+# Add legend
+legend("topright",
+       legend = levels(group),
+       col = col_vec,
+       pch = 19,
+       bty = "n")
+
+species_out <- c("Anurida maritima", "Anthicus bimaculatus", "Linyphiidae")
+
+# Add ONLY top 3 species labels
+orditorp(pca_res,
+         display = "species",
+         scaling = "symmetric",
+         select = species_out,
+         col = "red")
+
