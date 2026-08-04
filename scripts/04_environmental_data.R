@@ -609,7 +609,7 @@ species_family <- tibble::tribble(
   "Draba_verna",                  "Brassicaceae",
   "Leontodon_saxatilis",          "Asteraceae",
   "Jacobaea_vulgaris",            "Asteraceae",
-  "Bryophyta_spec2",              "Unidentified bryophyte",
+  "Bryophyta_spec2",              "Bryophyte",
   "Trifolium_sp.",                "Fabaceae",
   "Myosotis_ramosissima",         "Boraginaceae",
   "Hieracium_pilosella",          "Asteraceae",
@@ -636,16 +636,13 @@ species_family <- tibble::tribble(
   "Plantago_coronopus",           "Plantaginaceae",
   "Apiaceae_spec",                "Apiaceae",
   "Eleocharis_palustris",         "Cyperaceae",
-  "X2026_512",                    "Unknown",
   "Taraxacum_officinale",         "Asteraceae",
   "Holcus_lanatus",               "Poaceae",
   "Aira_praecox",                 "Poaceae",
   "Jasione_montana",              "Campanulaceae",
   "Phleum_arenarium",             "Poaceae",
   "Sedum_acre",                   "Crassulaceae",
-  "Bryophyta_spec",               "Unidentified bryophyte",
-  "X2026_458",                    "Unknown",
-  "X2026_459",                    "Unknown",
+  "Bryophyta_spec",               "Bryophyte",
   "Raphanus_raphanistrum",        "Brassicaceae",
   "Senecio_inaequidens",          "Asteraceae",
   "Cakile_maritima",              "Brassicaceae",
@@ -746,7 +743,7 @@ ggsave(
 )
 
 #############
-# 0.5 Calculate plant diversity per plot 
+# 0.5 Calculate plant diversity and shannon index per plot 
 ############
 
 species_data <- flora_data %>%
