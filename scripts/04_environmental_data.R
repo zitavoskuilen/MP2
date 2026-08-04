@@ -758,6 +758,9 @@ flora_diversity <- flora_data %>%
   mutate(richness = vegan::specnumber(species_data), 
          Shannon = vegan::diversity(species_data, index = "shannon"))
 
+flora_diversity_table <- as.data.frame(flora_diversity)
+view(flora_diversity_table)
+
 Shannon_diversity plot <- 
   ggplot(
   flora_diversity,
