@@ -554,7 +554,7 @@ plot(nmds_res, type = "t", main = "NMDS")
 ###############################################
 # PART 7: ADD GROUPING TO NMDS (OPTIONAL)
 ###############################################
-# Example: color by physiotope
+# Example: color by pollination
 group <- factor(data_env$physiotope)
 
 ordiplot(nmds_res, type = "n")
@@ -571,3 +571,85 @@ ordiellipse(
   alpha = 50,
   border = col_vec
 )
+
+# save this plot
+ggsave("plots/NMDS_data_three.png", width = 8, height = 6, dpi = 300)
+
+
+###############################################
+# PART 8: ADD GROUPING TO PCA
+###############################################
+
+# Define grouping variable
+group <- factor(data_env$physiotope)
+
+# Define colours (adjust order if needed)
+col_vec <- c("#1F7579","#BD7C0D","#D7B116","#561D25","#2F8011", "#6F4FA3", "#4FA3C7")
+
+
+sp_scores <- scores(pca_res, display = "species", scaling = "symmetric")
+
+# Calculate distance from origin
+dist_sp <- sqrt(sp_scores[,1]^2 + sp_scores[,2]^2)
+
+# Select 3 most extreme species
+top3 <- names(sort(dist_sp, decreasing = TRUE))[1:3]
+top3
+
+# Base PCA plot
+plot(pca_res, display = "sites", type = "n", scaling = "symmetric")
+
+# Add sites (samples)
+points(pca_res,
+       display = "sites",
+       scaling = "symmetric",
+       pch = 19,
+       col = col_vec[group])
+
+# Add species (optional)
+points(pca_res,
+       display = "species",
+       scaling = "symmetric",
+       pch = 3,
+       col = "black")
+
+# Add species labels
+set.seed(10)
+ordipointlabel(pca_res,
+                display = "species",
+                scaling = "symmetric",
+                add = TRUE)
+
+# Add ellipses per physiotope
+ordiellipse(pca_res,
+            groups = group,
+            draw = "polygon",
+            col = col_vec,
+            scaling = "symmetric",
+            kind = "sd",
+            conf = 0.4)
+
+# Add legend
+legend("topright",
+       legend = levels(group),
+       col = col_vec,
+       pch = 19,
+       bty = "n")
+
+species_names <- rownames(scores(pca_res, display = "species"))
+select_top3 <- species_names %in% top3
+
+orditorp(
+  pca_res,
+  display = "species",
+  scaling = "symmetric",
+  select = select_top3,
+  col = "red",
+  cex = 0.8
+)
+
+ggsave("plots/PCA_data_three.png", width = 8, height = 6, dpi = 300)
+
+
+
+# top 7 soorten toe te voegedn 
