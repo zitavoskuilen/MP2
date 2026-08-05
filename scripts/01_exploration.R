@@ -71,16 +71,6 @@ data <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTU
 
 str(data)
 
-# only take rows from the Dutch coast, heartbreak and kaap hoorn location 
-# these are the pot_ID's tht start with "KH", "KWA", "IJM", "SDL", "HBD"
-# data <- data %>%
-# filter(str_detect(pot_ID, "^(KH|KWA|IJM|SDL|HBD)"))
-# AREADY DID THIS IN HTE META DATA FILE IN SHEETS 
-
-
-# view(data)
-
-str(data)
 
 # now filter only the rows that have "done" in the first column
 data <- data %>%
@@ -91,14 +81,52 @@ data <- data %>%
 
 data[is.na(data)] <- 0
 
-# FOR NOW TAKE OUT ONE HARVEST OF KAAP HOORN BECAUSE OTHERWISE THERE ARE 4 
-# select the rows that have poskey numbers 2026_
+# Replace the non numerical values in the data set 
+# First find them
+letters_per_column <- lapply(data, function(x) {
+  x <- trimws(as.character(x))
+
+  unique(x[
+    !is.na(x) &
+    x != "" &
+    is.na(suppressWarnings(as.numeric(x)))
+  ])
+})
+
+# Alleen kolommen tonen waarin iets gevonden is
+letters_per_column <- letters_per_column[
+  lengths(letters_per_column) > 0
+]
+
+letters_per_column
+
+# replace the h with 10 and the x with 1 in the data set
+data[data == "h"] <- 10
+data[data == "x"] <- 1
 
 
-# only select the columns of pot_ID and all the species columns 
+# remove for now the unknown and the last column from the dataset 
 data <- data %>%
-  dplyr::select(pot_ID, everything()) %>%
-  dplyr::select(-Done., -Harvest, -Poskey)
+  dplyr::select(-unknown)
 
+
+# look how many rows there are of each pot id before i put them together
+pot_ID_count <- data %>%
+  count(pot_ID)
+
+
+
+# FOR NOW TAKE OUT the first two HARVEST OF KAAP HOORN 
+# select the rows that have poskey numbers that start with 2026_57 to 2026_71 and remove them from the dataset
+# and the poskeys 2026_126 till 2026_140
+
+data <- data %>%
+ filter(!Poskey %in% c("2026_57", "2026_58", "2026_59", "2026_60", "2026_61", 
+                        "2026_62", "2026_63", "2026_64", "2026_65", "2026_66",
+                        "2026_67", "2026_68", "2026_69", "2026_70", "2026_71", 
+                       "2026_126", "2026_127", "2026_128", "2026_129", "2026_130",
+                       "2026_131", "2026_132", "2026_133", "2026_134", "2026_135", 
+                       "2026_136", "2026_137", "2026_138", "2026_139", "2026_140"))
 
 str(data)
+

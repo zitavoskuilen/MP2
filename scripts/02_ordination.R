@@ -1,4 +1,106 @@
+#
+#
+##############################################
+##############################################
+# PART 1: MAKE TWO DATASETS
 
+# DATA_TWO =  TWO HARVESTS OF EVERY LOCATION 
+# DATA_THREE = TWO HARVESTS OF TS AND THREE OF THE DUTCH COAST 
+###########
+# DATA_TWO 
+###################
+# select only the harvest HK2 en HK3 and TS3 and T4
+
+data_two <- data %>%
+  dplyr::filter(harvest %in% c("HK2", "HK3", "TS3", "TS4")) %>%
+  dplyr::select(-total_individuals)
+
+
+pot_ID_count <- data_two %>%
+  count(pot_ID)
+
+# now i have to add the rows toegteher that have the same pot_ID 
+# first i'll do ot for the harvests seperately 
+
+metadata_cols <- c(
+  "Done.",
+  "Harvest_total",
+  "harvest",
+  "days",
+  "pot_ID",
+  "physiotope",
+  "poll_no_poll",
+  "Poskey"
+)
+
+# Alle overige kolommen zijn soortkolommen
+species_cols <- names(data_two)[9:ncol(data_two)]
+
+data_summed <- data_two %>%
+  mutate(
+    across(
+      all_of(species_cols),
+      ~ {
+        x <- trimws(as.character(.x))
+        x[x == ""] <- NA
+        suppressWarnings(as.numeric(x))
+      }
+    )
+  ) %>%
+  mutate(
+    pot_group = sub("_[^_]+$", "", pot_ID)
+  ) %>%
+  group_by(harvest, pot_group) %>%
+  summarise(
+    Harvest_total = first(Harvest_total),
+    days = first(days),
+    physiotope = first(physiotope),
+    n_rows = n(),
+    across(
+      all_of(species_cols),
+      ~ sum(.x, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  ) %>%
+  rename(pot_ID = pot_group)
+
+
+# now add all the pot_ID's together that have the same pot_ID but different harvests
+data_two_summed_final <- data_summed %>%
+  group_by(pot_ID) %>%
+  summarise(
+    Harvest_total = first(Harvest_total),
+    days = first(days),
+    physiotope = first(physiotope),
+    n_rows = sum(n_rows),
+    across(
+      all_of(species_cols),
+      ~ sum(.x, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# DATA THREE 
 
 ###############################################
 # PART 3: PREPARE SPECIES MATRIX
@@ -19,47 +121,6 @@ str(species_data)
 # remove columns with all zero's
 species_data <- species_data[, colSums(species_data) > 0]
 
-# x must be numeric > 
-# Identify columns containing non-empty, non-numeric values
-bad_columns <- names(species_data)[
-  sapply(species_data, function(x) {
-    values <- trimws(as.character(x))
-
-    any(
-      !is.na(values) &
-      values != "" &
-      is.na(suppressWarnings(as.numeric(values)))   ) })]
-
-bad_columns
-
-# remove some columns for now 
-
-columns_to_remove <- c(
-  "Anurida.maritima",
-  "Clubiona.sp.",
- "Entomobryomorpha.sp.", 
- "Entomobryomorpha.sp..2", 
- "unknown", 
- "Collembola.sp."
-)
-
-species_data <- species_data %>%
-  dplyr::select(-dplyr::all_of(columns_to_remove))
-
-str(species_data)
-
-# Remove columns with all zeros (rare in sparse data)
-species_data <- species_data[, colSums(species_data) > 0]
-
-# remove all rows with all zeros (sites with no species)
-species_data <- species_data[rowSums(species_data, na.rm = TRUE) > 0,]
-
-
-str(species_data)
-
-# check if there are still rows or columns with all zero's > no 
-sum(rowSums(species_data, na.rm = TRUE) == 0)
-sum(colSums(species_data, na.rm = TRUE) == 0)
 
 view(species_data)
 
