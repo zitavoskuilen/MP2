@@ -67,32 +67,38 @@ renv::snapshot(type = "implicit")  # to save a snapshot of my project package
 # PART 2: LOAD DATA Macrofauna Fact 2026 ----
 
 # load in the data from the google drive 
-data <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=834923619&single=true&output=csv")
+data <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=1054653854&single=true&output=csv")
 
 str(data)
 
 # only take rows from the Dutch coast, heartbreak and kaap hoorn location 
-# these are the pot_ID's tht start with "KH", "KWA", "IJM", "SDL", "HBD", "Heartbreak"
+# these are the pot_ID's tht start with "KH", "KWA", "IJM", "SDL", "HBD"
+# data <- data %>%
+# filter(str_detect(pot_ID, "^(KH|KWA|IJM|SDL|HBD)"))
+# AREADY DID THIS IN HTE META DATA FILE IN SHEETS 
 
-data <- data %>%
-  filter(str_detect(pot_ID, "^(KH|KWA|IJM|SDL|HBD|Heartbreak)"))
-
-
-view(data)
-
-str(data)
-
-# now filter only the rows that have "done" in the first column the other ones can be ignored
-
-data <- data %>%
-  filter(Done. == "done")
 
 # view(data)
 
 str(data)
 
+# now filter only the rows that have "done" in the first column
+data <- data %>%
+  filter(Done. == "done")
+
+
 # replace all NA's with zero's
 
 data[is.na(data)] <- 0
 
+# FOR NOW TAKE OUT ONE HARVEST OF KAAP HOORN BECAUSE OTHERWISE THERE ARE 4 
+# select the rows that have poskey numbers 2026_
 
+
+# only select the columns of pot_ID and all the species columns 
+data <- data %>%
+  dplyr::select(pot_ID, everything()) %>%
+  dplyr::select(-Done., -Harvest, -Poskey)
+
+
+str(data)

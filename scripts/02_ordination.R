@@ -7,7 +7,7 @@
 # columns 1–5 = metadata (Done?, Harvest, pot_ID, poll_no_poll, Poskey)
 # columns 6+ = species abundances
 
-species_data <- data[,7:ncol(data)]
+species_data <- data[,8:ncol(data)]
 str(species_data)
 
 # Replace NAs by 0 (important for community data)
@@ -16,6 +16,10 @@ species_data <- species_data %>%
 
 str(species_data)
 
+# remove columns with all zero's
+species_data <- species_data[, colSums(species_data) > 0]
+
+# x must be numeric > 
 # Identify columns containing non-empty, non-numeric values
 bad_columns <- names(species_data)[
   sapply(species_data, function(x) {
@@ -24,10 +28,9 @@ bad_columns <- names(species_data)[
     any(
       !is.na(values) &
       values != "" &
-      is.na(suppressWarnings(as.numeric(values)))
-    )
-  })
-]
+      is.na(suppressWarnings(as.numeric(values)))   ) })]
+
+bad_columns
 
 # remove some columns for now 
 
@@ -45,22 +48,23 @@ species_data <- species_data %>%
 
 str(species_data)
 
-# Remove columns and rows with all zeros (rare in sparse data)
+# Remove columns with all zeros (rare in sparse data)
 species_data <- species_data[, colSums(species_data) > 0]
-species_data[is.na(species_data)] <- 0
-species_data <- species_data[
-  rowSums(species_data, na.rm = TRUE) > 0,
-  ,
-  drop = FALSE
-]
+
+# remove all rows with all zeros (sites with no species)
+species_data <- species_data[rowSums(species_data, na.rm = TRUE) > 0,]
 
 
 str(species_data)
 
+# check if there are still rows or columns with all zero's > no 
 sum(rowSums(species_data, na.rm = TRUE) == 0)
 sum(colSums(species_data, na.rm = TRUE) == 0)
 
 view(species_data)
+
+# Optional: Hellinger transform (recommended for PCA)
+species_hel <- decostand(species_data, method = "hellinger")
 
 ###############################################
 # PART 4: DETERMINE BEST ORDINATION METHOD
@@ -71,13 +75,34 @@ view(species_data)
 # 3–4  -> intermediate
 # > 4  -> unimodal methods (CA, CCA, NMDS)
 
-species0 <- species_data %>%
+#Janne doet hell transformatie voor de dca? 
+species0 <- species_hel %>%
   dplyr::select(
     dplyr::where(~ sum(.x, na.rm = TRUE) > 0)
   ) %>%
-  dplyr::filter(rowSums(.) > 0)                 # ✅ remove empty sites
+  dplyr::filter(
+    rowSums(.) > 0
+  )
 
+# Zita > dan krijg je eerste dca as van precies 1 
+species0 <- species_data %>%
+  dplyr::select(where(~ sum(.x, na.rm = TRUE) > 0)) %>%   # remove empty species
+  filter(rowSums(.) > 0)                          # ✅ remove empty sites
 
+dca_res <- decorana(species0)
+print(dca_res) 
+
+# Extract gradient length (first axis)
+gradient_length <- dca_res$evals[1]
+gradient_length
+
+dca_res$
+
+cat("Gradient length (DCA axis 1):", gradient_length, "\n") # = 0.5 dus PCA RDA
+
+###########
+# DATA IS DISCONNETED (DCA axis 1 is precies 1), so we need to check which rows are disconnected and remove them before running DCA again
+##########
 # see how my data is connected, becasue the first dca axis is exaclty 1, there is ecological disconnectedness
 
 connectivity <- distconnected(
@@ -85,7 +110,6 @@ connectivity <- distconnected(
   trace = TRUE
 )
 
-table(connectivity)
 
 # which rows differ? > 43? 
 
