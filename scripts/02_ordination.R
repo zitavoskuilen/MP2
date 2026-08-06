@@ -199,30 +199,85 @@ plot(nmds_res, type = "t", main = "NMDS")
 #####################################################################################
 library(stringr)
 
-data_env <- data_two %>%
+data_env <- data_two_summed_final %>%
   mutate(
     physiotope = case_when(
-      str_detect(pot_ID, "_DS_") ~ "duneslack",
-      str_detect(pot_ID, "_FD_") ~ "foredune",
-      str_detect(pot_ID, "_HD_") ~ "highdensity",
-      str_detect(pot_ID, "_LD_") ~ "lowdensity",
-      str_detect(pot_ID, "_B_") ~ "bare",
-      str_detect(pot_ID, "_B2_") ~ "bare2",
+      str_detect(pot_ID, "_DS_")  ~ "duneslack",
       str_detect(pot_ID, "_FD2_") ~ "foredune2",
+      str_detect(pot_ID, "_FD_")  ~ "foredune",
+      str_detect(pot_ID, "_HD_")  ~ "highdensity",
+      str_detect(pot_ID, "_LD_")  ~ "lowdensity",
+      str_detect(pot_ID, "_B2_")  ~ "bare2",
+      str_detect(pot_ID, "_B_")   ~ "bare",
+      TRUE ~ NA_character_
+    ),
+    
+    location = case_when(
+      str_detect(pot_ID, "^KH_")  ~ "Kaap Hoorn",
+      str_detect(pot_ID, "^SDL_") ~ "Schouwen-Duiveland",
+      str_detect(pot_ID, "^IJM_") ~ "IJmuiden",
+      str_detect(pot_ID, "^HBD_") ~ "Hondsbossche",
+      str_detect(pot_ID, "^KWA_") ~ "Kwade Hoek",
       TRUE ~ NA_character_
     )
   )
 
 
+
 ###############################################
-# PART 7: ADD GROUPING TO NMDS (OPTIONAL)
+# PART 7: ADD GROUPING AND LABLES TO NMDS (OPTIONAL)
 ###############################################
-# Example: color by pollination
-group <- factor(data_env$physiotope)
+# Example: color by LOCATION
+group <- factor(data_env$location)
 
 ordiplot(nmds_res, type = "n")
 points(nmds_res, display = "sites", col = as.numeric(group), pch = 19)
 legend("topright", legend = levels(group), col = 1:length(levels(group)), pch = 19)
+
+# ADDING LABELS TO POINTS 
+point_labels <- data_env$pot_ID
+
+# NMDS-scores 
+site_scores <- vegan::scores(
+  nmds_res,
+  display = "sites"
+)
+
+#PLOT
+ordiplot(nmds_res, type = "n")
+
+points(
+  site_scores,
+  col = as.numeric(group),
+  pch = 19
+)
+
+#LABELS
+text(
+  site_scores[, 1],
+  site_scores[, 2],
+  labels = point_labels,
+  pos = 4,
+  cex = 0.7
+)
+
+#legend(
+  "topright",
+  legend = levels(group),
+  col = as.numeric(group),
+  pch = 19,
+  bty = "n"
+)
+
+# Eén kleur per locatie
+location_cols <- setNames(
+  seq_along(levels(group)),
+  levels(group)
+)
+
+# Kleuren in dezelfde volgorde als de factorlevels
+ellipse_cols <- location_cols[levels(group)]
+
 
 ordiellipse(
   nmds_res,
@@ -230,10 +285,68 @@ ordiellipse(
   display = "sites",
   kind = "sd",
   draw = "polygon",
-  col = col_vec,
-  alpha = 50,
-  border = col_vec
+  col = as.numeric(group),
+  alpha = 10,
+  border = ellipse_cols
 )
+
+
+# save the plot 
+ggsave("plots/NMDS_data_two_with_eliipse_location.png", width = 8, height = 6, dpi = 300)
+
+# the same but then elipse for physiotope 
+
+
+physio_group <- factor(data_env$physiotope)
+
+physio_cols <- c(
+  "bare"        = "#D9C28F",  # licht zand
+  "bare2"       = "#BFA36A",  # donkerder zand
+  "duneslack"   = "#4FA3A5",  # blauwgroen, natte duinvallei
+  "foredune"    = "#E5B84B",  # geel/goud, helm en open duin
+  "foredune2"   = "#C98F2E",  # donkerder goud
+  "lowdensity"  = "#8FBF68",  # lichtgroen, lage vegetatiedichtheid
+  "highdensity" = "#356B3A"   # donkergroen, dichte vegetatie
+)
+
+levels(physio_group)
+
+physio_cols[levels(physio_group)]
+
+sum(is.na(physio_cols[as.character(physio_group)]))
+
+site_scores <- scores(nmds_res, display = "sites")
+
+ordiplot(nmds_res, type = "n", main = "NMDS with Physiotope Grouping")
+
+points(
+  site_scores,
+  col = physio_cols[as.character(physio_group)],
+  pch = 19,
+  cex = 1.2
+)
+
+ordiellipse(
+  nmds_res,
+  groups = physio_group,
+  display = "sites",
+  kind = "sd",
+  draw = "polygon",
+  col = adjustcolor(
+    physio_cols[levels(physio_group)],
+    alpha.f = 0.2
+  ),
+  border = physio_cols[levels(physio_group)]
+)
+
+legend(
+  "topright",
+  legend = levels(physio_group),
+  col = physio_cols[levels(physio_group)],
+  pch = 19,
+  bty = "n"
+)
+
 
 
 ###############################################
