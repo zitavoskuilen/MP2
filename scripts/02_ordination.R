@@ -95,7 +95,7 @@ nmds_res
 # NMDS stress (lower is better)
 nmds_res$stress
 
-# stress = 0.2445516 which is quite high 
+# stress = 0.2487336 which is quite high 
 
 # PCA explained variance
 summary(pca_res)
@@ -277,13 +277,24 @@ legend(
 ###############################################
 
 # Define grouping variable
-group <- factor(data_env$physiotope)
+group_phys <- factor(data_env$physiotope)
+group_loc <- factor(data_env$location)
 
 # Define colours (adjust order if needed)
-col_vec <- c("#1F7579","#BD7C0D","#D7B116","#561D25","#2F8011", "#6F4FA3", "#4FA3C7")
+phys_cols <- c(
+  "bare"        = "#D9C28F",  # licht zand
+  "bare2"       = "#BFA36A",  # donkerder zand
+  "duneslack"   = "#4FA3A5",  # blauwgroen, beginnende duinvallei
+  "foredune"    = "#E5B84B",  # geel/goud, helm en open duin
+  "foredune2"   = "#C98F2E",  # donkerder goud
+  "lowdensity"  = "#8FBF68",  # lichtgroen, lage vegetatiedichtheid
+  "highdensity" = "#356B3A"   # donkergroen, dichte vegetatie
+)
+
+loc_shapes <- c(16, 17, 15, 18, 8)
 
 
-sp_scores <- scores(pca_res, display = "species", scaling = "symmetric")
+site_scores <- scores(pca_res, display = "sites", scaling = "symmetric")
 
 # Calculate distance from origin
 dist_sp <- sqrt(sp_scores[,1]^2 + sp_scores[,2]^2)
@@ -293,200 +304,78 @@ top3 <- names(sort(dist_sp, decreasing = TRUE))[1:3]
 top3
 
 # Base PCA plot
-plot(pca_res, display = "sites", type = "n", scaling = "symmetric")
+plot(pca_res, display = "sites", type = "n", scaling = "symmetric", 
+     main = "PCA  with Physiotope and Location Grouping (DATA_TWO)", 
+     xlab = "PC1 (15.8%)", 
+    ylab = "PC2 (13.1%)")
 
 # Add sites (samples)
-points(pca_res,
-       display = "sites",
-       scaling = "symmetric",
-       pch = 19,
-       col = col_vec[group])
+points(
+  site_scores[,1],
+  site_scores[,2],
+  col = phys_cols[as.numeric(group_phys)],
+  pch = loc_shapes[as.numeric(group_loc)],
+  cex = 1.2
+)
 
 # Add species (optional)
-points(pca_res,
+#points(pca_res,
        display = "species",
        scaling = "symmetric",
        pch = 3,
        col = "black")
 
 # Add species labels (optinal)
-set.seed(10)
-ordipointlabel(pca_res,
+#set.seed(10)
+#ordipointlabel(pca_res,
                 display = "species",
                 scaling = "symmetric",
                 add = TRUE)
 
 # Add ellipses per physiotope
 ordiellipse(pca_res,
-            groups = group,
+            groups = group_phys,
             draw = "polygon",
-            col = col_vec,
+            col = phys_cols,
             scaling = "symmetric",
             kind = "sd",
             conf = 0.4)
 
-# Add legend
+# Add legend physiotpes 
 legend("topright",
-       legend = levels(group),
-       col = col_vec,
+       legend = levels(group_phys),
+       col = phys_cols,
        pch = 19,
+       bty = "n")
+
+# add legend locations 
+legend("bottomright",
+       legend = levels(group_loc),
+       pch = loc_shapes,
+       col = "black",
        bty = "n")
 
 species_names <- rownames(scores(pca_res, display = "species"))
 select_top3 <- species_names %in% top3
 
+# dit toeveogen werkt nog niet
 orditorp(
   pca_res,
   display = "species",
   scaling = "symmetric",
   select = select_top3,
-  col = "red",
+  col = "black",
   cex = 0.8
 )
 
+# plot opslaan 
+ggsave("plots/PCA_data_two_with_eliipse_physio_10/8.png", width = 8, height = 6, dpi = 300)
 
 
-# top 7 soorten toe te voegen 
 ##########
-site_scores <- scores(
-  pca_res,
-  display = "sites",
-  scaling = "symmetric"
-)
-
-species_scores <- scores(
-  pca_res,
-  display = "species",
-  scaling = "symmetric"
-)
-
-# Top 7 soorten
-top7 <- names(sort(dist_sp, decreasing = TRUE))[1:7]
-
-top7
-
-x_limits <- extendrange(
-  c(site_scores[, 1], species_scores[top7, 1]),
-  f = 0.15
-)
-
-y_limits <- extendrange(
-  c(site_scores[, 2], species_scores[top7, 2]),
-  f = 0.15
-)
-
-# Lege PCA-plot
-plot(
-  pca_res,
-  display = "sites",
-  type = "n",
-  scaling = "symmetric",
-  xlim = x_limits,
-  ylim = y_limits
-)
-
-# Samples toevoegen
-points(
-  site_scores,
-  pch = 19,
-  col = col_vec[group]
-)
-
-# Alleen de top7 soorten toevoegen
-text(
-  species_scores[top7, 1],
-  species_scores[top7, 2],
-  labels = top7,
-  col = "black",
-  cex = 0.8,
-  pos = 3
-)
-
-# Legenda
-legend(
-  "topright",
-  legend = levels(group),
-  col = col_vec,
-  pch = 19,
-  bty = "n"
-)
-
-# save the figure 
-ggsave("plots/PCA_data_two.png", width = 8, height = 6, dpi = 300)
-
 # NOW DO THE SAME BUT WITH DATA FROM THREE DUTCH COAST HARVESTS  
 # DATA THREE
 ##########
-
-data_three <- data %>%
-  dplyr::filter(harvest %in% c("HK2", "HK3", "HK1", "TS3", "TS4")) %>%
-  dplyr::select(-total_individuals)
-
-
-pot_ID_count <- data_three %>%
-  count(pot_ID)
-
-# now i have to add the rows toegteher that have the same pot_ID 
-# first i'll do ot for the harvests seperately 
-
-metadata_cols <- c(
-  "Done.",
-  "Harvest_total",
-  "harvest",
-  "days",
-  "pot_ID",
-  "physiotope",
-  "poll_no_poll",
-  "Poskey"
-)
-
-# Alle overige kolommen zijn soortkolommen
-species_cols <- names(data_three)[9:ncol(data_three)]
-
-data_summed <- data_three %>%
-  mutate(
-    across(
-      all_of(species_cols),
-      ~ {
-        x <- trimws(as.character(.x))
-        x[x == ""] <- NA
-        suppressWarnings(as.numeric(x))
-      }
-    )
-  ) %>%
-  mutate(
-    pot_group = sub("_[^_]+$", "", pot_ID)
-  ) %>%
-  group_by(harvest, pot_group) %>%
-  summarise(
-    Harvest_total = first(Harvest_total),
-    days = first(days),
-    physiotope = first(physiotope),
-    n_rows = n(),
-    across(
-      all_of(species_cols),
-      ~ sum(.x, na.rm = TRUE)
-    ),
-    .groups = "drop"
-  ) %>%
-  rename(pot_ID = pot_group)
-
-
-# now add all the pot_ID's together that have the same pot_ID but different harvests
-data_three_summed_final <- data_summed %>%
-  group_by(pot_ID) %>%
-  summarise(
-    Harvest_total = first(Harvest_total),
-    days = first(days),
-    physiotope = first(physiotope),
-    n_rows = sum(n_rows),
-    across(
-      all_of(species_cols),
-      ~ sum(.x, na.rm = TRUE)
-    ),
-    .groups = "drop"
-  ) %>%
-  dplyr::select(-n_rows, -days, -Harvest_total)
 
 str(data_three_summed_final)
 
@@ -509,7 +398,7 @@ str(species_data_three)
 species_data_three <- species_data_three[, colSums(species_data_three) > 0]
 
 
-view(species_data_three)
+# view(species_data_three)
 
 
 
@@ -548,8 +437,8 @@ gradient_length <- axis_lengths[1]
 # first do the hellinger transformation 
 # Hellinger transform (recommended for PCA) 
 
-species_hel <- decostand(species_data_three, method = "hellinger")
-pca_res <- rda(species_hel)
+species_hel_3 <- decostand(species_data_three, method = "hellinger")
+pca_res <- rda(species_hel_3)
 
 ### 2. CA
 ca_res <- cca(species_dca_3)
