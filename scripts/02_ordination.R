@@ -273,7 +273,7 @@ legend(
 
 
 ###############################################
-# PART 8: ADD GROUPING TO PCA
+# PART 8: ADD GROUPING TO PCA BASED ON PHYSIOTOPE
 ###############################################
 
 # Define grouping variable
@@ -373,7 +373,7 @@ ggsave("plots/PCA_data_two_with_eliipse_physio_10/8.png", width = 8, height = 6,
 
 
 ###############
-# Make the same plot but then with location eliips and physiotope shapes
+# MAKE THE SAME ORDINATION PLOT BUT MAKE ELLIPS BASED ON LOCATION 
 ################
 
 loc_col <- c(
@@ -442,7 +442,16 @@ legend("bottomright",
 # save the plot
 ggsave("plots/PCA_data_two_with_eliipse_location_10_8.png", width = 8, height = 6, dpi = 300)
 
-##########
+
+
+# ADDING ENVIRONMENTAL DATA TO THE ORDINATION PLOT 
+
+
+
+########
+
+# ORDINATION PLOT WITH DATA THREE 
+
 # NOW DO THE SAME BUT WITH DATA FROM THREE DUTCH COAST HARVESTS  
 # DATA THREE
 ##########
@@ -574,7 +583,7 @@ ggsave("plots/NMDS_data_three.png", width = 8, height = 6, dpi = 300)
 
 
 ###############################################
-# PART 8: ADD GROUPING TO PCA
+# PART 8: ADD GROUPING TO PCA BASED ON PHYSIOTOPE
 ###############################################
 
 # make a new data_env from the data_three
