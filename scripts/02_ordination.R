@@ -33,12 +33,12 @@ species_data_two <- species_data_two[, colSums(species_data_two) > 0]
 # 3–4  -> intermediate
 # > 4  -> unimodal methods (CA, CCA, NMDS)
 
-species_dca <- species_data_two %>%
+species_dca_2 <- species_data_two %>%
   dplyr::select(where(~ sum(.x, na.rm = TRUE) > 0)) %>%   # remove empty species
   filter(rowSums(.) > 0)                          # ✅ remove empty sites
 
-dca_res <- decorana(species_dca)
-print(dca_res) 
+dca_res_2 <- decorana(species_dca_2)
+print(dca_res_2) 
 
 # Extract gradient length (first axis)
 
@@ -72,8 +72,8 @@ if (gradient_length < 3) {
 # first do the hellinger transformation 
 # Hellinger transform (recommended for PCA) 
 
-species_hel <- decostand(species_data_two, method = "hellinger")
-pca_res <- rda(species_hel)
+species_hel_2 <- decostand(species_data_two, method = "hellinger")
+pca_res_2 <- rda(species_hel_2)
 
 ### 2. CA
 ca_res <- cca(species_dca)
@@ -98,7 +98,7 @@ nmds_res$stress
 # stress = 0.2487336 which is quite high 
 
 # PCA explained variance
-summary(pca_res)
+summary(pca_res_2)
 
 # CA eigenvalues
 summary(ca_res)
@@ -108,7 +108,7 @@ summary(ca_res)
 ###############################################
 
 ### PCA plot
-plot(pca_res, main = "PCA")
+plot(pca_res_2, main = "PCA")
 
 ### CA plot
 plot(ca_res, main = "CA")
@@ -294,7 +294,7 @@ phys_cols <- c(
 loc_shapes <- c(16, 17, 15, 18, 8)
 
 
-site_scores <- scores(pca_res, display = "sites", scaling = "symmetric")
+site_scores <- scores(pca_res_2, display = "sites", scaling = "symmetric")
 
 # Calculate distance from origin
 dist_sp <- sqrt(sp_scores[,1]^2 + sp_scores[,2]^2)
@@ -304,7 +304,7 @@ top3 <- names(sort(dist_sp, decreasing = TRUE))[1:3]
 top3
 
 # Base PCA plot
-plot(pca_res, display = "sites", type = "n", scaling = "symmetric", 
+plot(pca_res_2, display = "sites", type = "n", scaling = "symmetric", 
      main = "PCA  with Physiotope and Location Grouping (DATA_TWO)", 
      xlab = "PC1 (15.8%)", 
     ylab = "PC2 (13.1%)")
@@ -372,6 +372,76 @@ orditorp(
 ggsave("plots/PCA_data_two_with_eliipse_physio_10/8.png", width = 8, height = 6, dpi = 300)
 
 
+###############
+# Make the same plot but then with location eliips and physiotope shapes
+################
+
+loc_col <- c(
+  "Kaap Hoorn"        = "#1F7579",  # blauwgroen
+  "Schouwen-Duiveland"= "#BD7C0D",  # oranje
+  "IJmuiden"          = "#D7B116",  # geel
+  "Hondsbossche"      = "#561D25",  # donkerrood
+  "Kwade Hoek"        = "#2F8011"   # donkergroen
+)
+
+phys_shapes <- c(
+  "bare"        = 16,  
+  "bare2"       = 17,  
+  "duneslack"   = 15,  
+  "foredune"    = 18,  
+  "foredune2"   = 8,   
+  "lowdensity"  = 3,   
+  "highdensity" = 4    
+)
+
+
+site_scores <- scores(pca_res_2, display = "sites", scaling = "symmetric")
+
+# Calculate distance from origin
+dist_sp <- sqrt(sp_scores[,1]^2 + sp_scores[,2]^2)
+
+
+# Base PCA plot
+plot(pca_res_2, display = "sites", type = "n", scaling = "symmetric", 
+     main = "PCA  with Physiotope and Location Grouping (DATA_TWO)", 
+     xlab = "PC1 (15.8%)", 
+    ylab = "PC2 (13.1%)")
+
+# Add sites (samples)
+points(
+  site_scores[,1],
+  site_scores[,2],
+  col = loc_col[as.numeric(group_loc)],
+  pch = phys_shapes[as.numeric(group_phys)],
+  cex = 1.2
+)
+
+# Add ellipses per location
+ordiellipse(pca_res_2,
+            groups = group_loc,
+            draw = "polygon",
+            col = loc_col,
+            scaling = "symmetric",
+            kind = "sd",
+            conf = 0.4)
+
+# Add legend location 
+legend("topright",
+       legend = levels(group_loc),
+       col = loc_col,
+       pch = 19,
+       bty = "n")
+
+# add legend physiotpes 
+legend("bottomright",
+       legend = levels(group_phys),
+       pch = phys_shapes,
+       col = "black",
+       bty = "n")
+
+# save the plot
+ggsave("plots/PCA_data_two_with_eliipse_location_10_8.png", width = 8, height = 6, dpi = 300)
+
 ##########
 # NOW DO THE SAME BUT WITH DATA FROM THREE DUTCH COAST HARVESTS  
 # DATA THREE
@@ -415,13 +485,13 @@ species_dca_3 <- species_data_three %>%
   dplyr::select(where(~ sum(.x, na.rm = TRUE) > 0)) %>%   # remove empty species
   filter(rowSums(.) > 0)                          # ✅ remove empty sites
 
-dca_res <- decorana(species_dca_3)
-print(dca_res) 
+dca_res_3 <- decorana(species_dca_3)
+print(dca_res_3) 
 
 # Extract gradient length (first axis)
 
 axis_lengths <- apply(
-  dca_res$rproj,
+  dca_res_3$rproj,
   2,
   function(x) diff(range(x, na.rm = TRUE))
 )
@@ -438,14 +508,14 @@ gradient_length <- axis_lengths[1]
 # Hellinger transform (recommended for PCA) 
 
 species_hel_3 <- decostand(species_data_three, method = "hellinger")
-pca_res <- rda(species_hel_3)
+pca_res_3 <- rda(species_hel_3)
 
 ### 2. CA
 ca_res <- cca(species_dca_3)
 
 ### 3. NMDS (Bray-Curtis distance)
 set.seed(123)
-nmds_res <- metaMDS(species_dca_3,
+nmds_res_3 <- metaMDS(species_dca_3,
                     distance = "bray",
                     k = 2,
                     trymax = 100)
@@ -458,8 +528,10 @@ nmds_res
 # NMDS stress (lower is better)
 nmds_res$stress
 
+# stress is 0.2449739 which is quite high 
+
 # PCA explained variance
-summary(pca_res)
+summary(pca_res_3)
 
 # CA eigenvalues
 summary(ca_res)
@@ -468,13 +540,13 @@ summary(ca_res)
 ###############################################
 
 ### PCA plot
-plot(pca_res, main = "PCA")
+plot(pca_res_3, main = "PCA")
 
 ### CA plot
 plot(ca_res, main = "CA")
 
 ### NMDS plot
-plot(nmds_res, type = "t", main = "NMDS")
+plot(pca_res_3, type = "t", main = "NMDS")
 
 ###############################################
 # PART 7: ADD GROUPING TO NMDS (OPTIONAL)
@@ -505,76 +577,127 @@ ggsave("plots/NMDS_data_three.png", width = 8, height = 6, dpi = 300)
 # PART 8: ADD GROUPING TO PCA
 ###############################################
 
+# make a new data_env from the data_three
+data_env_3 <- data_three_summed_final %>%
+  mutate(
+    physiotope = case_when(
+      str_detect(pot_ID, "_DS")  ~ "duneslack",
+      str_detect(pot_ID, "_FD2") ~ "foredune2",
+      str_detect(pot_ID, "_FD")  ~ "foredune",
+      str_detect(pot_ID, "_HD")  ~ "highdensity",
+      str_detect(pot_ID, "_LD")  ~ "lowdensity",
+      str_detect(pot_ID, "_B2")  ~ "bare2",
+      str_detect(pot_ID, "_B")   ~ "bare",
+      TRUE ~ NA_character_
+    ),
+    
+    location = case_when(
+      str_detect(pot_ID, "^KH_")  ~ "Kaap Hoorn",
+      str_detect(pot_ID, "^SDL_") ~ "Schouwen-Duiveland",
+      str_detect(pot_ID, "^IJM_") ~ "IJmuiden",
+      str_detect(pot_ID, "^HBD_") ~ "Hondsbossche",
+      str_detect(pot_ID, "^KWA_") ~ "Kwade Hoek",
+      TRUE ~ NA_character_
+    )
+  )
+
 # Define grouping variable
-group <- factor(data_env$physiotope)
-
-# Define colours (adjust order if needed)
-col_vec <- c("#1F7579","#BD7C0D","#D7B116","#561D25","#2F8011", "#6F4FA3", "#4FA3C7")
+group_phys <- factor(data_env_3$physiotope)
+group_loc <- factor(data_env_3$location)
 
 
-sp_scores <- scores(pca_res, display = "species", scaling = "symmetric")
+site_scores_3 <- scores(pca_res_3, display = "sites", scaling = "symmetric")
 
 # Calculate distance from origin
 dist_sp <- sqrt(sp_scores[,1]^2 + sp_scores[,2]^2)
 
-# Select 3 most extreme species
-top3 <- names(sort(dist_sp, decreasing = TRUE))[1:3]
-top3
 
 # Base PCA plot
-plot(pca_res, display = "sites", type = "n", scaling = "symmetric")
+plot(pca_res_3, display = "sites", type = "n", scaling = "symmetric",
+     main = "PCA  with Physiotope and Location Grouping (DATA_THREE)", 
+     xlab = "PC1 (17.9%)", 
+    ylab = "PC2 (13.9%)")
 
 # Add sites (samples)
-points(pca_res,
-       display = "sites",
-       scaling = "symmetric",
-       pch = 19,
-       col = col_vec[group])
-
-# Add species (optional)
-points(pca_res,
-       display = "species",
-       scaling = "symmetric",
-       pch = 3,
-       col = "black")
-
-# Add species labels
-set.seed(10)
-ordipointlabel(pca_res,
-                display = "species",
-                scaling = "symmetric",
-                add = TRUE)
+points(
+  site_scores_3[,1],
+  site_scores_3[,2],
+  col = phys_cols[as.numeric(group_phys)],
+  pch = loc_shapes[as.numeric(group_loc)],
+  cex = 1.2
+)
 
 # Add ellipses per physiotope
-ordiellipse(pca_res,
+ordiellipse(pca_res_3,
             groups = group,
             draw = "polygon",
-            col = col_vec,
+            col = phys_cols,
             scaling = "symmetric",
             kind = "sd",
             conf = 0.4)
 
 # Add legend
 legend("topright",
-       legend = levels(group),
-       col = col_vec,
+       legend = levels(group_phys),
+       col = phys_cols,
        pch = 19,
        bty = "n")
 
-species_names <- rownames(scores(pca_res, display = "species"))
-select_top3 <- species_names %in% top3
+# add point shape legend 
+legend("bottomright",
+       legend = levels(group_loc),
+       pch = loc_shapes,
+       col = "black",
+       bty = "n")
 
-orditorp(
-  pca_res,
-  display = "species",
-  scaling = "symmetric",
-  select = select_top3,
-  col = "red",
-  cex = 0.8
-)
+
 
 ggsave("plots/PCA_data_three.png", width = 8, height = 6, dpi = 300)
 
+########
+# MAKE THE SAME ORDINATION PLOT BUT MAKE ELLIPS BASED ON LOCATION 
+######
+
+site_scores <- scores(pca_res_3, display = "sites", scaling = "symmetric")
 
 
-# top 7 soorten toe te voegedn 
+# Base PCA plot
+plot(pca_res_3, display = "sites", type = "n", scaling = "symmetric", 
+     main = "PCA  with Physiotope and Location Grouping (DATA_THREE)", 
+     xlab = "PC1 (17.9%)", 
+    ylab = "PC2 (13.9%)")
+
+# Add sites (samples)
+points(
+  site_scores[,1],
+  site_scores[,2],
+  col = loc_col[as.numeric(group_loc)],
+  pch = phys_shapes[as.numeric(group_phys)],
+  cex = 1.2
+)
+
+# Add ellipses per location
+ordiellipse(pca_res_3,
+            groups = group_loc,
+            draw = "polygon",
+            col = loc_col,
+            scaling = "symmetric",
+            kind = "sd",
+            conf = 0.4)
+
+# Add legend location 
+legend("topright",
+       legend = levels(group_loc),
+       col = loc_col,
+       pch = 19,
+       bty = "n")
+
+# add legend physiotpes 
+legend("bottomright",
+       legend = levels(group_phys),
+       pch = phys_shapes,
+       col = "black",
+       bty = "n")
+
+# save the plot
+ggsave("plots/PCA_data_thre_with_eliipse_location_10_8.png", width = 8, height = 6, dpi = 300)
