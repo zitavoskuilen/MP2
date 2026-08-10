@@ -443,8 +443,24 @@ legend("bottomright",
 ggsave("plots/PCA_data_two_with_eliipse_location_10_8.png", width = 8, height = 6, dpi = 300)
 
 
-
+###########
 # ADDING ENVIRONMENTAL DATA TO THE ORDINATION PLOT 
+###########
+
+# Loading in the data and ordining it on the same order as the species data 
+data_two_summed_final
+
+environmental_data <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=1256365017&single=true&output=csv")
+
+view(environmental_data)
+
+# make a new column of pot id which is site _ physiotope 
+environmental_data <- environmental_data %>%
+  mutate(pot_ID = paste(site,physiotope, sep = "_"))
+environmental_data$pot_ID <- gsub(" ", "", environmental_data$pot_ID)
+
+# orden the environmental data rows on the same order as the species data
+environmental_data <- environmental_data[match(data_two_summed_final$pot_ID, environmental_data$pot_ID), ]
 
 
 
