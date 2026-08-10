@@ -98,7 +98,9 @@ letters_per_column <- letters_per_column[
   lengths(letters_per_column) > 0
 ]
 
+
 letters_per_column
+
 
 # replace the h with 10 and the x with 1 in the data set
 data[data == "h"] <- 10
@@ -130,30 +132,48 @@ data <- data %>%
 
 str(data)
 
-# take out columns that have all zero's in them
-# data <- data[, colSums(data != 0) > 0]
+
 
 
 ########
 # FIXING THE SPECIES NAMES
 ########
+
+# Merging the two cicadellidae columns into one column called Cicadellidae_sp and removing the two original columns
+
+data <- data %>%
+  mutate(
+    Cicadellidae_sp = rowSums(
+      across(c(Cicadellidae, `Cicadellidae.Nymph...88.`)),
+      na.rm = TRUE
+    )
+  ) %>%
+  dplyr::select(
+    -Cicadellidae,
+    -`Cicadellidae.Nymph...88.`
+  )
+
+colnames(data)
+
 data <- data %>%
   rename_with(~ str_replace_all(.x, "\\.", "_")) %>%
   rename(
     Aphodius_sp_ = Aphodius_sp____95_,
+    Agnonum_Lugens = Agonum_lugens____71_, 
+    Alopecosa_pulverulenta = Alopecosa_pulverulenta___97_,
     Bryotropha_sp_ = Bryotropha_spec,
     Chaetocnema_hortensis = Chaetocnema_hortensis___82_,
     Cheiracanthium_sp_ = Cheiracanthium_sp____98_,
-    Cicadellidae_nymph = Cicadellidae_Nymph___88_,
     Cleoninae_sp = Cleoninae_sp____134_,
     Clivina_fossor = Clivina_fossor___50_,
     Coccinellidae_sp = Coccinellidae_larve,
     Coleoptera_unkown = Coleoptera_sp___water_kever___42_,
     Coleoptera_larvae = Coleoptera_larve,
+    Notaris_scripi = curculionidae__Notaris_scirpi__,
     Dyschirius_globosus = Dyschirius_globosus_,
     Dyschirius_sp_ = Dyschirius_sp___104_,
     Dryopidae_sp_ = Dryopidae_sp____101_,
-    Entomobryomorpha_sp_1 = Entomobryomorpha_sp_,
+    Entomobryomorpha_sp = Entomobryomorpha_sp_,
     Entomobryomorpha_sp_2 = Entomobryomorpha_sp__2,
     Tetramorium_caespitum = Formicidae__tetramorium_caespitum_,
     Lasius_psammophilus = Formicidae__Lasius_psammophilus__,
@@ -210,7 +230,12 @@ data <- data %>%
     .cols = 7:167
   )
 
+
 colnames(data)
+
+# take out columns that have all zero's in them
+data <- data[, colSums(data != 0) > 0]
+
 
 ############ 
 # MAKE TWO DATASETS
@@ -225,8 +250,7 @@ colnames(data)
 # select only the harvest HK2 en HK3 and TS3 and TS4
 
 data_two <- data %>%
-  dplyr::filter(harvest %in% c("HK2", "HK3", "TS3", "TS4")) %>%
-  dplyr::select(-total_individuals)
+  dplyr::filter(harvest %in% c("HK2", "HK3", "TS3", "TS4"))
 
 
 pot_ID_count <- data_two %>%
@@ -249,7 +273,7 @@ metadata_cols <- c(
 # Alle overige kolommen zijn soortkolommen
 species_cols <- names(data_two)[9:ncol(data_two)]
 
-data_summed <- data_two %>%
+data_summed_two <- data_two %>%
   mutate(
     across(
       all_of(species_cols),
@@ -279,7 +303,7 @@ data_summed <- data_two %>%
 
 
 # now add all the pot_ID's together that have the same pot_ID but different harvests
-data_two_summed_final <- data_summed %>%
+data_two_summed_final <- data_summed_two %>%
   group_by(pot_ID) %>%
   summarise(
     Harvest_total = first(Harvest_total),
@@ -296,38 +320,80 @@ data_two_summed_final <- data_summed %>%
 
 str(data_two_summed_final)
 
+##############
+# DATA_THREE  
+#############
 
-############
-# checking species ooccurence for the traits table and fixing the names 
-############
+# select only the harvest TS3 and TS4 BUT HK1, HK2 en HK3 
 
-#Now I will check how many species only occur...
-occurrence <- colSums(
-  data_summed_final[, 5:ncol(data_summed_final)] > 0,
-  na.rm = TRUE
+data_three <- data %>%
+  dplyr::filter(harvest %in% c("HK1", "HK2", "HK3", "TS3", "TS4"))
+
+
+pot_ID_count <- data_three %>%
+  count(pot_ID)
+
+# now i have to add the rows toegteher that have the same pot_ID 
+# first i'll do ot for the harvests seperately 
+
+metadata_cols <- c(
+  "Done.",
+  "Harvest_total",
+  "harvest",
+  "days",
+  "pot_ID",
+  "physiotope",
+  "poll_no_poll",
+  "Poskey"
 )
 
-occurrence
+# Alle overige kolommen zijn soortkolommen
+species_cols <- names(data_three)[9:ncol(data_three)]
 
-total_abundance <- colSums(data_summed_final[, 5:ncol(data_summed_final)], na.rm = TRUE)
+data_summed_three <- data_three %>%
+  mutate(
+    across(
+      all_of(species_cols),
+      ~ {
+        x <- trimws(as.character(.x))
+        x[x == ""] <- NA
+        suppressWarnings(as.numeric(x))
+      }
+    )
+  ) %>%
+  mutate(
+    pot_group = sub("_[^_]+$", "", pot_ID)
+  ) %>%
+  group_by(harvest, pot_group) %>%
+  summarise(
+    Harvest_total = first(Harvest_total),
+    days = first(days),
+    physiotope = first(physiotope),
+    n_rows = n(),
+    across(
+      all_of(species_cols),
+      ~ sum(.x, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  ) %>%
+  rename(pot_ID = pot_group)
 
-#... on one site with an abundance lower than 5
-singletons <- names(which(occurrence == 1 & total_abundance < 5))
 
-colSums(
-  data_summed_final[, colnames(data_summed_final) %in% singletons,
-                       drop = FALSE]
-)
-#... on two sites with a total abundance lower than 7
-doubletons <- names(
-  which(colSums(data_summed_final > 0) == 2 & total_abundance < 7)
-)
-colSums(
-  data_summed_final[, colnames(data_summed_final) %in% doubletons,
-                       drop = FALSE]
-)
-#... three times (so occuring one time on three sites)
-three_times_one <- names(
-  which(colSums(data_summed_final > 0) == 3 & total_abundance == 3)
-)
+# now add all the pot_ID's together that have the same pot_ID but different harvests
+data_three_summed_final <- data_summed_three %>%
+  group_by(pot_ID) %>%
+  summarise(
+    Harvest_total = first(Harvest_total),
+    days = first(days),
+    physiotope = first(physiotope),
+    n_rows = sum(n_rows),
+    across(
+      all_of(species_cols),
+      ~ sum(.x, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  ) %>%
+  dplyr::select(-n_rows, -days, -Harvest_total)
+
+str(data_three_summed_final)
 

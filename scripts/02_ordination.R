@@ -1,88 +1,6 @@
-#
-#
-##############################################
-##############################################
-# PART 1: MAKE TWO DATASETS
+####################
 
-# DATA_TWO =  TWO HARVESTS OF EVERY LOCATION 
-# DATA_THREE = TWO HARVESTS OF TS AND THREE OF THE DUTCH COAST 
-
-###########
-# DATA_TWO 
-###################
-# select only the harvest HK2 en HK3 and TS3 and TS4
-
-data_two <- data %>%
-  dplyr::filter(harvest %in% c("HK2", "HK3", "TS3", "TS4")) %>%
-  dplyr::select(-total_individuals)
-
-
-pot_ID_count <- data_two %>%
-  count(pot_ID)
-
-# now i have to add the rows toegteher that have the same pot_ID 
-# first i'll do ot for the harvests seperately 
-
-metadata_cols <- c(
-  "Done.",
-  "Harvest_total",
-  "harvest",
-  "days",
-  "pot_ID",
-  "physiotope",
-  "poll_no_poll",
-  "Poskey"
-)
-
-# Alle overige kolommen zijn soortkolommen
-species_cols <- names(data_two)[9:ncol(data_two)]
-
-data_summed <- data_two %>%
-  mutate(
-    across(
-      all_of(species_cols),
-      ~ {
-        x <- trimws(as.character(.x))
-        x[x == ""] <- NA
-        suppressWarnings(as.numeric(x))
-      }
-    )
-  ) %>%
-  mutate(
-    pot_group = sub("_[^_]+$", "", pot_ID)
-  ) %>%
-  group_by(harvest, pot_group) %>%
-  summarise(
-    Harvest_total = first(Harvest_total),
-    days = first(days),
-    physiotope = first(physiotope),
-    n_rows = n(),
-    across(
-      all_of(species_cols),
-      ~ sum(.x, na.rm = TRUE)
-    ),
-    .groups = "drop"
-  ) %>%
-  rename(pot_ID = pot_group)
-
-
-# now add all the pot_ID's together that have the same pot_ID but different harvests
-data_two_summed_final <- data_summed %>%
-  group_by(pot_ID) %>%
-  summarise(
-    Harvest_total = first(Harvest_total),
-    days = first(days),
-    physiotope = first(physiotope),
-    n_rows = sum(n_rows),
-    across(
-      all_of(species_cols),
-      ~ sum(.x, na.rm = TRUE)
-    ),
-    .groups = "drop"
-  ) %>%
-  dplyr::select(-n_rows, -days, -Harvest_total)
-
-str(data_two_summed_final)
+# ORDINATION WITH DATA_TWO 
 
 ###############################################
 # PART 2: PREPARE SPECIES MATRIX
@@ -103,7 +21,7 @@ str(species_data_two)
 species_data_two <- species_data_two[, colSums(species_data_two) > 0]
 
 
-view(species_data_two)
+#view(species_data_two)
 
 
 ###############################################
@@ -177,6 +95,8 @@ nmds_res
 # NMDS stress (lower is better)
 nmds_res$stress
 
+# stress = 0.2445516 which is quite high 
+
 # PCA explained variance
 summary(pca_res)
 
@@ -196,19 +116,22 @@ plot(ca_res, main = "CA")
 ### NMDS plot
 plot(nmds_res, type = "t", main = "NMDS")
 
-#####################################################################################
+###########
+# CHANGING LABELS 
+###################
+
 library(stringr)
 
 data_env <- data_two_summed_final %>%
   mutate(
     physiotope = case_when(
-      str_detect(pot_ID, "_DS_")  ~ "duneslack",
-      str_detect(pot_ID, "_FD2_") ~ "foredune2",
-      str_detect(pot_ID, "_FD_")  ~ "foredune",
-      str_detect(pot_ID, "_HD_")  ~ "highdensity",
-      str_detect(pot_ID, "_LD_")  ~ "lowdensity",
-      str_detect(pot_ID, "_B2_")  ~ "bare2",
-      str_detect(pot_ID, "_B_")   ~ "bare",
+      str_detect(pot_ID, "_DS")  ~ "duneslack",
+      str_detect(pot_ID, "_FD2") ~ "foredune2",
+      str_detect(pot_ID, "_FD")  ~ "foredune",
+      str_detect(pot_ID, "_HD")  ~ "highdensity",
+      str_detect(pot_ID, "_LD")  ~ "lowdensity",
+      str_detect(pot_ID, "_B2")  ~ "bare2",
+      str_detect(pot_ID, "_B")   ~ "bare",
       TRUE ~ NA_character_
     ),
     
@@ -386,7 +309,7 @@ points(pca_res,
        pch = 3,
        col = "black")
 
-# Add species labels
+# Add species labels (optinal)
 set.seed(10)
 ordipointlabel(pca_res,
                 display = "species",
@@ -491,7 +414,7 @@ legend(
 # save the figure 
 ggsave("plots/PCA_data_two.png", width = 8, height = 6, dpi = 300)
 
-# NOW DO THE SAME BUT WITH DATAT FROM THREE DUTCH COAST 
+# NOW DO THE SAME BUT WITH DATA FROM THREE DUTCH COAST HARVESTS  
 # DATA THREE
 ##########
 
