@@ -107,7 +107,7 @@ data[data == "x"] <- 1
 
 # remove for now the unknown and the last column from the dataset 
 data <- data %>%
-  dplyr::select(-unknown)
+  dplyr::select(-unknown, -total_individuals)
 
 
 # look how many rows there are of each pot id before i put them together
@@ -116,7 +116,7 @@ pot_ID_count <- data %>%
 
 
 
-# FOR NOW TAKE OUT the first two HARVEST OF KAAP HOORN 
+# FOR NOW TAKE OUT the first two HARVEST OF KAAP HOORN (TS1 and TS2) because they were pitfalls that were emptied after two days instead of one 
 # select the rows that have poskey numbers that start with 2026_57 to 2026_71 and remove them from the dataset
 # and the poskeys 2026_126 till 2026_140
 
@@ -129,4 +129,205 @@ data <- data %>%
                        "2026_136", "2026_137", "2026_138", "2026_139", "2026_140"))
 
 str(data)
+
+# take out columns that have all zero's in them
+# data <- data[, colSums(data != 0) > 0]
+
+
+########
+# FIXING THE SPECIES NAMES
+########
+data <- data %>%
+  rename_with(~ str_replace_all(.x, "\\.", "_")) %>%
+  rename(
+    Aphodius_sp_ = Aphodius_sp____95_,
+    Bryotropha_sp_ = Bryotropha_spec,
+    Chaetocnema_hortensis = Chaetocnema_hortensis___82_,
+    Cheiracanthium_sp_ = Cheiracanthium_sp____98_,
+    Cicadellidae_nymph = Cicadellidae_Nymph___88_,
+    Cleoninae_sp = Cleoninae_sp____134_,
+    Clivina_fossor = Clivina_fossor___50_,
+    Coccinellidae_sp = Coccinellidae_larve,
+    Coleoptera_unkown = Coleoptera_sp___water_kever___42_,
+    Coleoptera_larvae = Coleoptera_larve,
+    Dyschirius_globosus = Dyschirius_globosus_,
+    Dyschirius_sp_ = Dyschirius_sp___104_,
+    Dryopidae_sp_ = Dryopidae_sp____101_,
+    Entomobryomorpha_sp_1 = Entomobryomorpha_sp_,
+    Entomobryomorpha_sp_2 = Entomobryomorpha_sp__2,
+    Tetramorium_caespitum = Formicidae__tetramorium_caespitum_,
+    Lasius_psammophilus = Formicidae__Lasius_psammophilus__,
+    Hemicrepidius_niger = Hemicrepidius_niger_,
+    Latridiidae = Latridiidae___76_,
+    Lepidoptera_larvae = Lepidoptera_larve,
+    Nabidae = nabidae__sikkelwantsen__,
+    Ochthebius_minimus = Ochthebius_sp___minimus__,
+    Oedothorax_retusus = Oedothorax_retusus_,
+    Neuroptera_larvae = Neuroptera_larf,
+    Pardosa_monticola = Pardosa_monticola___68_,
+    Philopedon_plagiatum = Philopedon_plagiatum___59_,
+    Piesmatidae_sp = Piesmatidae_,
+    Planuncus_tingitanus_nymph = Planuncus_tingitanus__nymph_,
+    Prostigmata = Prostigmata__Acari_,
+    Rhysodromus_fallax2 = Rhysodromus_fallax___74_,
+    Saldula_saltatoria = Saldula_saltatoria___85_,
+    Scolopostethus_sp_ = scolopostethus_sp_,
+    Staphylinidae_Larvae_Certainly_coleoptera =     Staphylinidae_Larvae__Certainly_coleoptera_,
+    Philopedon_plagiatum_elytra = schildjes_p__plagiatum,
+    Phlaeothripidae_sp = Phlaeothripidae,
+    Stenolophus_mixtus = Stenolophus_mixtus___33_,
+    Tachyporus_sp_ = Tachyporus_sp____100_,
+    Talitridae_sp = Talitridae,
+    Thripidae_sp = Thripidae___92_,
+    Trachyzelotes_pedestris = Trachyzelotes_pedestris___128_,
+    Trochosa_sp_ = Trochosa_spec,
+    Psocodea_sp = Psocodea,
+    Acrididae_sp = Acrididae,
+    Phalangiidae_sp = Phalangiidae,
+    Lithobius_sp = Lithobius,
+    Julidae_sp = Julidae,
+    Formicidae_sp = Formicidae,
+    Microvelia_sp = Microvelia,
+    Liopterus_haemorrhoidalis = Liopterus_haemorrohoidalis,
+    Coccidula_rufa = Coccidule_rufa,
+    Altica_sp = altica,
+    Chrysomelidae_sp = Chrsyomelidae_sp_,
+    Notoxus_monoceros = Noxotus_monoceros,
+    Arctosa_perita = arctosa_perita,
+    Arctosa_leopardus = arctosa_leopardus,
+    Agelenidae_sp = Agelinidae,,
+    Zelotes_electus = Zelotus_electus,
+    Meligethes_sp = Meligethus,
+    Paederus_riparius = Paderus_riparius
+    ) %>%
+  rename_with(~ str_replace(.x, "_sp_$", "_sp")) %>%
+  rename_with(
+    ~ if_else(
+      str_detect(.x, "_"),
+      .x,
+      str_c(.x, "_sp")
+    ),
+    .cols = 7:167
+  )
+
+colnames(data)
+
+############ 
+# MAKE TWO DATASETS
+############
+
+# DATA_TWO =  TWO HARVESTS OF EVERY LOCATION 
+# DATA_THREE = TWO HARVESTS OF TS AND THREE OF THE DUTCH COAST 
+
+###########
+# DATA_TWO 
+###################
+# select only the harvest HK2 en HK3 and TS3 and TS4
+
+data_two <- data %>%
+  dplyr::filter(harvest %in% c("HK2", "HK3", "TS3", "TS4")) %>%
+  dplyr::select(-total_individuals)
+
+
+pot_ID_count <- data_two %>%
+  count(pot_ID)
+
+# now i have to add the rows toegteher that have the same pot_ID 
+# first i'll do ot for the harvests seperately 
+
+metadata_cols <- c(
+  "Done.",
+  "Harvest_total",
+  "harvest",
+  "days",
+  "pot_ID",
+  "physiotope",
+  "poll_no_poll",
+  "Poskey"
+)
+
+# Alle overige kolommen zijn soortkolommen
+species_cols <- names(data_two)[9:ncol(data_two)]
+
+data_summed <- data_two %>%
+  mutate(
+    across(
+      all_of(species_cols),
+      ~ {
+        x <- trimws(as.character(.x))
+        x[x == ""] <- NA
+        suppressWarnings(as.numeric(x))
+      }
+    )
+  ) %>%
+  mutate(
+    pot_group = sub("_[^_]+$", "", pot_ID)
+  ) %>%
+  group_by(harvest, pot_group) %>%
+  summarise(
+    Harvest_total = first(Harvest_total),
+    days = first(days),
+    physiotope = first(physiotope),
+    n_rows = n(),
+    across(
+      all_of(species_cols),
+      ~ sum(.x, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  ) %>%
+  rename(pot_ID = pot_group)
+
+
+# now add all the pot_ID's together that have the same pot_ID but different harvests
+data_two_summed_final <- data_summed %>%
+  group_by(pot_ID) %>%
+  summarise(
+    Harvest_total = first(Harvest_total),
+    days = first(days),
+    physiotope = first(physiotope),
+    n_rows = sum(n_rows),
+    across(
+      all_of(species_cols),
+      ~ sum(.x, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  ) %>%
+  dplyr::select(-n_rows, -days, -Harvest_total)
+
+str(data_two_summed_final)
+
+
+############
+# checking species ooccurence for the traits table and fixing the names 
+############
+
+#Now I will check how many species only occur...
+occurrence <- colSums(
+  data_summed_final[, 5:ncol(data_summed_final)] > 0,
+  na.rm = TRUE
+)
+
+occurrence
+
+total_abundance <- colSums(data_summed_final[, 5:ncol(data_summed_final)], na.rm = TRUE)
+
+#... on one site with an abundance lower than 5
+singletons <- names(which(occurrence == 1 & total_abundance < 5))
+
+colSums(
+  data_summed_final[, colnames(data_summed_final) %in% singletons,
+                       drop = FALSE]
+)
+#... on two sites with a total abundance lower than 7
+doubletons <- names(
+  which(colSums(data_summed_final > 0) == 2 & total_abundance < 7)
+)
+colSums(
+  data_summed_final[, colnames(data_summed_final) %in% doubletons,
+                       drop = FALSE]
+)
+#... three times (so occuring one time on three sites)
+three_times_one <- names(
+  which(colSums(data_summed_final > 0) == 3 & total_abundance == 3)
+)
 
