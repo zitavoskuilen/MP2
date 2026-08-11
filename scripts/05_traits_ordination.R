@@ -1,7 +1,8 @@
 
-############
+## PCA WITH TRIATS ORDINATION ####
+
 # checking species ooccurence for the traits table 
-############
+
 
 # here i do it for the data two data set (only two harvests of )
 

@@ -333,7 +333,7 @@ points(
                 add = TRUE)
 
 # Add ellipses per physiotope
-ordiellipse(pca_res,
+ordiellipse(pca_res_2,
             groups = group_phys,
             draw = "polygon",
             col = phys_cols,
@@ -462,6 +462,62 @@ environmental_data$pot_ID <- gsub(" ", "", environmental_data$pot_ID)
 # orden the environmental data rows on the same order as the species data
 environmental_data <- environmental_data[match(data_two_summed_final$pot_ID, environmental_data$pot_ID), ]
 
+site_ids <- rownames(scores(pca_res_2, display = "sites"))
+# de rownames van de pca_res zijn nog niet de pot_id's
+
+nrow(species_hel_2)
+nrow(environmental_data)
+
+rownames(species_hel_2) <- environmental_data$pot_ID
+pca_res_2 <- rda(species_hel_2)
+rownames(scores(pca_res_2, display = "sites"))
+
+# environmetnal data for the envfit function
+env_vars <- environmental_data %>%
+  dplyr::select(
+    soil_moisture_percentage,
+    soil_om_percentage,
+    D50, 
+    grain_sorting
+  )
+
+env_fit <- envfit(pca_res_2, env_vars, permutations = 999)
+
+env_fit
+
+
+ordiplot(pca_res_2, display = "sites", type = "n", scaling = "symmetric", 
+     main = "PCA  with Physiotope and Location Grouping (DATA_TWO)", 
+     xlab = "PC1 (15.8%)", 
+    ylab = "PC2 (13.1%)")
+
+
+points(
+  site_scores[,1],
+  site_scores[,2],
+  col = phys_cols[as.numeric(group_phys)],
+  pch = loc_shapes[as.numeric(group_loc)],
+  cex = 1.2
+)
+
+# Add ellipses per physiotope
+ordiellipse(pca_res_2,
+            groups = group_phys,
+            draw = "polygon",
+            col = phys_cols,
+            scaling = "symmetric",
+            kind = "sd",
+            conf = 0.4)
+
+#plot environmental variables 
+plot(env_fit, add = T,  col = "black")
+
+# phystiope legend
+legend("topright",
+       legend = levels(group_phys),
+       col = phys_cols,
+       pch = 19,
+       bty = "n")
 
 
 ########
