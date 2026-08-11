@@ -34,6 +34,7 @@ pairwiseAdonis::pairwise.adonis(
   p.adjust.m = "holm"
 )
 
+library(pairwiseAdonis)
 
 # VERSCHILLEN DE PHYSIOTOPEN VAN ELKAAR 
 set.seed(123)
@@ -42,6 +43,13 @@ permanova_phys <- adonis2(
   data = metadata,
   permutations = 999,
   strata = metadata$location)
+
+pairwiseAdonis::pairwise.adonis(
+  bray,
+  metadata$physiotope,
+  p.adjust.m = "holm"
+)
+
 
 
 
