@@ -450,35 +450,33 @@ ggsave("plots/PCA_data_two_with_eliipse_location_10_8.png", width = 8, height = 
 # Loading in the data and ordining it on the same order as the species data 
 data_two_summed_final
 
-environmental_data <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=1256365017&single=true&output=csv")
-
-view(environmental_data)
 
 # make a new column of pot id which is site _ physiotope 
-environmental_data <- environmental_data %>%
+envdata <- envdata %>%
   mutate(pot_ID = paste(site,physiotope, sep = "_"))
-environmental_data$pot_ID <- gsub(" ", "", environmental_data$pot_ID)
+envdata$pot_ID <- gsub(" ", "", envdata$pot_ID)
 
 # orden the environmental data rows on the same order as the species data
-environmental_data <- environmental_data[match(data_two_summed_final$pot_ID, environmental_data$pot_ID), ]
+envdata <- envdata[match(data_two_summed_final$pot_ID, envdata$pot_ID), ]
 
 site_ids <- rownames(scores(pca_res_2, display = "sites"))
 # de rownames van de pca_res zijn nog niet de pot_id's
 
 nrow(species_hel_2)
-nrow(environmental_data)
+nrow(envdata)
 
-rownames(species_hel_2) <- environmental_data$pot_ID
+rownames(species_hel_2) <- envdata$pot_ID
 pca_res_2 <- rda(species_hel_2)
-rownames(scores(pca_res_2, display = "sites"))
 
 # environmetnal data for the envfit function
-env_vars <- environmental_data %>%
+env_vars <- envdata %>%
   dplyr::select(
     soil_moisture_percentage,
     soil_om_percentage,
     D50, 
-    grain_sorting
+    grain_sorting, 
+    shannon, 
+    richness
   )
 
 env_fit <- envfit(pca_res_2, env_vars, permutations = 999)
@@ -487,7 +485,7 @@ env_fit
 
 
 ordiplot(pca_res_2, display = "sites", type = "n", scaling = "symmetric", 
-     main = "PCA  with Physiotope and Location Grouping (DATA_TWO)", 
+     main = "PCA  with Physiotope Grouping (DATA_TWO)", 
      xlab = "PC1 (15.8%)", 
     ylab = "PC2 (13.1%)")
 
@@ -510,7 +508,7 @@ ordiellipse(pca_res_2,
             conf = 0.4)
 
 #plot environmental variables 
-plot(env_fit, add = T,  col = "black")
+plot(env_fit, add = T,  col = "black", )
 
 # phystiope legend
 legend("topright",
@@ -519,6 +517,12 @@ legend("topright",
        pch = 19,
        bty = "n")
 
+# location legend 
+legend("bottomright",
+       legend = levels(group_loc),
+       pch = loc_shapes,
+       col = "black",
+       bty = "n")
 
 ########
 

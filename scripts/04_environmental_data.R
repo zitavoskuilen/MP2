@@ -140,416 +140,10 @@ ggsave(
   dpi = 300
 )
 
-############
-# 03. Grain size distribution per location & physiotope with D10, D50 and D90
-############
-
-envdata
-
-grain_plot_data <- envdata %>%
-  mutate(
-    site_physiotope = paste(site,physiotope, sep = "-"),
-    physiotope = factor(
-      physiotope,
-      levels = c("B", "DS", "WS", "LD", "HD", "FD", "B2", "FD2")
-    )
-  )
-
-
-plot3 <- ggplot(grain_plot_data, aes(y = physiotope)) +
-  geom_segment((aes(x = D10, xend = D90, yend = physiotope, color = physiotope)), linewidth = 1) + 
-  geom_point(aes(x = D50, color = physiotope), size = 3) +
-  labs(
-    x = "Grain size (µm)",
-    y = "Physiotope"
-  ) +
-  facet_wrap(~site)
-
-# save the plot 
-ggsave(filename = "plots/grain_size_plot.png",
-  plot = plot2,
-  width = 10,
-  height = 5,
-  dpi = 300
-       )
 
 
 ###############
 # 04. FLora per site individually 
-##############
-
-# load flora data 
-
-flora_data <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=144268895&single=true&output=csv")
-
-str(flora_data)
-
-################
-# Description of the environmental data 
-###############
-# load in the data 
-###############
-
-envdata <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=1256365017&single=true&output=csv")
-
-envdata
-str(envdata)
-
-################
-# 01. Environmental variables between phystiotopes
-###############
-
-
-env_summary <- envdata %>%
-  group_by(physiotope) %>%
-  summarise(
-    mean_soil_moisture = mean(soil_moisture_percentage, na.rm = TRUE),
-    mean_soil_om = mean(soil_om_percentage, na.rm = TRUE),
-    mean_D50 = mean(D50, na.rm = TRUE),
-    .groups = "drop"
-  )
-
-env_summary_long <- env_summary %>%
-  pivot_longer(
-    cols = -physiotope,
-    names_to = "variable",
-    values_to = "mean"
-  ) %>%
-  mutate(
-    variable = case_when(
-      variable == "mean_soil_moisture_percentage" ~ "Soil moisture (%)",
-      variable == "mean_soil_om_percentage" ~ "Soil organic matter (%)",
-      variable == "mean_D50" ~ "Median grain size D50 (µm)",
-      TRUE ~ variable
-    ),
-    physiotope = factor(
-      physiotope,
-      levels = c("B", "DS", "WS", "LD", "HD", "FD", "B2", "FD2")
-    )
-  )
-
-# plot in 3 panels 
-plot1 <- ggplot(
-  env_summary_long,
-  aes(x = physiotope, y = mean, fill = physiotope)
-) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(
-    ~ variable,
-    scales = "free_y",
-    nrow = 1
-  ) +
-  labs(
-    x = "Physiotope",
-    y = "Mean value per physiotope"
-  ) +
-  theme_minimal() +
-  theme(
-    strip.text = element_text()
-  )
-
-plot1
-   
-# save the plot
-ggsave(
-  filename = "plots/env_summary_plot.png",
-  plot = plot1,
-  width = 10,
-  height = 5,
-  dpi = 300
-)
-   
-################
-# 02. Environmental variables between phystiotopes & location
-###############
-
-
-env_summary_site <- envdata %>%
-  group_by(site , physiotope) %>%
-  summarise(
-    mean_soil_moisture = mean(soil_moisture_percentage, na.rm = TRUE),
-    mean_soil_om = mean(soil_om_percentage, na.rm = TRUE),
-    mean_D50 = mean(D50, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  pivot_longer(
-    cols = c(mean_soil_moisture, mean_soil_om, mean_D50),
-    names_to = "variable",
-    values_to = "mean"
-  ) %>%
-  mutate(
-    variable = factor(
-      variable,
-      levels = c(
-        "mean_soil_moisture",
-        "mean_soil_om",
-        "mean_D50"
-      ),
-      labels = c(
-        "Soil Moisture (%)",
-        "Organic matter (%)",
-        "Median D50 (µm)"
-      )
-    ),
-    physiotope = factor(
-      physiotope,
-      levels = c("B", "DS", "WS", "LD", "HD", "FD", "B2", "FD2")
-    )
-  )
-
-
-# plot 
-
-plot2 <- ggplot(
-  env_summary_site,
-  aes(x = physiotope, y = mean, fill = physiotope)
-) +
-  geom_col(show.legend = FALSE) +
-  facet_grid(variable ~ site, scales = "free_y") +
-  labs(
-    x = "Physiotope",
-    y = ""
-  ) +
-  theme_classic2() +
-  theme(
-    strip.text = element_text()
-  )
-
-plot2
-
-# save the plot
-ggsave(
-  filename = "plots/env_summary_site_plot.png",
-  plot = plot2,
-  width = 10,
-  height = 5,
-  dpi = 300
-)
-
-############
-# 03. Grain size distribution per location & physiotope with D10, D50 and D90
-############
-
-envdata
-
-grain_plot_data <- envdata %>%
-  mutate(
-    site_physiotope = paste(site,physiotope, sep = "-"),
-    physiotope = factor(
-      physiotope,
-      levels = c("B", "DS", "WS", "LD", "HD", "FD", "B2", "FD2")
-    )
-  )
-
-
-plot3 <- ggplot(grain_plot_data, aes(y = physiotope)) +
-  geom_segment((aes(x = D10, xend = D90, yend = physiotope, color = physiotope)), linewidth = 1) + 
-  geom_point(aes(x = D50, color = physiotope), size = 3) +
-  labs(
-    x = "Grain size (µm)",
-    y = "Physiotope"
-  ) +
-  facet_wrap(~site)
-
-# save the plot 
-ggsave(filename = "plots/grain_size_plot.png",
-  plot = plot2,
-  width = 10,
-  height = 5,
-  dpi = 300
-       )
-
-
-###############
-# 04. FLora per site individually 
-##############
-
-# load flora data 
-
-flora_data <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=144268895&single=true&output=csv")
-
-str(flora_data)
-
-flora_data <- flora_data[2,3,10:ncol(flora_data)]
-
-################
-# Description of the environmental data 
-###############
-# load in the data 
-###############
-
-envdata <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=1256365017&single=true&output=csv")
-
-envdata
-str(envdata)
-
-################
-# 01. Environmental variables between phystiotopes
-###############
-
-
-env_summary <- envdata %>%
-  group_by(physiotope) %>%
-  summarise(
-    mean_soil_moisture = mean(soil_moisture_percentage, na.rm = TRUE),
-    mean_soil_om = mean(soil_om_percentage, na.rm = TRUE),
-    mean_D50 = mean(D50, na.rm = TRUE),
-    .groups = "drop"
-  )
-
-env_summary_long <- env_summary %>%
-  pivot_longer(
-    cols = -physiotope,
-    names_to = "variable",
-    values_to = "mean"
-  ) %>%
-  mutate(
-    variable = case_when(
-      variable == "mean_soil_moisture_percentage" ~ "Soil moisture (%)",
-      variable == "mean_soil_om_percentage" ~ "Soil organic matter (%)",
-      variable == "mean_D50" ~ "Median grain size D50 (µm)",
-      TRUE ~ variable
-    ),
-    physiotope = factor(
-      physiotope,
-      levels = c("B", "DS", "WS", "LD", "HD", "FD", "B2", "FD2")
-    )
-  )
-
-# plot in 3 panels 
-plot1 <- ggplot(
-  env_summary_long,
-  aes(x = physiotope, y = mean, fill = physiotope)
-) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(
-    ~ variable,
-    scales = "free_y",
-    nrow = 1
-  ) +
-  labs(
-    x = "Physiotope",
-    y = "Mean value per physiotope"
-  ) +
-  theme_minimal() +
-  theme(
-    strip.text = element_text()
-  )
-
-plot1
-   
-# save the plot
-ggsave(
-  filename = "plots/env_summary_plot.png",
-  plot = plot1,
-  width = 10,
-  height = 5,
-  dpi = 300
-)
-   
-################
-# 02. Environmental variables between phystiotopes & location
-###############
-
-
-env_summary_site <- envdata %>%
-  group_by(site , physiotope) %>%
-  summarise(
-    mean_soil_moisture = mean(soil_moisture_percentage, na.rm = TRUE),
-    mean_soil_om = mean(soil_om_percentage, na.rm = TRUE),
-    mean_D50 = mean(D50, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  pivot_longer(
-    cols = c(mean_soil_moisture, mean_soil_om, mean_D50),
-    names_to = "variable",
-    values_to = "mean"
-  ) %>%
-  mutate(
-    variable = factor(
-      variable,
-      levels = c(
-        "mean_soil_moisture",
-        "mean_soil_om",
-        "mean_D50"
-      ),
-      labels = c(
-        "Soil Moisture (%)",
-        "Organic matter (%)",
-        "Median D50 (µm)"
-      )
-    ),
-    physiotope = factor(
-      physiotope,
-      levels = c("B", "DS", "WS", "LD", "HD", "FD", "B2", "FD2")
-    )
-  )
-
-
-# plot 
-
-plot2 <- ggplot(
-  env_summary_site,
-  aes(x = physiotope, y = mean, fill = physiotope)
-) +
-  geom_col(show.legend = FALSE) +
-  facet_grid(variable ~ site, scales = "free_y") +
-  labs(
-    x = "Physiotope",
-    y = ""
-  ) +
-  theme_classic2() +
-  theme(
-    strip.text = element_text()
-  )
-
-plot2
-
-# save the plot
-ggsave(
-  filename = "plots/env_summary_site_plot.png",
-  plot = plot2,
-  width = 10,
-  height = 5,
-  dpi = 300
-)
-
-############
-# 03. Grain size distribution per location & physiotope with D10, D50 and D90
-############
-
-envdata
-
-grain_plot_data <- envdata %>%
-  mutate(
-    site_physiotope = paste(site,physiotope, sep = "-"),
-    physiotope = factor(
-      physiotope,
-      levels = c("B", "DS", "WS", "LD", "HD", "FD", "B2", "FD2")
-    )
-  )
-
-
-plot3 <- ggplot(grain_plot_data, aes(y = physiotope)) +
-  geom_segment((aes(x = D10, xend = D90, yend = physiotope, color = physiotope)), linewidth = 1) + 
-  geom_point(aes(x = D50, color = physiotope), size = 3) +
-  labs(
-    x = "Grain size (µm)",
-    y = "Physiotope"
-  ) +
-  facet_wrap(~site)
-
-# save the plot 
-ggsave(filename = "plots/grain_size_plot.png",
-  plot = plot2,
-  width = 10,
-  height = 5,
-  dpi = 300
-       )
-
-
-###############
-# 04. FLora per site as species and as families  
 ##############
 
 # load flora data 
@@ -564,6 +158,12 @@ flora_data <- flora_data %>%
 
 str(flora_data)
 
+# change all x's to 0.01
+flora_data <- flora_data %>%
+  mutate(
+    across(2:last_col(), ~ replace(.x, .x == "x", 0.01))
+  )
+
 # change all NA's to zero's 
 flora_data[is.na(flora_data)] <- 0
 
@@ -571,7 +171,34 @@ flora_data[is.na(flora_data)] <- 0
 flora_data <- flora_data %>%
   mutate(across(-c(site, physiotope), as.numeric))
 
-str(flora_data) # all x's have now become zero's which is not what should be in the end but for now is fine 
+str(flora_data)  
+
+# only the species 
+flora_species <- flora_data[, 3:ncol(flora_data)] %>%
+  mutate(across(everything(), ~ replace_na(.x, 0)))
+
+# Add richness and shannon diversity to flora_data
+flora_data <- flora_data %>%
+  mutate(
+    richness = rowSums(flora_species > 0),
+    shannon = diversity(flora_species, index = "shannon"))
+
+# add the shannon, richness and eveness to the environmental data 
+envdata <- envdata %>%
+  left_join(
+    flora_data %>%
+      dplyr::select(
+        site,
+        physiotope,
+        richness,
+        shannon
+      ),
+    by = c("site", "physiotope")
+  )
+
+str(envdata)
+str(flora_data)
+
 
 # now i want to make a bar plot for every site with all the physiotpes as 1 bar with parts of the bars as species 
 # first convert to long format 
