@@ -292,7 +292,6 @@ data_summed_two <- data_two %>%
     Harvest_total = first(Harvest_total),
     days = first(days),
     physiotope = first(physiotope),
-    n_rows = n(),
     across(
       all_of(species_cols),
       ~ sum(.x, na.rm = TRUE)
@@ -302,21 +301,23 @@ data_summed_two <- data_two %>%
   rename(pot_ID = pot_group)
 
 
-# now add all the pot_ID's together that have the same pot_ID but different harvests
+# now add all the pot_ID's together that have the same pot_ID but different harvests and delete all the species that have no occurence 
 data_two_summed_final <- data_summed_two %>%
   group_by(pot_ID) %>%
   summarise(
     Harvest_total = first(Harvest_total),
     days = first(days),
     physiotope = first(physiotope),
-    n_rows = sum(n_rows),
     across(
       all_of(species_cols),
       ~ sum(.x, na.rm = TRUE)
     ),
     .groups = "drop"
   ) %>%
-  dplyr::select(-n_rows, -days, -Harvest_total)
+  dplyr::select(-days, -Harvest_total) %>%
+  dplyr::select(
+    where(~ !is.numeric(.x) || any(.x != 0, na.rm = TRUE))
+  )
 
 str(data_two_summed_final)
 

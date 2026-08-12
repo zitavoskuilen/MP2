@@ -1,8 +1,7 @@
 
-## PCA WITH TRIATS ORDINATION ####
+## PCA WITH TRAITS ORDINATION ####
 
 # checking species ooccurence for the traits table 
-# here i do it for the data two data set (only two harvests of TS and the dutch coast )
 
 #Now I will check how many species only occur
 occurrence <- colSums(
@@ -36,7 +35,6 @@ three_times_one <- names(
 
 # none in my data set 
 
-# select the species which are not singletons or doubletons in the data summed two from the traits dataset 
 
 # read in the traits data 
 traits <- read_delim("traits.csv", delim = ";", 
@@ -44,5 +42,44 @@ traits <- read_delim("traits.csv", delim = ";",
 
 View(traits)
 View(data_two_summed_final)
+
+# first i will fix the trait names in the trait data set 
+
+traits <- traits %>%
+  {
+    names(.) <- make.names(as.character(unlist(.[1, ])), unique = TRUE)
+    .[-1, ]
+  } %>%
+  rename(
+    ALH = Adult.living.habitat,
+    ALD = Adult.living.depth..soil.or.water..cm.,
+    ABS = Adult.body.size..mm.,
+    #OFS = Offspring.size..mm.,
+    #LG = Longevity..yr.,
+    #ASM = Age.of.sexual.maturation,
+    SAP = Seasonal.activty.pattern,
+    DAP = Daily.activity.pattern,
+    FM = Feeding.mode,
+    AL = Adult.locomotion,
+    RM = Reproductive.mode,
+    #RS = Reproductive.season,
+    #RF = Reproduction.frequency,
+    #FC = Fecundity,
+    LDL = Larval.juvenile.development.location,
+    #OS = Overwintering.stage,
+    #OL = Overwintering.location,
+    Proxy_species = Proxy.species  ) %>%
+   {
+    prefix <- names(.)
+    prefix[9:length(prefix)] <- tidyr::fill(
+      data.frame(prefix = replace(prefix[9:length(prefix)],
+                                  grepl("^X", prefix[9:length(prefix)]),
+                                  NA)),
+      prefix
+    )$prefix} 
+
+
+# i have to make sure that the species names in the traits data can match the ones in the data_two_summed_final data frame. 
+
 
 
