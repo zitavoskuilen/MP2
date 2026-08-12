@@ -1,40 +1,7 @@
 
 ## PCA WITH TRAITS ORDINATION ####
 
-# checking species ooccurence for the traits table 
-
-#Now I will check how many species only occur
-occurrence <- colSums(
-  data_two_summed_final[, 5:ncol(data_two_summed_final)] > 0,
-  na.rm = TRUE
-)
-
-occurrence
-
-total_abundance <- colSums(data_two_summed_final[, 5:ncol(data_summed_final)], na.rm = TRUE)
-
-#... on one site with an abundance lower than 5
-singletons <- names(which(occurrence == 1 & total_abundance < 5))
-
-colSums(
-  data_summed_final[, colnames(data_summed_final) %in% singletons,
-                       drop = FALSE]
-)
-#... on two sites with a total abundance lower than 7
-doubletons <- names(
-  which(colSums(data_summed_final > 0) == 2 & total_abundance < 7)
-)
-colSums(
-  data_summed_final[, colnames(data_summed_final) %in% doubletons,
-                       drop = FALSE]
-)
-#... three times (so occuring one time on three sites)
-three_times_one <- names(
-  which(colSums(data_summed_final > 0) == 3 & total_abundance == 3)
-)
-
-# none in my data set 
-
+## CLEANING THE TRAITS DATA ####
 
 # read in the traits data 
 traits <- read_delim("traits.csv", delim = ";", 
@@ -112,7 +79,7 @@ traits <- traits %>%
   )
 
 # make a new column with species where if the species column is already filled, it stays the same name but with a _ in the middle and if it not filled, take the first column on the left of species that is filled and put it in the new column with _sp behind it. and delte allt he other columns that are not species or the traits columns. so also the reference Id and the taxon_id
-traits1 <- traits %>%
+traits <- traits %>%
   mutate(
     Species = if_else(
       !is.na(Species) & Species != "",
@@ -124,10 +91,55 @@ traits1 <- traits %>%
   dplyr::select(-Reference_ID, -Taxon_ID)
 
 
+traits 
 
 
+## SELECTING THE SPECIES FROM THE OCCURRENCE DATA THAT ARE ALSO IN THE TRAITS DATA ####
 
 # i have to make sure that the species names in the traits data can match the ones in the data_two_summed_final data frame. 
+colnames(data_two_summed_final)
+traits$Species
+
+# checking species ooccurence for the traits table 
+
+species_data_occ <- data_two_summed_final[, 5:ncol(data_two_summed_final)]
+
+# Aantal plekken waarop elke soort voorkomt
+occurence <- colSums(species_data_occ > 0, na.rm = TRUE)
+
+# totale abundatie per soort 
+total_abundance <- colSums(species_data_occ, na.rm = TRUE)
+
+# singletons = op 1 plke en minder dan 3 individuen 
+singletons <- names(occurence[occurence == 1  & total_abundance < 3])
+
+singletons
+
+# doubletons = op twee plekken en minder dan 3 individuen
+doubletons <- names(occurence[occurence == 2 & total_abundance < 3])
 
 
+## removing the species with too little occurence from the abundance dataset for later 
+# species to remove from the data_two_summed_final data frame for the traits analysis 
+remove_species <- c(singletons, doubletons)
 
+# i want to remove the names from the species tn the remove species from the data_two_summed_final 
+
+length(remove_species)
+
+data_two_species_traits <- data_two_summed_final %>%
+  dplyr::select(-all_of(remove_species))
+
+# i now have the dataset of the species abundance that i want to use for the traits analysis 
+data_two_species_traits 
+
+# now i need to only take the rows from the traits data that containt he species that are in my data_two_species_traits data frame. so i will make a vector of the species names in the data_two_species_traits data frame and then filter the traits data frame for those species.
+species_in_data_two <- colnames(data_two_species_traits)[3:39(data_two_species_traits)]
+species_in_data_two <- species_in_data_two[
+  !species_in_data_two %in% c("physiotope", "diversity")
+]
+
+# filter nu de traits data op deze soorten 
+
+
+setdiff(species_in_data_two, traits$Species)
