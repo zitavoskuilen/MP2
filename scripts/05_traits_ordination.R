@@ -4,8 +4,8 @@
 ## CLEANING THE TRAITS DATA ####
 
 # read in the traits data 
-traits <- read_delim("traits.csv", delim = ";", 
-    escape_double = FALSE, trim_ws = TRUE)
+ traits <- read_delim("traits_4.csv", delim = ";", 
+     escape_double = FALSE, trim_ws = TRUE)
 
 ncol(traits)
 #View(traits)
@@ -29,9 +29,7 @@ abbr <- c(
   "Feeding mode" = "FM",
   "Adult locomotion" = "AL",
   "Reproductive mode" = "RM",
-  "Larval/juvenile development location" = "LDL",
-  "Proxy species" = "Proxy_species"
-)
+  "Larval/juvenile development location" = "LDL")
 
 clean <- function(x) {
   x <- iconv(x, from = "", to = "ASCII//TRANSLIT", sub = "")
@@ -127,19 +125,60 @@ remove_species <- c(singletons, doubletons)
 
 length(remove_species)
 
+# met ook diptera, lepidoptera larve en hymeoptera want dat zijn gevleugelde soorten 
+extra_remove <- c(
+  "Diptera_sp",
+  "Hymenoptera_sp",
+  "Coleoptera_larvae", 
+  "Lepidoptera_larvae"     
+)
+
+
+# haal deze soorten uit de data_two_summed_final data frame 
 data_two_species_traits <- data_two_summed_final %>%
-  dplyr::select(-all_of(remove_species))
+  dplyr::select(-any_of(c(remove_species, extra_remove)))
+
 
 # i now have the dataset of the species abundance that i want to use for the traits analysis 
 data_two_species_traits 
+colnames(data_two_species_traits)
 
 # now i need to only take the rows from the traits data that containt he species that are in my data_two_species_traits data frame. so i will make a vector of the species names in the data_two_species_traits data frame and then filter the traits data frame for those species.
-species_in_data_two <- colnames(data_two_species_traits)[3:39(data_two_species_traits)]
-species_in_data_two <- species_in_data_two[
-  !species_in_data_two %in% c("physiotope", "diversity")
-]
 
-# filter nu de traits data op deze soorten 
+colnames(data_two_species_traits)
+species_in_traits_data <- colnames(data_two_species_traits)[3:ncol(data_two_species_traits)]
 
 
-setdiff(species_in_data_two, traits$Species)
+sort(traits$Species)
+
+species_in_traits_data %in% traits$Species
+
+
+species_check <- data.frame(
+  Species = species_in_traits_data,
+  in_traits = species_in_traits_data %in% traits$Species
+)
+
+species_check
+
+## FOR NOW ONLY SELECT THE SPECIES THAT I HAVE FILLED IN THE TRAITS DATA 
+
+colnames(traits_filtered)
+
+traits_filtered <- traits %>%
+  dplyr::filter(Species %in% species_in_traits_data) %>%
+  dplyr::arrange(match(Species, species_in_traits_data))%>%
+  dplyr::select(-"Proxy_species_NA")
+
+# make a long format of the traits data frame 
+
+traits_long <- traits_filtered %>%
+  pivot_longer(
+    cols = -Species,
+    names_to = "trait",
+    values_to = "value"
+  ) %>%
+  dplyr::mutate(value = as.numeric(value))
+
+
+

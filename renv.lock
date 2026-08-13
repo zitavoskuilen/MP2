@@ -815,6 +815,35 @@
       "Maintainer": "R Core Team <R-core@R-project.org>",
       "Repository": "CRAN"
     },
+    "pairwiseAdonis": {
+      "Package": "pairwiseAdonis",
+      "Version": "0.4.1",
+      "Source": "GitHub",
+      "Title": "Pairwise Multilevel Comparison using Adonis",
+      "Date": "2017-10-01",
+      "Authors@R": "person(\"Pedro\", \"Martinez Arbizu\", email = \"pmartinez@senckenberg.de\", role = c(\"aut\", \"cre\"))",
+      "Description": "This is a wrapper function for multilevel pairwise comparison using adonis() from package 'vegan'. The function returns adjusted p-values using p.adjust().",
+      "Depends": [
+        "R (>= 3.0.0)",
+        "vegan",
+        "cluster",
+        "stats",
+        "permute"
+      ],
+      "License": "GPL-2 | GPL-3",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.1.2",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "pairwiseAdonis",
+      "RemoteUsername": "pmartinezarbizu",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "cb190f7668a0c82c0b0853927db239e7b9ec3e83",
+      "RemoteSubdir": "pairwiseAdonis",
+      "NeedsCompilation": "no",
+      "Author": "Pedro Martinez Arbizu [aut, cre]",
+      "Maintainer": "Pedro Martinez Arbizu <pmartinez@senckenberg.de>"
+    },
     "permute": {
       "Package": "permute",
       "Version": "0.9-10",

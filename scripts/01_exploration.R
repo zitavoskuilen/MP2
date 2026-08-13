@@ -199,9 +199,9 @@ data <- data %>%
     Tachyporus_sp_ = Tachyporus_sp____100_,
     Talitridae_sp = Talitridae,
     Thripidae_sp = Thripidae___92_,
+    Psocoptera_sp = Psocoptera, 
     Trachyzelotes_pedestris = Trachyzelotes_pedestris___128_,
     Trochosa_sp_ = Trochosa_spec,
-    Psocodea_sp = Psocodea,
     Acrididae_sp = Acrididae,
     Phalangiidae_sp = Phalangiidae,
     Lithobius_sp = Lithobius,
@@ -320,6 +320,14 @@ data_two_summed_final <- data_summed_two %>%
   )
 
 str(data_two_summed_final)
+
+# een paar namen kloppen nog niet
+data_two_summed_final <- data_two_summed_final %>%
+  dplyr::rename(
+    Aphididae_sp = Aphidoidae_sp,
+    Philopedon_plagiatus = Philopedon_plagiatum,
+    Xantholinus_sp = Xantholinus
+  )
 
 ##############
 # DATA_THREE  
