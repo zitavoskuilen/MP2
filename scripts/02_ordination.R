@@ -277,24 +277,114 @@ legend(
 ###############################################
 
 # Define grouping variable
+
+
 group_phys <- factor(data_env$physiotope)
 group_loc <- factor(data_env$location)
 
-# Define colours (adjust order if needed)
 phys_cols <- c(
-  "bare"        = "#D9C28F",  # licht zand
-  "bare2"       = "#BFA36A",  # donkerder zand
-  "duneslack"   = "#4FA3A5",  # blauwgroen, beginnende duinvallei
-  "foredune"    = "#E5B84B",  # geel/goud, helm en open duin
-  "foredune2"   = "#C98F2E",  # donkerder goud
-  "lowdensity"  = "#8FBF68",  # lichtgroen, lage vegetatiedichtheid
-  "highdensity" = "#356B3A"   # donkergroen, dichte vegetatie
+  "bare"        = "#E8D7B0",  # heel licht zand
+  "bare2"       = "#9B6F3E",  # duidelijk donkerder bruin-zand
+  
+  "duneslack"   = "#4FA3A5",  # blauwgroen
+  
+  "foredune"    = "#F2C94C",  # helder geel
+  "foredune2"   = "#D97706",  # duidelijk oranje
+  
+  "lowdensity"  = "#8FBF68",  # lichtgroen
+  "highdensity" = "#356B3A"   # donkergroen
 )
 
-loc_shapes <- c(16, 17, 15, 18, 8)
-
-
 site_scores <- scores(pca_res_2, display = "sites", scaling = "symmetric")
+
+
+# Site scores
+site_scores <- scores(
+  pca_res_2,
+  display = "sites",
+  scaling = "symmetric"
+)
+
+# Percentage variance explained automatisch berekenen
+eig <- eigenvals(pca_res_2)
+var_exp <- eig / sum(eig) * 100
+
+# Kleuren per punt
+point_cols <- phys_cols[as.numeric(group_phys)]
+
+# PCA plot
+plot(
+  pca_res_2,
+  display = "sites", type = "n", scaling = "symmetric",
+  main = "PCA – Physiotope",
+  xlab = paste0("PC1 (", round(var_exp[1], 1), "%)"),
+  ylab = paste0("PC2 (", round(var_exp[2], 1), "%)"),
+  las = 1,
+  bty = "l", 
+  xlim = c(-0.6, 1),
+ylim = c(-0.8, 0.50)
+)
+
+# points 
+points(
+  site_scores[,1],
+  site_scores[,2],
+  pch = 21,                
+  bg = point_cols,
+  cex = 1,
+  lwd = 0.8
+)
+
+# Ellipses per physiotope
+ordiellipse(
+  pca_res_2,
+  groups = group_phys,
+  display = "sites",
+  scaling = "symmetric",
+  kind = "sd",
+  draw = "polygon",
+  col = adjustcolor(
+    phys_cols[seq_along(levels(group_phys))],
+    alpha.f = 0.15
+  ),
+  border = phys_cols[seq_along(levels(group_phys))],
+  lwd = 2
+)
+
+# Points again 
+points(
+  site_scores[,1],
+  site_scores[,2],
+  pch = 21,
+  bg = point_cols,
+  col = "grey20",
+  cex = 1,
+  lwd = 0.8
+)
+
+
+# Legenda
+
+legend_labels <- c(
+  "Bare",
+  "Bare 2",
+  "Duneslack",
+  "Foredune",
+  "Foredune 2",
+  "High-density dunes",
+  "Low-density dunes"
+)
+
+legend(
+  "topright",
+  legend = legend_labels,
+  pt.bg = phys_cols[seq_along(levels(group_phys))],
+  col = "grey20",
+  pch = 21,
+  pt.cex = 1.3,
+  bty = "n",
+  title = "Physiotopes"
+)
 
 # Calculate distance from origin
 dist_sp <- sqrt(sp_scores[,1]^2 + sp_scores[,2]^2)
@@ -303,73 +393,21 @@ dist_sp <- sqrt(sp_scores[,1]^2 + sp_scores[,2]^2)
 top3 <- names(sort(dist_sp, decreasing = TRUE))[1:3]
 top3
 
-# Base PCA plot
-plot(pca_res_2, display = "sites", type = "n", scaling = "symmetric", 
-     main = "PCA  with Physiotope and Location Grouping (DATA_TWO)", 
-     xlab = "PC1 (15.8%)", 
-    ylab = "PC2 (13.1%)")
+top7 <- names(sort(dist_sp, decreasing = TRUE))[1:7]
+top7
 
-# Add sites (samples)
-points(
-  site_scores[,1],
-  site_scores[,2],
-  col = phys_cols[as.numeric(group_phys)],
-  pch = loc_shapes[as.numeric(group_loc)],
-  cex = 1.2
-)
 
-# Add species (optional)
-#points(pca_res,
-       display = "species",
-       scaling = "symmetric",
-       pch = 3,
-       col = "black")
-
-# Add species labels (optinal)
-#set.seed(10)
-#ordipointlabel(pca_res,
-                display = "species",
-                scaling = "symmetric",
-                add = TRUE)
-
-# Add ellipses per physiotope
-ordiellipse(pca_res_2,
-            groups = group_phys,
-            draw = "polygon",
-            col = phys_cols,
-            scaling = "symmetric",
-            kind = "sd",
-            conf = 0.4)
-
-# Add legend physiotpes 
-legend("topright",
-       legend = levels(group_phys),
-       col = phys_cols,
-       pch = 19,
-       bty = "n")
-
-# add legend locations 
-legend("bottomright",
-       legend = levels(group_loc),
-       pch = loc_shapes,
-       col = "black",
-       bty = "n")
-
-species_names <- rownames(scores(pca_res, display = "species"))
-select_top3 <- species_names %in% top3
-
-# dit toeveogen werkt nog niet
-orditorp(
-  pca_res,
-  display = "species",
-  scaling = "symmetric",
-  select = select_top3,
-  col = "black",
-  cex = 0.8
+text(
+  sp_scores[top7, 1],
+  sp_scores[top7, 2],
+  labels = gsub("_sp", "", top7),
+  cex = 0.8,
+  col = "#274C77",
+  font = 3
 )
 
 # plot opslaan 
-ggsave("plots/PCA_data_two_with_eliipse_physio_10/8.png", width = 8, height = 6, dpi = 300)
+ggsave("plots/PCA_data_two_with_eliipse_physio_14_8.png", width = 8, height = 6, dpi = 300)
 
 
 ###############
@@ -479,50 +517,34 @@ env_vars <- envdata %>%
     richness
   )
 
+env_labels <- c(
+  "D50",
+  "Soil moisture",
+  "Grain sorting",
+  "Soil OM",
+  "Richness",
+  "Shannon"
+)
+
 env_fit <- envfit(pca_res_2, env_vars, permutations = 999)
 
 env_fit
 
 
-ordiplot(pca_res_2, display = "sites", type = "n", scaling = "symmetric", 
-     main = "PCA  with Physiotope Grouping (DATA_TWO)", 
-     xlab = "PC1 (15.8%)", 
-    ylab = "PC2 (13.1%)")
+#plot environmental variables to the earlier plot 
+plot(env_fit, add = T,  col = "grey30", labels = env_labels, p.max = 0.05 )
 
-
-points(
-  site_scores[,1],
-  site_scores[,2],
-  col = phys_cols[as.numeric(group_phys)],
-  pch = loc_shapes[as.numeric(group_loc)],
-  cex = 1.2
+# save the plot!!!
+dev.copy(
+  png,
+  filename = "plots/PCA_physiotope.png",
+  width = 4000,
+  height = 1800,
+  res = 300,
+  bg = "white"
 )
 
-# Add ellipses per physiotope
-ordiellipse(pca_res_2,
-            groups = group_phys,
-            draw = "polygon",
-            col = phys_cols,
-            scaling = "symmetric",
-            kind = "sd",
-            conf = 0.4)
-
-#plot environmental variables 
-plot(env_fit, add = T,  col = "black", )
-
-# phystiope legend
-legend("topright",
-       legend = levels(group_phys),
-       col = phys_cols,
-       pch = 19,
-       bty = "n")
-
-# location legend 
-legend("bottomright",
-       legend = levels(group_loc),
-       pch = loc_shapes,
-       col = "black",
-       bty = "n")
+dev.off()
 
 ########
 

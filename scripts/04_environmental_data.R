@@ -180,8 +180,8 @@ flora_species <- flora_data[, 3:ncol(flora_data)] %>%
 # Add richness and shannon diversity to flora_data
 flora_data <- flora_data %>%
   mutate(
-    richness = rowSums(flora_species > 0),
-    shannon = diversity(flora_species, index = "shannon"))
+    PlantRichness = rowSums(flora_species > 0),
+    PlantsShannon = diversity(flora_species, index = "shannon"))
 
 # add the shannon, richness and eveness to the environmental data 
 envdata <- envdata %>%
@@ -190,8 +190,8 @@ envdata <- envdata %>%
       dplyr::select(
         site,
         physiotope,
-        richness,
-        shannon
+        PlantRichness,
+        PlantsShannon
       ),
     by = c("site", "physiotope")
   )
