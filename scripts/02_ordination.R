@@ -560,6 +560,22 @@ env_pca_data <- envdata %>%
     grain_sorting
   )
 
+# correlatie van de variabelen testen 
+library(corrplot)
+
+cor_env <- cor(
+  env_pca_data,
+  use = "complete.obs"
+)
+
+corrplot(
+  cor_env,
+  method = "color",
+  type = "upper",
+  addCoef.col = "black"
+)
+
+
 env_pca <- rda(
   env_pca_data,
   scale = TRUE
@@ -582,22 +598,21 @@ env_var_scores <- scores(
 
 group_phys <- factor(envdata$physiotope)
 
-# variantie verklaard
-eig_env <- eigenvals(env_pca)
-var_env <- eig_env / sum(eig_env) * 100
+var_env <- env_pca$CA$eig / sum(env_pca$CA$eig) * 100
+
+env_var_scores
 
 # PCA
 plot(
   env_pca,
   display = "sites",
   type = "n",
-  scaling = "sites",
+  scaling = "symmetric",
   xlab = paste0("PC1 (", round(var_env[1], 1), "%)"),
   ylab = paste0("PC2 (", round(var_env[2], 1), "%)"),
   main = "PCA of environmental variables", 
-  xlim = c(-0.6, 1.5),
-ylim = c(-0.8, 0.80)
-)
+  xlim = c(-1, 2.4),
+ylim = c(-2.2, 1.8))
 
 
 point_cols <- phys_cols[as.numeric(group_phys)]
@@ -613,8 +628,84 @@ points(
 )
 
 
+# adding ellipses per phystiope 
+ordiellipse(
+  env_pca,
+  groups = group_phys,
+  display = "sites",
+  scaling = "symmetric",
+  kind = "sd",
+  draw = "polygon",
+  col = adjustcolor(
+    phys_cols[seq_along(levels(group_phys))],
+    alpha.f = 0.15
+  ),
+  border = phys_cols[seq_along(levels(group_phys))],
+  lwd = 2
+)
 
+# adding the arrows with the labels for the environmental factors 
+env_var_scores_plot <- env_var_scores * 0.7
+arrows(
+  x0 = 0,
+  y0 = 0,
+  x1 = env_var_scores_plot[,1],
+  y1 = env_var_scores_plot[,2],
+  length = 0.08,
+  col = "grey30",
+  lwd = 1.2
+)
 
+env_labels <- c(
+  "soil_moisture_percentage" = "Soil moisture",
+  "soil_om_percentage"       = "Soil OM",
+  "D50"                      = "D50",
+  "grain_sorting"            = "Grain sorting"
+)
+
+text(
+  env_var_scores_plot[,1],
+  env_var_scores_plot[,2],
+  labels = env_labels[rownames(env_var_scores_plot)],
+  pos = 4,
+  offset = 0.3,
+  cex = 0.8,
+  col = "grey20"
+)
+
+# adding a legend for the colours
+legend(
+  "topright",
+  legend = legend_labels,
+  pt.bg = phys_cols[seq_along(levels(group_phys))],
+  col = "grey20",
+  pch = 21,
+  pt.cex = 1.3,
+  bty = "n",
+  title = "Physiotopes"
+)
+
+# save the plot! 
+dev.copy(
+  png,
+  filename = "plots/PCA_env_variables.png",
+  width = 4000,
+  height = 1800,
+  res = 300,
+  bg = "white"
+)  
+
+dev.off()
+
+# adding the labels of the pot_id's 
+# orditorp(
+  env_pca,
+  display = "sites",
+  scaling = "symmetric",
+  labels = envdata$pot_ID,
+  cex = 0.6,
+  col = "grey20"
+)
 
 ########
 
