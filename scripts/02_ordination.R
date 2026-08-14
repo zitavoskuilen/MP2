@@ -517,6 +517,7 @@ env_vars <- envdata %>%
     richness
   )
 
+
 env_labels <- c(
   "D50",
   "Soil moisture",
@@ -545,6 +546,75 @@ dev.copy(
 )
 
 dev.off()
+
+############
+## PCA WITH ENVIRONMENTAL VARIABLES BETWEEN PHYSTIOPES 
+# nog niet af want ik heb nog niet alle variables, en tot nu toe maken er veel ook niks uit 
+###########
+
+env_pca_data <- envdata %>%
+  dplyr::select(
+    soil_moisture_percentage,
+    soil_om_percentage,
+    D50,
+    grain_sorting
+  )
+
+env_pca <- rda(
+  env_pca_data,
+  scale = TRUE
+)
+
+summary(env_pca)
+
+# scores
+env_site_scores <- scores(
+  env_pca,
+  display = "sites",
+  scaling = "symmetric"
+)
+
+env_var_scores <- scores(
+  env_pca,
+  display = "species",
+  scaling = "symmetric"
+)
+
+group_phys <- factor(envdata$physiotope)
+
+# variantie verklaard
+eig_env <- eigenvals(env_pca)
+var_env <- eig_env / sum(eig_env) * 100
+
+# PCA
+plot(
+  env_pca,
+  display = "sites",
+  type = "n",
+  scaling = "sites",
+  xlab = paste0("PC1 (", round(var_env[1], 1), "%)"),
+  ylab = paste0("PC2 (", round(var_env[2], 1), "%)"),
+  main = "PCA of environmental variables", 
+  xlim = c(-0.6, 1.5),
+ylim = c(-0.8, 0.80)
+)
+
+
+point_cols <- phys_cols[as.numeric(group_phys)]
+
+# points 
+points(
+  env_site_scores[,1],
+  env_site_scores[,2],
+  pch = 21,
+  bg = point_cols,
+  col = "grey20",
+  cex = 1.3
+)
+
+
+
+
 
 ########
 
