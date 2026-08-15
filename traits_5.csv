@@ -1,0 +1,80 @@
+C001;C002;C003;C004;C005;C006;C007;C008;C009;;;C014;C015;;C022;;C029;;;C041;;C044;;C051;C052;C053;C054;C055;C056;C057;C058;C059;C060;C061;;C068;C079;C080;C081;C082;C116;C083;;;
+;;;;;;;;;;;;;;;;;;;;;;;;Adult locomotion;;;;;;;;;;;;Larval/juvenile development location;;;;;;Finished?;,Status;proxy
+Taxon_ID;Phylum;Class;Order;Family;Subfamily;Genus;Species;Reference_ID beach/ embryonic/white dunes;Adult_habitat_open->vegetation;Adult_Habitat.Litter;Adult_Habitat.water;RID;Adult_Living_Depth;RID;Adult_body_size;RID;Seasonal_activity;Seasonal_restriction;RID;Diurnal_activity;RID;Foodweb_place;RID;Surface runners/walkers;Climbing (on vegetation);Sand swimming/subsurface crawling;(Limited) flyers;Bioturbation and burrowing;Jumper;Low mobility;Ballooning;Swimming;RID;Parental _care;RID;Soil-dwelling;Litter-associated;Burrow-associated;(water)Vegetation;On parent;RID;;;
+W001;Arthropoda;Malacostraca;Amphipoda;Talitridae;;;;;1,5;2;0;24,26,27,29,33;2;"26;e";2,75;19,23,30,33,34;1,5;2;25,31,32,33;0;27;3;26,29,33,34;0;0;0;0;2;2;0;0;1;26;3;25,29,33;0;3;0;0;0;26,27;0;K;
+W002;Arthropoda;Malacostraca;Amphipoda;Talitridae;Talitrinae;Deshayesorchestia;Deshayesorchestia deshayesii;19;1,5;2;0;26,29;2;"26;e";2,5;23,30;1;3;31;0;27;3;29;0;0;0;0;2;2;0;0;1;26;3;29;0;3;0;0;0;"26;e";0;K;
+W005;Arthropoda;Arachnida;Araneae;Clubionidae;;;;;1,5;1;0;"46;q, 182";0,5;182;1,5;46, 182;1,5;2;182;0;"23, 46;q, 182";1;37;2;1;0;0;0;0;0;1;0;"46;q, 182";1,5;182;0;1;0;2;0;90, 182;0;K;
+W006;Arthropoda;Arachnida;Araneae;Clubionidae;Clubioninae;Clubiona;;2,3,4,14,16,21;1,5;1;0;"46;q, 182";0,5;182;1,5;46;1,5;2;182;0;"23, 46;q, 182";1;37;2;1;0;0;0;0;0;1;0;"46;q, 182";1,5;182;0;0;0;2;0;90, 182;0;K;
+W009;Arthropoda;Arachnida;Araneae;Gnaphosidae;Zelotinae;Zelotes;Zelotes electus;;1,5;2;0;46182;1;182;1,5;46, 182;1;3;182;0;182;1;37,46;2;2;0;0;0;0;0;1;0;46182;1,5;182;3;0;0;0;0;182;0;K;
+W010;Arthropoda;Arachnida;Araneae;Linyphiidae;;;;2,3,4,14,15,16,21;3;1;0;"46;q, 90, 181";0;181;0,5;46, 181;1,75;2;90;1,5;46;1;37, 181;1;2;0;0;0;0;0;1;0;46, 90, 181, 182;1,25;90;0;2;0;1;0;90;0;K;
+W014;Arthropoda;Arachnida;Araneae;Lycosidae;;;;2,3,4,14,16,17,21;1;1;0;"46;q, 181";0;181;2;46;1,5;2;181;1,5;"46;q, 181";1;37, 181;2;1;0;0;1;1;0;1;1;"46;q, 181, 182";2;181, 182;0;0;0;0;3;182;0;K;
+W018;Arthropoda;Arachnida;Araneae;Lycosidae ;Piratinae;Pirata;Pirata piraticus;;2;0;1;49, 182;0;"182;d";2;46, 181, 182;1,75;2,5;182;3;"46, 182;d";1;37, 182:d;2;0;0;0;0;0;0;1;0;"46, 49, 182;d";2,5;"182;d";0;0;0;0;3;"182;d";0;K;
+W019;Arthropoda;Arachnida;Araneae;Lycosidae ;Piratinae;Piratula;Piratula latitans;;2;0;1;46, 49, 181, 182;0;"182;d";1;46, 181, 182;1,75;2,5;182;1,5;49;1;37;2;0;0;0;0;0;0;1;0;"46, 49, 182;d";2,5;"182;d";0;0;0;0;3;"182;d";0;K;
+W020;Arthropoda;Arachnida;Araneae;Lycosidae ;Tricassinae;Arctosa;Arctosa leopardus;;1;2;0;"46;m, 88, 181";0;88, 182;2;46, 181, 182;1,75;2,5;88, 182;1,5;"182;d, 210;d";1;37, 182;2;1;0;0;0;0;0;1;0;46, 182;1,5;"182, 210;d";0;0;0;3;0;182;0;K;
+W021;Arthropoda;Arachnida;Araneae;Lycosidae ;Tricassinae;Arctosa;Arctosa perita;;0;0;0;181, 182;0;181, 182, 211;2;0;1;3;182;1,5;"182;d, 210;d";1;37, 182;2;0;0;0;1;0;0;1;0;46, 181, 182;1,5;"182, 210;d";0;0;3;0;0;181;0;K;
+W022;Arthropoda;Arachnida;Araneae;Lycosidae ;Pardosinae;Pardosa;Pardosa monticola;;1,5;2;0;182;0;182;1,5;46, 181, 182;1,25;2,5;181, 182;3;"181;d, 182;d";1;37, 182;2;0;0;0;0;0;0;1;0;46, 181, 182;1,5;"182;d";0;0;0;0;3;"182;d";0;K;
+W023;Arthropoda;Arachnida;Araneae;Lycosidae ;Pardosinae;Pardosa;Pardosa palustris;;2;2;0;"46, 182;d";0;182;2;46;2;2,5;182;3;"181;d, 182;d";1;37, 182;2;2;0;0;0;0;0;1;0;"46, 49;m, 181, 182";1,5;"182;d";0;0;0;0;3;"182;d";0;K;
+W025;Arthropoda;Arachnida;Araneae;Philodromidae;Philodrominae;Rhysodromus;Rhysodromus fallax;;0;0;0;46, 181, 182;0;182;1;46, 181, 182;1;3;181182;3;46;1;37, 182;2;0;0;0;0;1;0;0;0;181, 182;1,5;181;3;0;0;0;0;181;0;K;
+W026;Arthropoda;Arachnida;Araneae;Philodromidae;Philodrominae;Thanatus;Thanatus striatus;;1,5;0;0;182;0;181, 182;1;46, 182;1,5;2;182;3;"182;e";1;37, 182;2;1;0;0;0;0;0;1;0;"182;m, 212;m";1,5;"182;a;m";0;2;0;2;0;"182;a;m";0;K;
+W027;Arthropoda;Arachnida;Araneae;Theridiidae;Tetragnathinae;Pachygnatha;Pachygnatha clercki;2,3,14,16,21;2;2;0;46, 182;0;90, 181, 182;2;46, 181, 182;3;0;181, 182;3;"181;a, 182;a";1;37, 182;2;2;0;0;0;0;0;1;0;"46, 46;m, 181;a, 182;a";1,5;90;0;0;0;3;0;90;0;K;
+W029;Arthropoda;Insecta;Coleoptera;Anthicidae;Anthicinae;Anthicus;Anthicus bimaculatus;;1;1;0;"208;d";0,5;"208;m";1;208;3;0;208;2;"208;m";3;"208;d";1;0;2;0;0;0;0;0;0;"208;m";0;"208;c";2;2;0;0;0;"208;c";0;K;
+W034;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Acupalpus;Acupalpus dubius;;2;0;0;36, 53;0;"53;m";1;"36;d, 45, 61";1;3;36;3;36;1;39,43;2;0;0;1;0;0;0;0;0;"36;d";1;"57;k, 39:k, 60;k";0;3;0;0;0;a;0;K;
+W035;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Acupalpus;Acupalpus parvulus;;2;0;0;"36, 54;d";0;"54;d";1;"36;d, 45, 61";1;3;36;3;36;1;39,44;2;0;0;2;0;0;0;0;0;"36;d";1;"57;k, 39:k, 60;k";0;3;0;0;0;a;0;K;
+W036;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Agonum;Agonum lugens;;2;0;0;"39;d";0;"39;d";2;45, 61;1;3;36;0;36;1;"39;d, 56;d";2;1;0;1;0;0;0;0;0;"36,39;d";0;"57;d";2;2;0;0;0;a;0;K;
+W037;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Agonum;Agonum marginatum;1,14,21;2;0;0;"57;d";0;"39;d";2;45, 61;1;3;36;3;36;1;"39;d, 56;d";2;1;0;1;0;0;0;0;0;"36,39;d";0;"57;d";2;2;0;0;0;228;0;K;
+W038;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Demetrias;Demetrias monostigma;1,15,16,20,21;2;0;0;36;0;"36;m";1,25;36, 45, 61;1;3;36;3;36;1;"39;d";1;2;0;1;0;0;0;0;0;36;1;"57;k, 39:k, 60;k";0;0;0;3;0;a;0;K;
+W039;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Stenolophus;Stenolophus mixtus;14;2;1;0;"39;d";0;"39;d";2;36, 45, 61;1;3;36;0;36;2;"36;d";2;0;0;1;0;0;0;0;0;36;1;"39:d, 60;d";0;0;3;0;0;"39;d";0;K;
+W040;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Stenolophus;Stenolophus teutonus;21;2;1;0;"39;d";0;"39;d";2;36, 45, 61;1;3;36;0;36;2;"36;d";2;0;0;1;1;0;0;0;0;"36, 60;d";1;"39:d, 60;d";0;0;3;0;0;"39;d";0;K;
+W041;Arthropoda;Insecta;Coleoptera;Carabidae;Lebiinae;Paradromius;Paradromius linearis;1,14,16,20,21;1,5;0;0;36;0;36;1,25;36, 45, 61;0;0;36;0;36;1;36;2;2;0;1;0;0;0;0;0;36;0;36;2;0;0;1;0;36;0;K;
+W042;Arthropoda;Insecta;Coleoptera;Carabidae;Lebiinae;Philorhizus;Philorhizus melanocephalus;1,20;1;0;0;36;0;36;1;36, 61, 61;1;3;36;3;36;1;"39;d";2;0;0;1;0;0;0;0;0;36;0,5;"36;a";0;0;0;3;0;"36;a";0;K;
+W043;Arthropoda;Insecta;Coleoptera;Carabidae;Lebiinae;Syntomus;Syntomus foveatus;1,14,20,21;1,5;0;0;36;0;36;1;36, 45, 61;1;3;36;3;36;1;"56;d";2;0;0;1;0;0;0;0;0;36, 56;0;63;0;2;2;0;0;63;0;K;
+W045;Arthropoda;Insecta;Coleoptera;Carabidae;Omophroninae;Omophron;Omophron limbatum;14,21;0;0;0;36;1;"36, 56;d";1,5;45, 61;1,25;2,5;36;0;36;1;36;2;0;0;1;2;0;0;0;1;"36, 56;d";1;"56;d";0;0;3;0;0;36, 56;0;K;
+W046;Arthropoda;Insecta;Coleoptera;Carabidae;Platyninae;Calathus;Calathus erratus;1,14,16;0;2;0;"36, 56;d";0,5;"36, 56;b;d";2;45, 61;1,75;2,5;36;0;36;1;36, 67;2;0;0;1;1;0;0;0;0;36;0;"36;d";3;0;0;0;0;36;0;K;
+W048;Arthropoda;Insecta;Coleoptera;Carabidae;Pterostichinae;Amara;Amara aenea;1,14,21;2;0;0;36, 64;0;36;2;45, 61;1,5;2;36;3;36;1,5;36, 56, 65, 67;1;2;0;2;0;0;0;0;0;36, 56;0;36;0;0;3;0;0;64;0;K;
+W049;Arthropoda;Insecta;Coleoptera;Carabidae;Pterostichinae;Amara;Amara lucida;1,16,20,21;0;0;0;36;0;36;1,75;45, 61;1;3;36;3;36;1,5;"56;d, 67";2;0;0;1;0;0;0;0;0;36;0;"36;d";0;0;3;0;0;"64;d";0;K;
+W050;Arthropoda;Insecta;Coleoptera;Carabidae;Pterostichinae;Amara;Amara tibialis;14;2;0;0;36;0;36;1,75;45, 61;1;3;36;3;36;1,5;"56;d, 67;d";2;0;0;1;0;0;0;0;0;36;0;36;0;0;3;0;0;36;0;K;
+W051;Arthropoda;Insecta;Coleoptera;Carabidae;Scaritinae;Clivina;Clivina fossor;18;0;0;0;36, 56;2;36, 56;1,25;36, 45, 61;1;3;36;0;36;2;36, 56, 67;1;0;0;1;2;0;0;0;0;36;1;36;0;0;3;0;0;36;0;K;
+W052;Arthropoda;Insecta;Coleoptera;Carabidae;Scaritinae;Dyschirius;Dyschirius globosus;17,21;2;0;0;36;0;36;1;36, 45, 61;1;3;36;3;36;1;36, 67;1;2;0;1;0;0;0;0;0;36;1;"69;d";0;0;3;0;0;"69;d";0;K;
+W053;Arthropoda;Insecta;Coleoptera;Carabidae;Trechinae;Bembidion;Bembidion assimile;1;2;0;0;36;0;36;1;45, 61;1;3;36;3;36;1;"36;d, 39;d, 56;d";2;0;0;1;0;0;0;0;0;36;1;"36;d";0;0;3;0;0;"36;d";0;K;
+W054;Arthropoda;Insecta;Coleoptera;Carabidae;Trechinae;Bembidion;Bembidion pallidipenne;18,21;0;0;0;36;1;36;1;45, 61;1,5;2;36;0;36;1;"36. 56;d";2;0;0;1;2;0;0;0;0;36;1;36;0;0;3;0;0;36;0;K;
+W060;Arthropoda;Insecta;Coleoptera;Chrysomelidae;Galerucinae;Psylliodes;Psylliodes marcida;85;3;0;0;85;0;"78;d";1;85;1,5;1;"73;k";1;"82;d";2;"85, 72;d";1;2;0;1;0;2;0;0;0;85;0,75;"83;d";0;0;2;2;0;85;0;K;
+W065;Arthropoda;Insecta;Coleoptera;Curculionidae;Entiminae;Otiorhynchus;Otiorhynchus atroapterus;;3;0;0;94;0;"92;a";2;94;2;2,5;176;1;"95;d";2;94;1;2;0;0;0;0;0;0;0;"95;d";0,75;"92;d";3;0;0;0;0;"97;d";0;K;
+W066;Arthropoda;Insecta;Coleoptera;Curculionidae;Entiminae;Philopedon;Philopedon plagiatum;98, 99, 100;3;1;0;98, 99;0,5;98;1,75;100;1,5;1,5;99;1;NF;2;98, 99;2;2;1;0;0;0;0;0;0;98, 99;1;98;3;0;0;0;0;98, 99;1;K;
+W068;Arthropoda;Insecta;Coleoptera;Dytiscidae;Copelatinae;Liopterus;Liopterus haemorrhoidalis;;3;0;2;101, 102;1;101;2;102;3;0;102;1,5;102;1;101;1;1;0;1;0;0;0;0;2;d;0,75;"103;e";1;0;0;2;0;"103;c";0;K;
+W069;Arthropoda;Insecta;Coleoptera;Elateridae;;;;1,14,16,17,21;3;1;1;"109;e";0;"109;e";2,25;109;1,25;2,5;111;2;106;2;82;2;2;0;1;0;1;0;0;0;82;0,75;82;2;0;1;1;0;111;0;K;
+W075;Arthropoda;Insecta;Coleoptera;Hydraenidae;Ochthebiinae;Ochthebius;Ochthebius minimus;;1,5;1;2;129;0,5;129;0;130;1;3;23;3;"129;a";3;129;2;1;1;1;0;0;0;0;0;131;0,75;"132;c";2;1;0;1;0;133;0;K;
+W081;Arthropoda;Insecta;Coleoptera;Scarabaeidae;Aegialiinae;Aegialia;Aegialia arenaria;;1;1;0;135;1;135;1,75;136, 137;1,5;1;135;1;134;3;"134;d";1;0;2;0;2;0;0;0;0;135;0,75;"135, 136;d";3;0;0;0;0;136;0;K;
+W082;Arthropoda;Insecta;Coleoptera;Scarabaeidae;Aphodiinae;Aphodius;;;0;2;0;144;0,5;145;2;146;1,5;1;"148;e";3;148;3;144;1;0;0;2;1;0;0;0;0;144;1;145;1;2;0;0;0;145;0;K;
+W087;Arthropoda;Insecta;Coleoptera;Staphylinidae;Paederinae;Paederus;Paederus riparius;;1,5;2;0;149;0,5;149;2;150;2,25;1;150;3;150;1;150;2;1;0;1;0;0;0;0;0;82;0;"152;d";1;2;0;0;0;"152;d";0;K;
+W092;Arthropoda;Insecta;Coleoptera;Tenebrionidae;Tenebrioninae;Melanimon;Melanimon tibialis;;1;1;0;155, 156;0,5;157;1;157;3;0;157;2;158;2,75;"157;159";2;0;1;1;2;0;0;0;0;155;1;157;3;0;0;0;0;157;0;K;
+W093;Arthropoda;Insecta;Coleoptera;Tenebrionidae;Tenebrioninae;Phylan;Phylan gibbus;;1;1;0;1;1;204;2;205;3;0;205;0;203;2,75;206;1;0;2;0;2;0;0;0;0;207;0;203;2;1;0;0;0;203;0;K;
+W098;Arthropoda;Insecta;Hemiptera;Delphacidae;;;;13,14,16,17;3;1;0;227;0;227;1;227;1,5;2;23;1,5;227;2;227;0;2;0;1;0;2;0;0;0;227;1;227;0;0;0;3;0;227;0;K;
+W100;Arthropoda;Insecta;Hemiptera;Lygaeidae;Cyminae;Cymus;Cymus claviculus;10;3;1;0;10;0;10;1;171;3;0;10;2;"10;a";2;"172, 10;a";1;2;0;2;0;0;0;0;0;"10;a";0;172;0;0;0;3;0;172;0;K;
+W102;Arthropoda;Insecta;Hemiptera;Lygaeidae;Rhyparochrominae;Pionosomus;Pionosomus varius;;0;1;0;173;0;173;1;173;3;0;"173;a";3;174;2;174, 173;1;2;0;1;0;0;0;0;0;173;0;173;3;0;0;0;0;173;0;K;
+W104;Arthropoda;Insecta;Hemiptera;Lygaeidae;Rhyparochrominae;Taphropeltus;Taphropeltus contractus;;1,5;2;0;7;0;7;1;197;3;0;7, 23;3;q;2;7;2;1;0;1;0;0;0;0;0;7;0;c;1;2;0;1;0;7;0;K;
+W111;Arthropoda;Insecta;Hymenoptera;Formicidae;;;;16,17,21;0;0;0;213;3;214;1;214;3;0;215;3;216;2,25;217;1;0;2;1;2;0;1;0;0;"217;215";1,5;215;2;0;2;0;0;"215;217";0;K;
+W112;Arthropoda;Insecta;Hymenoptera;Formicidae;Formicinae;Lasius;Lasius psammophilus;;0;0;0;213;3;214;1;214;3;0;215;3;216;2,25;217;1;0;2;1;2;0;1;0;0;"217;215";1,5;215;2;0;2;0;0;"215;217";0;K;
+W113;Arthropoda;Diplopoda;Julida;Julidae;;;;14,16;0;2;0;223;1;224;2,25;224;1,5;1;225;0;225;2,75;225;1;0;2;0;2;0;0;0;0;223;1;"222;e";2;2;0;0;0;"222;e";0;K;
+W114;Arthropoda;Chilopoda;Lithobiomorpha;Lithobiidae;Lithobiinae;Lithobius;;;0;2;0;218;1;14;2,75;219;3;0;220;0;221;1;221;2;0;1;0;0;0;0;0;0;221;1,5;222;2;2;0;0;0;222;0;K;
+W118;Arthropoda;Insecta;Orthoptera;Tetrigidae;Tetriginae;Tetrix;Tetrix subulata;;1;1;0;184;0;185, 184;2;184;1,5;1;184;3;187;2,75;188;1;1;0;2;0;2;0;0;1;185;1;184;2;0;0;1;0;184;0;K;
+W119;Arthropoda;Collembola;Poduromorpha;Neanuridae;Pseudachorutinae;Anurida;Anurida maritima;;0;1;1;192, 193, 194;1;195;0,75;196;2;2;195;2;193;3;196;2;0;1;0;1;0;1;0;0;196;1;196;2;1;2;1;0;196;0;K;
+W120;Arthropoda;Arachnida;Pseudoscorpiones;Cheliferidae;Cheliferinae;Dactylochelifer;Dactylochelifer latreillii;16,19,21;2;2;0;189;0,5;189;1;190;2,5;1;191;1;190;1;189;2;1;0;0;0;0;0;0;0;189;3;192;1;2;0;2;0;189, 191;0;K;
+;Arthropoda;Arachnida;Trombidiformes;Trombidiidae ;;;;;2;2;0;248;1;249;0,75;249;1,5;1,75;250;1,5;0;1;248;2;1;1;0;0;0;1;0;0;248;1;251;2;1;0;0;2;249;0;K;
+;Arthropoda;Collembola;Entomobryomorpha;;;;;;2;2;0;"252;q";0;"252;q";1;"252;q";3;0;"252;q";2,25;"253;q";3;"254;q";2;0;0;0;0;1;0;0;0;"255;q";0;"255;q";0;2;0;2;0;"255;q";0;K;
+;;Insecta;Coleoptera;Malachiidae;Malachiidae;Clanoptilus ;Clanoptilus marginellus;x;3;0;0;229;0;229;2;229;2;2;229;3;229;1,5;231;1;2;0;2;0;0;0;0;0;231;1;"229;d";0;1;0;0;2;"232;e";;;
+;;Insecta;Hemiptera;Miridae;Miridae;Adelphocoris;Adelphocoris lineolatus;x;1;2;0;238;0;239;2;239;2;2;238;3;238;2;238;1;2;0;2;0;0;0;0;0;238;1;241;0;0;0;0;3;238;;;
+;;Insecta;Orthoptera;Acrididae;;;;;1;0;0;248;0;242;2,5;242;2,5;2;242;3;243;2;242;1;1;0;2;0;2;0;0;0;243;1;243;2;0;0;1;0;242;;;
+;;Insecta;Hemiptera;Aphididae;;;;14,15,16,17;3;0;0;256;0;256;0,5;256;3;0;256;3;256;2;256;1;2;0;1;0;0;1;0;0;256;0;256;0;0;0;3;0;256;;;Schizaphis rufula
+;;Insecta;Coleoptera;Carabidae;Platyninae;Calathus;Calathus mollis;1,14,16;0;0;0;"35;56, bd";1;"35;56, bd";2;45, 61;2;2;36;0;36;1;36, 67;3;0;0;0;0;0;0;0;0;36;0;36;3;0;0;0;0;36;;;
+;;Insecta;Coleoptera;Carabidae;Cicindelidae;Cicindela;Cicindela hybrida;1,18,14,20;1;0;0;36;0;36;2,5;23, 45, 61;1,5;2;36;3;36;1;"36, 67;d";2;0;0;1;0;0;0;0;0;36;0;36;0;0;3;0;0;36;;;
+;;Insecta;Coleoptera;Carabidae;Cicindelidae;Cicindela;Cicindela maritima;19,21,26;1;0;0;36;0;36;2;19, 23, 45, 61;1,5;2;36;3;36;1;"36;d, 67;d";2;0;0;1;0;0;0;0;0;36;0;36;0;0;3;0;0;36;;;
+;;Insecta;Hemiptera;Cicadellidae;Deltocephalinae;;;13,14,15,16,17;2;0;0;266;0;266;1,25;266;2;2;266;2;266;2;266;1;2;0;1;0;2;0;0;0;266;1;266;0;0;0;3;0;266;;;Doratura impudica
+;;Insecta;Dermaptera;Labiduridae;Labidurinae;Labidura;Labidura riparia ;166;0;1;0;166;2;167;2;168;2;2;168;0;169;2,5;169;1;0;2;1;2;0;0;0;0;167;1;62;1;0;2;0;0;170;;;
+;;Insecta;Coleoptera;Phalacridae;;;;14,21;3;0;0;244;0;244;0,5;244;2;2;245;1;246;2;246;1;2;0;2;0;0;0;0;0;246;1;247;1;0;0;2;0;244;;;Olibrus spp.
+;;Arachnida;Opiliones;Phalangiidae;;;;;2;0;0;267;0;267;1,75;268;3;0;268;2;267;2,5;267;2;2;0;0;0;0;0;0;0;267;1;267;1;0;0;2;0;267;;;Phalangium opilio
+;;Insecta;Coleoptera;Tenebrionidae;Thymelaeoideae;Phaleria;Phaleria cadaverina;162;0;2;0;"161; 162";1;162;2;163;2;2;161;0;162;3;161;1;0;2;0;2;0;0;0;0;161;0,5;161;2;2;0;0;0;161;;;
+;;Insecta;Coleoptera;Chrysomelidae;Galerucinae;Psylliodes;Psylliodes marcida;85;3;0;0;85;0;"78;d";1;85;3;1;"73;k,";1;" 82;d";2;"85, 72;d";1;2;0;1;0;2;0;0;0;85;0,5;"83;d";0;0;2;0;2;85;;;
+;;Insecta;Psocodea;Psocoptera;;;;233;2;2;0;233;0,25;233;0,5;234;2,75;0;235;0;236;3;233;2;2;0;1;0;0;1;0;0;234;0,75;237;1;2;0;0;2;237;;;Ectopsocus petersi
+;;Insecta;Coleoptera;Staphylinidae;;;;270;1;1;0;270;0,25;271;2;270;3;0;271;2;270;1;271;2;1;1;1;0;0;0;0;0;270;0,5;269;2;1;0;0;0;270;;;Xantholinus linearis
+;;Insecta;Coleoptera;Staphylinidae;Staphylininae;Xantholinus;;270;1;1;0;270;0,25;271;2;270;3;0;271;2;270;1;271;2;1;1;1;0;0;0;0;0;270;0,5;269;2;1;0;0;0;270;;;Xantholinus linearis
+;;Insecta;Hemiptera;Cicadellidae;;;;266;2;0;0;266;0;267;1;272;2;2;266;2;266;2;266;1;2;0;2;0;2;0;0;0;266;1;272;1;0;0;2;0;266;;;

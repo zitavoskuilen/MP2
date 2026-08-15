@@ -4,7 +4,7 @@
 ## CLEANING THE TRAITS DATA ####
 
 # read in the traits data 
- traits <- read_delim("traits_4.csv", delim = ";", 
+traits <- read_delim("traits_5.csv", delim = ";", 
      escape_double = FALSE, trim_ws = TRUE)
 
 ncol(traits)
@@ -19,6 +19,7 @@ subtrait <- as.character(unlist(traits[2, ]))
 
 group[group == ""] <- NA
 group <- fill(data.frame(group), group, .direction = "down")$group
+
 
 abbr <- c(
   "Adult living habitat" = "ALH",
@@ -49,16 +50,24 @@ new_names[1:9] <- c(
   "Subfamily", "Genus", "Species", "Reference_ID"
 )
 
-traits <- traits[-c(1, 2), ]
+
+# take off the column that we do not need 
+
 names(traits) <- new_names
+names(traits)
+traits <- traits[, !is.na(names(traits)) & names(traits) != ""]
+traits <- traits[-c(1, 2), ]
+
+str(traits)
 
 # delete all RID columns
 traits <- traits %>%
-  dplyr::select(-matches("RID"))
+  dplyr::select(-matches("rid"))
 
-# only select the column witht he trits that i want and the amily, subfamily, genus ans species columns
+# only select the column with the traits that i want and the order, family, subfamily, genus ans species columns
 traits <- traits %>%
   dplyr::select(
+    Order,
     Family,
     Subfamily,
     Genus, 
@@ -66,30 +75,29 @@ traits <- traits %>%
     matches("^[A-Z]+_")
   )
 
-# delete all the rows that have non numerical values in the columns > 6 
-traits <- traits %>%
-  dplyr::filter(!if_all(6:last_col(), ~ .x == "NF")
-  )
+str(traits)
 
-# replace all the NF's with zero's 
-traits <- traits %>% 
-  dplyr::mutate(across(everything(), ~ replace(.x, .x == "NF", 0))
-  )
 
 # make a new column with species where if the species column is already filled, it stays the same name but with a _ in the middle and if it not filled, take the first column on the left of species that is filled and put it in the new column with _sp behind it. and delte allt he other columns that are not species or the traits columns. so also the reference Id and the taxon_id
+
 traits <- traits %>%
   mutate(
-    Species = if_else(
-      !is.na(Species) & Species != "",
-      gsub(" ", "_", Species),
-      paste0(coalesce(na_if(Genus, ""), na_if(Subfamily, ""), na_if(Family, "")), "_sp")
+    Species = case_when(
+      !is.na(Species) & Species != "" ~ str_replace_all(Species, "\\s+", "_"),
+      
+      TRUE ~ paste0(
+        coalesce(
+          na_if(Genus, ""),
+          na_if(Subfamily, ""),
+          na_if(Family, ""),
+          na_if(Order, "")
+        ),
+        "_sp"
+      )
     )
-  ) %>%
-  dplyr::select(Species, matches("^[A-Z]+_")) %>%
-  dplyr::select(-Reference_ID, -Taxon_ID)
+  )
 
-
-traits 
+str(traits)
 
 
 ## SELECTING THE SPECIES FROM THE OCCURRENCE DATA THAT ARE ALSO IN THE TRAITS DATA ####
@@ -161,14 +169,29 @@ species_check <- data.frame(
 
 species_check
 
+# i have to change the names in data_two_species_traits om ze te machten met de namen in de traits dataset
+
+names(data_two_species_traits) <- dplyr::recode(
+  names(data_two_species_traits),
+  "Collembola_sp" = "Entomobryomorpha_sp",
+  "Philopedon_plagiatus" = "Philopedon_plagiatum",
+  "Prostigmata_sp" = "Trombidiidae_sp"
+)
+
 ## FOR NOW ONLY SELECT THE SPECIES THAT I HAVE FILLED IN THE TRAITS DATA 
 
-colnames(traits_filtered)
 
 traits_filtered <- traits %>%
   dplyr::filter(Species %in% species_in_traits_data) %>%
-  dplyr::arrange(match(Species, species_in_traits_data))%>%
-  dplyr::select(-"Proxy_species_NA")
+  dplyr::arrange(match(Species, species_in_traits_data)) 
+
+# take out the first 7 columns, and the 9th column with Reference_ID
+colnames(traits_filtered)
+
+traits_filtered <- traits_filtered %>%
+  dplyr::select(-c(Taxon_ID, Phylum, Class, Order, Family, Subfamily, Genus, Reference_ID)) 
+
+traits_filtered
 
 # make a long format of the traits data frame 
 
@@ -178,7 +201,13 @@ traits_long <- traits_filtered %>%
     names_to = "trait",
     values_to = "value"
   ) %>%
-  dplyr::mutate(value = as.numeric(value))
+  mutate(
+    value = parse_number(value, locale = locale(decimal_mark = ","))
+  )
 
+# nu heb ik een long format van de traits data, 
+# nu moet ik nog een long format van mn abundantie species data 
+
+## LONG FORMAT OF THE ABUNDANCE DATA ####
 
 
