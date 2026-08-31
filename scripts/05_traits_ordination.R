@@ -304,10 +304,20 @@ trait_pca <- rda(
   scale = TRUE
 )
 
-
 summary(trait_pca)
 
 # plotting 
+
+# colors of the plot
+phys_cols <- c(
+  "B"   = "#E8D7B0",  # bare
+  "B2"  = "#9B6F3E",  # bare2
+  "DS"  = "#4FA3A5",  # duneslack
+  "FD"  = "#F2C94C",  # foredune
+  "FD2" = "#D97706",  # foredune2
+  "LD"  = "#8FBF68",  # lowdensity
+  "HD"  = "#356B3A"   # highdensity
+)
 
 site_scores <- scores(
   trait_pca,
@@ -317,47 +327,123 @@ site_scores <- scores(
 
 group <- factor(traits_per_pot_wide$physiotope)
 
+# empty plot for the PCA
 ordiplot(
   trait_pca,
   type = "n",
-  scaling = "symmetric"
+  scaling = "symmetric",
+  main = "PCA - Traits", 
+  xlab = paste0("PC1 (", round(eig_percent[1], 1), "%)"),
+  ylab = paste0("PC2 (", round(eig_percent[2], 1), "%)")
 )
 
+# points 
 points(
   site_scores,
-  col = as.numeric(group),
-  pch = 19
+  col = phys_cols[as.character(group)],
+  pch = 19,
+  cex = 1
 )
 
+# ellips 
 ordiellipse(
   trait_pca,
   groups = group,
   display = "sites",
   scaling = "symmetric",
   kind = "sd",
-  draw = "polygon",
-  col = as.numeric(group),
-  alpha = 50
+  draw = "polygon",,
+  col = adjustcolor(
+    phys_cols[seq_along(levels(group_phys))],
+    alpha.f = 0.15
+  ),
+  border = phys_cols[seq_along(levels(group_phys))],
+  lwd = 2
 )
 
+# legend 
 legend(
   "topright",
-  legend = levels(group),
-  col = seq_along(levels(group)),
+  legend = c(
+    "Bare",
+    "Bare 2",
+    "Duneslack",
+    "Foredune",
+    "Foredune 2",
+    "Low-density dunes",
+    "High-density dunes"
+  ),
+  col = phys_cols[c("B", "B2", "DS", "FD", "FD2", "LD", "HD")],
   pch = 19,
-  bty = "n"
+  bty = "n", 
+    title = "Physiotopes"
+
 )
 
-text(
+# save the figure 
+dev.copy(
+  png,
+  filename = "plots/PCA_traits.png",
+  width = 4000,
+  height = 1800,
+  res = 300,
+  bg = "white"
+)  
+
+dev.off()
+
+# Trait-scores uit PCA halen
+trait_scores <- scores(
   trait_pca,
   display = "species",
   scaling = "symmetric",
-  col = "black",
+  choices = c(1, 2)
+)
+
+# Afstand tot oorsprong berekenen
+trait_scores_df <- data.frame(
+  trait = rownames(trait_scores),
+  PC1 = trait_scores[, 1],
+  PC2 = trait_scores[, 2]
+) %>%
+  mutate(
+    distance = sqrt(PC1^2 + PC2^2)
+  ) %>%
+  arrange(desc(distance))
+
+# Bekijk welke het belangrijkst zijn
+trait_scores_df
+
+# de 8 buitenste
+top_traits <- trait_scores_df %>%
+  slice_head(n = 8)
+
+top_traits
+
+arrows(
+  0, 0,
+  top_traits$PC1,
+  top_traits$PC2,
+  length = 0.08
+)
+
+# Alleen labels van de belangrijkste traits
+text(
+  top_traits$PC1,
+  top_traits$PC2,
+  labels = top_traits$trait,
+  pos = 3,
   cex = 0.7
 )
 
+# save the figure 
+dev.copy(
+  png,
+  filename = "plots/PCA_traits_with_arrows.png",
+  width = 4000,
+  height = 1800,
+  res = 300,
+  bg = "white"
+)
 
-eig <- eigenvals(trait_pca)
-
-eig_percent <- eig / sum(eig) * 100
-eig_percent
+dev.off()
