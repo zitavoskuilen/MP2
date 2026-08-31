@@ -10,15 +10,6 @@ traits <- read_delim("traits_5.csv", delim = ";",
 ncol(traits)
 view(traits)
 
-# take the foodwebplace out of this data set, we will make a sperate figure on this data becasue it is quite hard to explain this in a pca value 
-
-traits <- traits %>% 
-  dplyr::select(-c(foodweb_place))
-
-
-#View(traits)
-#View(data_two_summed_final)
-
 # first i will fix the trait names in the trait data set 
 
 # eerste twee rijen bevatten hoofdtrait + subtrait
@@ -48,9 +39,13 @@ clean <- function(x) {
 }
 
 new_names <- ifelse(
-  group %in% names(abbr),
-  paste0(abbr[group], "_", clean(subtrait)),
-  clean(subtrait)
+  clean(subtrait) == "parental_care",
+  "parental_care",
+  ifelse(
+    group %in% names(abbr),
+    paste0(abbr[group], "_", clean(subtrait)),
+    clean(subtrait)
+  )
 )
 
 new_names[1:9] <- c(
@@ -332,17 +327,9 @@ ordiplot(
   trait_pca,
   type = "n",
   scaling = "symmetric",
-  main = "PCA - Traits", 
+  main = "PCA - Traits - other", 
   xlab = paste0("PC1 (", round(eig_percent[1], 1), "%)"),
   ylab = paste0("PC2 (", round(eig_percent[2], 1), "%)")
-)
-
-# points 
-points(
-  site_scores,
-  col = phys_cols[as.character(group)],
-  pch = 19,
-  cex = 1
 )
 
 # ellips 
@@ -359,6 +346,22 @@ ordiellipse(
   ),
   border = phys_cols[seq_along(levels(group_phys))],
   lwd = 2
+)
+
+# points 
+points(
+  site_scores,
+  col = phys_cols[as.character(group)],
+  pch = 19,
+  cex = 1
+)
+
+# text(
+  site_scores[, 1],
+  site_scores[, 2],
+  labels = traits_per_pot_wide$pot_ID,
+  pos = 4,
+  cex = 0.7
 )
 
 # legend 
@@ -414,7 +417,7 @@ trait_scores_df <- data.frame(
 # Bekijk welke het belangrijkst zijn
 trait_scores_df
 
-# de 8 buitenste
+# a selection
 top_traits <- trait_scores_df %>%
   slice_head(n = 8)
 
@@ -439,7 +442,7 @@ text(
 # save the figure 
 dev.copy(
   png,
-  filename = "plots/PCA_traits_with_arrows.png",
+  filename = "plots/PCA_traits_8_important.png",
   width = 4000,
   height = 1800,
   res = 300,
@@ -447,3 +450,75 @@ dev.copy(
 )
 
 dev.off()
+ 
+# i want to make the same pca but with only the arrows for the AL traits 
+
+trait_scores_df_AL <- trait_scores_df %>%
+ dplyr::filter(startsWith(trait, "AL"))
+
+text(
+  trait_scores_df_AL$PC1,
+  trait_scores_df_AL$PC2,
+  labels = trait_scores_df_AL$trait,
+  pos = 3,
+  cex = 0.7
+)
+
+arrows(
+  0, 0,
+  trait_scores_df_AL$PC1,
+  trait_scores_df_AL$PC2,
+  length = 0.08
+)
+
+# make a figure with the LDL traits 
+
+trait_scores_df_other <- trait_scores_df %>%
+  dplyr::filter(startsWith(trait, "AL"))
+
+text(
+  trait_scores_df_other$PC1,
+  trait_scores_df_other$PC2,
+  labels = trait_scores_df_other$trait,
+  pos = 3,
+  cex = 0.7
+)
+
+arrows(
+  0, 0,
+  trait_scores_df_other$PC1,
+  trait_scores_df_other$PC2,
+  length = 0.08
+)
+
+# save the figure 
+dev.copy(
+  png,
+  filename = "plots/PCA_traits_other.png",
+  width = 4000,
+  height = 1800,
+  res = 300,
+  bg = "white"
+)
+
+dev.off()
+
+## Permanova traits ####
+
+meta_traits <- traits_per_pot_wide %>%
+  dplyr::select(pot_ID, physiotope) %>%
+  mutate(
+    location = sub("_.*", "", pot_ID)
+  )
+
+# scaled because some traits 
+trait_matrix_scaled <- scale(trait_matrix)
+
+permanova_traits <- adonis2(
+  trait_matrix_scaled ~ location,
+  data = meta_traits,
+  method = "euclidean",
+  permutations = 999
+)
+
+permanova_traits

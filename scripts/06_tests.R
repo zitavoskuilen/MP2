@@ -18,7 +18,7 @@ species <- data_two_summed_final %>%
 bray <- vegdist(species, method = "bray")
 
 
-## VERSCHILLEN DE LOCATIES VAN ELKAAR 
+## VERSCHILT DE ABUNDANTIE TUSSEN DE LOCATIES 
 
 # test voor verschil tussen loaties 
 permanova <- adonis2(
@@ -36,7 +36,7 @@ pairwiseAdonis::pairwise.adonis(
 
 library(pairwiseAdonis)
 
-# VERSCHILLEN DE PHYSIOTOPEN VAN ELKAAR 
+# VERSCHILT DE ABUNDANTIE TUSSEN DE PHYSIOTOPEN 
 set.seed(123)
 permanova_phys <- adonis2(
   bray ~ physiotope,
