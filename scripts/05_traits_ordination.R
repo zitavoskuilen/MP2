@@ -8,6 +8,14 @@ traits <- read_delim("traits_5.csv", delim = ";",
      escape_double = FALSE, trim_ws = TRUE)
 
 ncol(traits)
+view(traits)
+
+# take the foodwebplace out of this data set, we will make a sperate figure on this data becasue it is quite hard to explain this in a pca value 
+
+traits <- traits %>% 
+  dplyr::select(-c(foodweb_place))
+
+
 #View(traits)
 #View(data_two_summed_final)
 
@@ -60,9 +68,14 @@ traits <- traits[-c(1, 2), ]
 
 str(traits)
 
-# delete all RID columns
+
+# Delete the columns we will not need 
+# delete all RID (reference id) columns
+# and the foodwebplace score becasue we will make a seperate figure on that 
 traits <- traits %>%
-  dplyr::select(-matches("rid"))
+  dplyr::select(-matches("rid")) %>%
+  dplyr::select(-c("foodweb_place"))
+
 
 # only select the column with the traits that i want and the order, family, subfamily, genus ans species columns
 traits <- traits %>%
@@ -189,7 +202,7 @@ traits_filtered <- traits %>%
 colnames(traits_filtered)
 
 traits_filtered <- traits_filtered %>%
-  dplyr::select(-c(Taxon_ID, Phylum, Class, Order, Family, Subfamily, Genus, Reference_ID)) 
+  dplyr::select(-c(Taxon_ID, Order, Family, Subfamily, Genus, Reference_ID)) 
 
 traits_filtered
 
@@ -208,6 +221,143 @@ traits_long <- traits_filtered %>%
 # nu heb ik een long format van de traits data, 
 # nu moet ik nog een long format van mn abundantie species data 
 
-## LONG FORMAT OF THE ABUNDANCE DATA ####
+## LONG FORMAT OF THE ABUNDANCE DATA & JOINING THE DATA SETS ####
+data_two_species_traits
+
+data_two_long <- data_two_species_traits %>%
+  pivot_longer(
+    cols = -c(pot_ID, physiotope),
+    names_to = "Species",
+    values_to = "abundance"
+  ) %>% 
+  dplyr::select(-c(physiotope))
 
 
+## LEFT JOINING THE TWO LONG FORMAT TABLES ## 
+
+traits_abundance <- left_join(
+  data_two_long,
+  traits_long,
+  by = "Species"
+)
+
+# makeing a new column with the "weighted traits code' which is the abundance * the trait value 
+
+traits_abundance <- traits_abundance %>%
+  mutate(weighted_trait = abundance * value)
+
+
+# view(traits_abundance)
+
+
+# but we want a community weighted mean per pitfaal because otherwise you get a higher score for a trait if the abundance of individuals is higher in a pitfall
+
+traits_per_pot_long <- traits_abundance %>%
+  group_by(pot_ID, trait) %>%
+  summarise(
+    weighted_sum = sum(abundance * value, na.rm = TRUE),
+    
+    abundance_known = sum(
+      abundance[!is.na(value)]
+    ),
+    
+    CWM = ifelse(
+      abundance_known > 0,
+      weighted_sum / abundance_known,
+      NA_real_
+    ),
+    
+    .groups = "drop"
+  )
+
+# now make the format wide again to make a pca 
+
+traits_per_pot_wide <- traits_per_pot_long %>%
+  dplyr::select(pot_ID, trait, CWM) %>%
+  pivot_wider(
+    names_from = trait,
+    values_from = CWM
+  ) %>%
+  left_join(
+    data_two_species_traits %>%
+      dplyr::select(pot_ID, physiotope) %>%
+      distinct(),
+    by = "pot_ID"
+  )
+
+view(traits_per_pot_wide)
+
+## PCA TRAITS ####
+
+# select only the trait values and delete the column with only NA's 
+trait_matrix <- traits_per_pot_wide %>%
+  dplyr::select( -c(pot_ID  , physiotope)) %>%
+  dplyr::select(where(~ !all(is.na(.))))
+
+dim(trait_matrix)
+str(trait_matrix)
+
+# PCA
+
+trait_pca <- rda(
+  trait_matrix,
+  scale = TRUE
+)
+
+
+summary(trait_pca)
+
+# plotting 
+
+site_scores <- scores(
+  trait_pca,
+  display = "sites",
+  scaling = "symmetric"
+)
+
+group <- factor(traits_per_pot_wide$physiotope)
+
+ordiplot(
+  trait_pca,
+  type = "n",
+  scaling = "symmetric"
+)
+
+points(
+  site_scores,
+  col = as.numeric(group),
+  pch = 19
+)
+
+ordiellipse(
+  trait_pca,
+  groups = group,
+  display = "sites",
+  scaling = "symmetric",
+  kind = "sd",
+  draw = "polygon",
+  col = as.numeric(group),
+  alpha = 50
+)
+
+legend(
+  "topright",
+  legend = levels(group),
+  col = seq_along(levels(group)),
+  pch = 19,
+  bty = "n"
+)
+
+text(
+  trait_pca,
+  display = "species",
+  scaling = "symmetric",
+  col = "black",
+  cex = 0.7
+)
+
+
+eig <- eigenvals(trait_pca)
+
+eig_percent <- eig / sum(eig) * 100
+eig_percent
