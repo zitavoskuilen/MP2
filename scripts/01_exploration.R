@@ -38,7 +38,7 @@ if("renv" %in% installed.packages()[,"Package"]){
 
 list_of_packages_used <- c("here", "ggplot2", "car", 
                            "tidyverse", "dplyr", "cowplot", 
-                           "vegan", "renv", "lme4", 
+                           "vegan", "renv", "lme4", "multcomp", 
                             "DHARMa", "emmeans", 
                            "brglm2", "glmmTMB", "MuMIn", "remotes", "pairwiseAdonis", 
                            "gridExtra", "multcompView", "survival", 

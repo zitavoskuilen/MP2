@@ -159,7 +159,7 @@ data_two_species_traits <- data_two_summed_final %>%
 data_two_species_traits 
 colnames(data_two_species_traits)
 
-# now i need to only take the rows from the traits data that containt he species that are in my data_two_species_traits data frame. so i will make a vector of the species names in the data_two_species_traits data frame and then filter the traits data frame for those species.
+# now i need to only take the rows from the traits data that contain the species that are in my data_two_species_traits data frame. so i will make a vector of the species names in the data_two_species_traits data frame and then filter the traits data frame for those species.
 
 colnames(data_two_species_traits)
 species_in_traits_data <- colnames(data_two_species_traits)[3:ncol(data_two_species_traits)]
@@ -503,22 +503,3 @@ dev.copy(
 
 dev.off()
 
-## Permanova traits ####
-
-meta_traits <- traits_per_pot_wide %>%
-  dplyr::select(pot_ID, physiotope) %>%
-  mutate(
-    location = sub("_.*", "", pot_ID)
-  )
-
-# scaled because some traits 
-trait_matrix_scaled <- scale(trait_matrix)
-
-permanova_traits <- adonis2(
-  trait_matrix_scaled ~ location,
-  data = meta_traits,
-  method = "euclidean",
-  permutations = 999
-)
-
-permanova_traits

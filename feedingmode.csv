@@ -1,0 +1,115 @@
+Taxon_ID;Phylum;Class;Order;Family;Subfamily;Genus;Species;microbivore;detrivore;herbivore;granivore;predator
+W001;Arthropoda;Malacostraca;Amphipoda;Talitridae;;;;0;3;0;0;0
+W002;Arthropoda;Malacostraca;Amphipoda;Talitridae;Talitrinae;Deshayesorchestia;Deshayesorchestia deshayesii;0;3;0;0;0
+W003;Arthropoda;Arachnida;Araneae;Agelenidae;;;;0;0;0;0;3
+W004;Arthropoda;Arachnida;Araneae;Cheiracanthiidae;Cheiracanthiinae;Cheiracanthium;;0;0;0;0;3
+W005;Arthropoda;Arachnida;Araneae;Clubionidae;;;;0;0;0;0;3
+W006;Arthropoda;Arachnida;Araneae;Clubionidae;Clubioninae;Clubiona;;0;0;0;0;3
+W008;Arthropoda;Arachnida;Araneae;Gnaphosidae;Zelotinae;Trachyzelotes;Trachyzelotes pedestris;0;0;0;0;3
+W009;Arthropoda;Arachnida;Araneae;Gnaphosidae;Zelotinae;Zelotes;Zelotes electus;0;0;0;0;3
+W010;Arthropoda;Arachnida;Araneae;Linyphiidae;;;;0;0;0;0;3
+W011;Arthropoda;Arachnida;Araneae;Linyphiidae;Erigoninae;Oedothorax;Oedothorax fuscus;0;0;0;0;3
+W012;Arthropoda;Arachnida;Araneae;Linyphiidae;Erigoninae;Oedothorax;Oedothorax retusus;0;0;0;0;3
+W013;Arthropoda;Arachnida;Araneae;Liocranidae;Liocraninae;Agroeca;;0;0;0;0;3
+W014;Arthropoda;Arachnida;Araneae;Lycosidae;;;;0;0;0;0;3
+W015;Arthropoda;Arachnida;Araneae;Lycosidae ;Lycosinae;Trochosa;;0;0;0;0;3
+W016;Arthropoda;Arachnida;Araneae;Lycosidae ;Lycosinae;Alopecosa;Alopecosa pulverulenta;0;0;0;0;3
+W017;Arthropoda;Arachnida;Araneae;Lycosidae ;Pardosinae;Pardosa;;0;0;0;0;3
+W018;Arthropoda;Arachnida;Araneae;Lycosidae ;Piratinae;Pirata;Pirata piraticus;0;0;0;0;3
+W019;Arthropoda;Arachnida;Araneae;Lycosidae ;Piratinae;Piratula;Piratula latitans;0;0;0;0;3
+W020;Arthropoda;Arachnida;Araneae;Lycosidae ;Tricassinae;Arctosa;Arctosa leopardus;0;0;0;0;3
+W021;Arthropoda;Arachnida;Araneae;Lycosidae ;Tricassinae;Arctosa;Arctosa perita;0;0;0;0;3
+W022;Arthropoda;Arachnida;Araneae;Lycosidae ;Pardosinae;Pardosa;Pardosa monticola;0;0;0;0;3
+W023;Arthropoda;Arachnida;Araneae;Lycosidae ;Pardosinae;Pardosa;Pardosa palustris;0;0;0;0;3
+W024;Arthropoda;Arachnida;Araneae;Philodromidae;Philodrominae;Tibellus;;0;0;0;0;3
+W025;Arthropoda;Arachnida;Araneae;Philodromidae;Philodrominae;Rhysodromus;Rhysodromus fallax;0;0;0;0;3
+W026;Arthropoda;Arachnida;Araneae;Philodromidae;Philodrominae;Thanatus;Thanatus striatus;0;0;0;0;3
+W027;Arthropoda;Arachnida;Araneae;Theridiidae;Tetragnathinae;Pachygnatha;Pachygnatha clercki;0;0;0;0;3
+W029;Arthropoda;Insecta;Coleoptera;Anthicidae;Anthicinae;Anthicus;Anthicus bimaculatus;0;3;0;0;0
+W030;Arthropoda;Insecta;Coleoptera;Anthicidae;Anthicinae;Notoxus;Notoxus monoceros;NF;NF;NF;NF;NF
+W031;Arthropoda;Insecta;Coleoptera;Carabidae;Broscinae;Broscus;Broscus cephalotes;0;0;0;0;3
+W032;Arthropoda;Insecta;Coleoptera;Carabidae;Cicindelidae;Cicindela;Cicindela hybrida;0;0;0;0;3
+W033;Arthropoda;Insecta;Coleoptera;Carabidae;Cicindelidae;Cicindela;Cicindela maritima;0;0;0;0;3
+W034;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Acupalpus;Acupalpus dubius;0;0;0;0;3
+W035;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Acupalpus;Acupalpus parvulus;0;0;0;0;3
+W036;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Agonum;Agonum lugens;0;0;0;0;3
+W037;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Agonum;Agonum marginatum;0;0;0;0;3
+W038;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Demetrias;Demetrias monostigma;0;0;0;0;3
+W039;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Stenolophus;Stenolophus mixtus;0;0;2;2;0
+W040;Arthropoda;Insecta;Coleoptera;Carabidae;Harpalinae;Stenolophus;Stenolophus teutonus;0;0;2;2;0
+W041;Arthropoda;Insecta;Coleoptera;Carabidae;Lebiinae;Paradromius;Paradromius linearis;0;0;0;0;3
+W042;Arthropoda;Insecta;Coleoptera;Carabidae;Lebiinae;Philorhizus;Philorhizus melanocephalus;0;0;0;0;3
+W043;Arthropoda;Insecta;Coleoptera;Carabidae;Lebiinae;Syntomus;Syntomus foveatus;0;0;0;0;3
+W044;Arthropoda;Insecta;Coleoptera;Carabidae;Nebriinae;Leistus;Leistus ferrugineus;0;0;0;0;3
+W045;Arthropoda;Insecta;Coleoptera;Carabidae;Omophroninae;Omophron;Omophron limbatum;0;0;0;0;3
+W046;Arthropoda;Insecta;Coleoptera;Carabidae;Platyninae;Calathus;Calathus erratus;0;0;0;0;3
+W047;Arthropoda;Insecta;Coleoptera;Carabidae;Platyninae;Calathus;Calathus mollis;0;0;0;0;3
+W048;Arthropoda;Insecta;Coleoptera;Carabidae;Pterostichinae;Amara;Amara aenea;0;0;0;2;2
+W049;Arthropoda;Insecta;Coleoptera;Carabidae;Pterostichinae;Amara;Amara lucida;0;0;0;2;2
+W050;Arthropoda;Insecta;Coleoptera;Carabidae;Pterostichinae;Amara;Amara tibialis;0;0;0;2;2
+W051;Arthropoda;Insecta;Coleoptera;Carabidae;Scaritinae;Clivina;Clivina fossor;0;0;2;2;2
+W052;Arthropoda;Insecta;Coleoptera;Carabidae;Scaritinae;Dyschirius;Dyschirius globosus;0;0;0;0;3
+W053;Arthropoda;Insecta;Coleoptera;Carabidae;Trechinae;Bembidion;Bembidion assimile;0;0;0;0;3
+W054;Arthropoda;Insecta;Coleoptera;Carabidae;Trechinae;Bembidion;Bembidion pallidipenne;0;0;0;0;3
+W055;Arthropoda;Insecta;Coleoptera;Chrysomelidae;;;;NF;NF;NF;NF;NF
+W056;Arthropoda;Insecta;Coleoptera;Chrysomelidae;Criocerinae;Oulema;Oulema duftschmidi;0;0;3;0;0
+W057;Arthropoda;Insecta;Coleoptera;Chrysomelidae;Galerucinae;Altica;;0;0;3;0;0
+W059;Arthropoda;Insecta;Coleoptera;Chrysomelidae;Galerucinae;Lochmaea;Lochmaea suturalis;0;0;3;0;0
+W060;Arthropoda;Insecta;Coleoptera;Chrysomelidae;Galerucinae;Psylliodes;Psylliodes marcida;0;0;3;0;0
+W061;Arthropoda;Insecta;Coleoptera;Coccinellidae;;;;NF;NF;NF;NF;NF
+W065;Arthropoda;Insecta;Coleoptera;Curculionidae;Entiminae;Otiorhynchus;Otiorhynchus atroapterus;0;0;3;0;0
+W066;Arthropoda;Insecta;Coleoptera;Curculionidae;Entiminae;Philopedon;Philopedon plagiatum;0;0;3;0;0
+W067;Arthropoda;Insecta;Coleoptera;Dryopidae;;;;0;0;3;0;0
+W068;Arthropoda;Insecta;Coleoptera;Dytiscidae;Copelatinae;Liopterus;Liopterus haemorrhoidalis;0;0;0;0;3
+W069;Arthropoda;Insecta;Coleoptera;Elateridae;;;;0;0;3;0;0
+W070;Arthropoda;Insecta;Coleoptera;Elateridae;Dendrometrinae;Cidnopus;Cidnopus aeruginosus;0;0;3;0;0
+W071;Arthropoda;Insecta;Coleoptera;Elateridae;Dendrometrinae;Hemicrepidius;Hemicrepidius niger;0;1;2;0;1
+W073;Arthropoda;Insecta;Coleoptera;Heteroceridae;Heterocerinae;Heterocerus;;2;2;0;0;0
+W074;Arthropoda;Insecta;Coleoptera;Histeridae;;;;0;1;0;0;3
+W075;Arthropoda;Insecta;Coleoptera;Hydraenidae;Ochthebiinae;Ochthebius;Ochthebius minimus;1;2;0;0;0
+W078;Arthropoda;Insecta;Coleoptera;Nitidulidae;Meligethinae;Meligethes;;0;0;3;0;0
+W080;Arthropoda;Insecta;Coleoptera;Phalacridae;;;;0;0;2;1;0
+W081;Arthropoda;Insecta;Coleoptera;Scarabaeidae;Aegialiinae;Aegialia;Aegialia arenaria;0;3;0;0;0
+W082;Arthropoda;Insecta;Coleoptera;Scarabaeidae;Aphodiinae;Aphodius;;0;3;0;0;0
+W084;Arthropoda;Insecta;Coleoptera;Scarabaeidae;Aphodiinae;Psammodius;Psammodius asper;NF;NF;NF;NF;NF
+W086;Arthropoda;Insecta;Coleoptera;Staphylinidae;;;;0;0;0;0;3
+W087;Arthropoda;Insecta;Coleoptera;Staphylinidae;Paederinae;Paederus;Paederus riparius;0;0;0;0;3
+W088;Arthropoda;Insecta;Coleoptera;Staphylinidae;Staphylininae;Philontus;;NF;NF;NF;NF;NF
+W089;Arthropoda;Insecta;Coleoptera;Staphylinidae;Staphylininae;Xantholinus;;0;0;0;0;3
+W090;Arthropoda;Insecta;Coleoptera;Staphylinidae;Tachyporinae;Tachyporus;;NF;NF;NF;NF;NF
+W091;Arthropoda;Insecta;Coleoptera;Tenebrionidae;;;;NF;NF;NF;NF;NF
+W092;Arthropoda;Insecta;Coleoptera;Tenebrionidae;Tenebrioninae;Melanimon;Melanimon tibialis;1;2;1;0;0
+W093;Arthropoda;Insecta;Coleoptera;Tenebrionidae;Tenebrioninae;Phylan;Phylan gibbus;0;2;1;0;0
+W095;Arthropoda;Insecta;Dermaptera;Labiduridae;Labidurinae;Labidura;Labidura riparia;0;1;0;0;2
+W096;Arthropoda;Insecta;Hemiptera;Aphididae;;;;0;0;3;0;0
+W097;Arthropoda;Insecta;Hemiptera;Cicadellidae;Deltocephalinae;;;0;0;3;0;0
+W098;Arthropoda;Insecta;Hemiptera;Delphacidae;;;;0;0;3;0;0
+W099;Arthropoda;Insecta;Hemiptera;Lygaeidae;;;;NF;NF;NF;NF;NF
+W100;Arthropoda;Insecta;Hemiptera;Lygaeidae;Cyminae;Cymus;Cymus claviculus;0;0;1;2;0
+W101;Arthropoda;Insecta;Hemiptera;Lygaeidae;Rhyparochrominae;Scolopostethus;;NF;NF;NF;NF;NF
+W102;Arthropoda;Insecta;Hemiptera;Lygaeidae;Rhyparochrominae;Pionosomus;Pionosomus varius;0;0;0;3;0
+W103;Arthropoda;Insecta;Hemiptera;Lygaeidae;Rhyparochrominae;Scolopostethus;Scolopostethus affinis;NF;NF;NF;NF;NF
+W104;Arthropoda;Insecta;Hemiptera;Lygaeidae;Rhyparochrominae;Taphropeltus;Taphropeltus contractus;0;0;0;3;0
+W106;Arthropoda;Insecta;Hemiptera;Piesmatidae;;;;NF;NF;NF;NF;NF
+W107;Arthropoda;Insecta;Hemiptera;Pleoidea;Pleae;Plea;;0;0;0;0;3
+W108;Arthropoda;Insecta;Hemiptera;Saldidae;Saldinae;;;NF;NF;NF;NF;NF
+W109;Arthropoda;Insecta;Hemiptera;Saldidae;Saldinae;Saldula;Saldula saltatoria;0;0;0;0;3
+W110;Arthropoda;Insecta;Hemiptera;Veliidae;Microveliinae;Microvelia;;0;0;0;0;3
+W111;Arthropoda;Insecta;Hymenoptera;Formicidae;;;;0;1;0;0;1
+W112;Arthropoda;Insecta;Hymenoptera;Formicidae;Formicinae;Lasius;Lasius psammophilus;0;1;0;0;1
+W113;Arthropoda;Diplopoda;Julida;Julidae;;;;0;2;1;0;0
+W114;Arthropoda;Chilopoda;Lithobiomorpha;Lithobiidae;Lithobiinae;Lithobius;;0;0;0;0;3
+W116;Arthropoda;Arachnida;Opiliones;Phalangiidae;;;;0;1;0;0;3
+W117;Arthropoda;Insecta;Orthoptera;Acrididae;;;;0;0;3;0;0
+W118;Arthropoda;Insecta;Orthoptera;Tetrigidae;Tetriginae;Tetrix;Tetrix subulata;2;2;1;0;0
+W119;Arthropoda;Collembola;Poduromorpha;Neanuridae;Pseudachorutinae;Anurida;Anurida maritima;0;3;0;0;0
+W120;Arthropoda;Arachnida;Pseudoscorpiones;Cheliferidae;Cheliferinae;Dactylochelifer;Dactylochelifer latreillii;0;0;0;0;3
+W121;Arthropoda;Insecta;Psocodea;;;;;2;1;0;0;0
+W122;Mollusca;Gastropoda;Stylommatophora;Geomitridae;Geomitrinae;Xeroplexa;Xeroplexa intersecta;NF;NF;NF;NF;NF
+W123;Mollusca;Gastropoda;Stylommatophora;Helicidae;Helicinae;Cepaea;Cepaea nemoralis;NF;NF;NF;NF;NF
+W124;Arthropoda;Insecta;Thysanoptera;Phlaeothripidae;;;;NF;NF;NF;NF;NF
+W125;Arthropoda;Insecta;Thysanoptera;Thripidae;;;;NF;NF;NF;NF;NF
+W126;Arthropoda;Insecta;Coleoptera;Malachiidae;Malachiidae;Clanoptilus ;Clanoptilus marginellus;0;0;1;0;1
+W127;Arthropoda;Insecta;Hemiptera;Miridae;Miridae;Adelphocoris;Adelphocoris lineolatus;0;0;3;0;0
+W128;Arthropoda;Arachnida;Trombidiformes;Trombidiidae ;;;;0;0;0;0;3
+W129;Arthropoda;Collembola;Entomobryomorpha;;;;;1;2;1;0;0
