@@ -171,7 +171,10 @@ env_long <- envdata %>%
     soil_om_percentage,
     D50,
     grain_sorting,
-    richness
+    PlantRichness, 
+    percentage_physiotope, 
+    beach_width, 
+    slope
   ) %>%
   pivot_longer(
     cols = c(
@@ -179,7 +182,10 @@ env_long <- envdata %>%
       soil_om_percentage,
       D50,
       grain_sorting,
-      richness
+      PlantRichness, 
+      percentage_physiotope, 
+    beach_width, 
+    slope
     ),
     names_to = "variable",
     values_to = "value"
@@ -192,14 +198,20 @@ env_long$variable <- factor(
     "soil_om_percentage",
     "D50",
     "grain_sorting",
-    "richness"
+    "PlantRichness", 
+    "percentage_physiotope", 
+    "beach_width", 
+    "slope"
   ),
   labels = c(
     "Soil moisture (%)",
     "Soil organic matter (%)",
     "D50",
     "Grain sorting (D10/D90)",
-    "Plant richness"
+    "Plant richness", 
+    "Percentage Physiotope", 
+    "Beach width", 
+    "Slope"
   )
 )
 
@@ -237,5 +249,5 @@ env_plot <-ggplot(
   )
 
 # save the plot 
-ggsave("plots/env_boxplot.png", width = 8, height = 6, dpi = 300)
+ggsave("plots/env_boxplot_extra.png", width = 8, height = 6, dpi = 300)
 
