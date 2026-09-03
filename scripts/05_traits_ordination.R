@@ -356,7 +356,7 @@ points(
   cex = 1
 )
 
-# text(
+#text(
   site_scores[, 1],
   site_scores[, 2],
   labels = traits_per_pot_wide$pot_ID,

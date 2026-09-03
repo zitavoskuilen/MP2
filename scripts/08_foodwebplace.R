@@ -47,7 +47,7 @@ data_two_species_traits
 
 abundance_long <- data_two_species_traits %>%
   pivot_longer(
-    cols = -c(pot_ID, location, physiotope),
+    cols = -c(pot_ID, physiotope),
     names_to = "species_name",
     values_to = "abundance"
   )
@@ -125,19 +125,11 @@ feeding_cols <- c(
 
 #plot
 
-feeding_phys <- feeding_phys %>%
-  group_by(physiotope) %>%
-  mutate(
-    proportion = abundance / sum(abundance),
-    percentage = proportion * 100
-  ) %>%
-  ungroup()
-
 barplot <- ggplot(
   feeding_phys,
   aes(
     x = physiotope,
-    y = proportion,
+    y = abundance,
     fill = feeding_mode
   )
 ) +
@@ -146,8 +138,8 @@ barplot <- ggplot(
   geom_text(
     aes(
       label = ifelse(
-        percentage >= 5,
-        paste0(round(percentage, 1), "%"),
+        abundance >= 5,
+        abundance,
         ""
       )
     ),
@@ -166,19 +158,14 @@ barplot <- ggplot(
     )
   ) +
   
-  scale_y_continuous(
-    labels = scales::percent
-  ) +
-  
   labs(
     x = "Physiotope",
-    y = "Relative abundance",
-    fill = "Feeding mode", 
-    title = "Feeding mode composition across physiotopes"
+    y = "Abundance",
+    fill = "Feeding mode",
+    title = "Feeding mode abundance across physiotopes"
   ) +
   
   theme_classic()
-
 barplot
 
 # save the plot
@@ -189,3 +176,5 @@ ggsave(
   height = 6,
   dpi = 300
 )
+
+
