@@ -253,26 +253,35 @@ performance::check_model(
 #try log transformed 
 
 # log transformed
-moisture_log <- lm(
-  log(soil_moisture_percentage) ~ physiotope,
+om_log <- lm(
+  log(soil_om_percentage) ~ physiotope,
   data = envdata
 )
 
 
-moisture_log_lmer <- lmer(
-  log(soil_moisture_percentage) ~ physiotope + (1 | site),
+om_log_lmer <- lmer(
+  log(soil_om_percentage) ~ physiotope + (1 | site),
   data = envdata,
   REML = FALSE
 )
 
-AIC(moisture_log, moisture_log_lmer)
+AIC(om_log, om_log_lmer)
 
-performance::check_singularity(moisture_log)
+# keep lmm met log transformatie 
+om_final <- lmer(
+  log(soil_om_percentage) ~ physiotope + (1 | site),
+  data = envdata,
+  REML = TRUE
+)
 
-anova(moisture_log)
+
+performance::check_singularity(om_final)
+performance::check_model(om_final)
+
+anova(om_final)
 
 emmeans(
-  moisture_log,
+  om_final,
   pairwise ~ physiotope,
   adjust = "tukey"
 )
@@ -280,18 +289,18 @@ emmeans(
 library(emmeans)
 library(multcomp)
 
-emm_moisture <- emmeans(
-  moisture_log,
+emm_om <- emmeans(
+  om_final,
   ~ physiotope
 )
 
-moisture_letters <- cld(
-  emm_moisture,
+om_letters <- cld(
+  emm_om,
   adjust = "tukey",
   Letters = letters
 )
 
-moisture_letters
+om_letters
 
 
 
