@@ -41,7 +41,7 @@ list_of_packages_used <- c("here", "ggplot2", "car",
                            "vegan", "renv", "lme4", "multcomp", 
                             "DHARMa", "emmeans", "performance",  "lme4", "lmerTest", 
                            "brglm2", "glmmTMB", "MuMIn", "remotes", "pairwiseAdonis", 
-                           "gridExtra", "multcompView", "survival", "see",
+                           "gridExtra", "multcompView", "survival", "see", "insight",
                            "survminer", "readr", "lme4", "MASS",
                            "minqa", "ggnewscale", "qqplotr", "tidyr", "stringr"
 )
