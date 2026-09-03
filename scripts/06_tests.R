@@ -144,23 +144,156 @@ moisture <- lmer(
 
 # model assumptions
 performance::check_model(moisture)
-library(see)
-install.packages("see")
+
 # singularity
 check_singularity(moisture)
 
 # test effect physiotope
 anova(moisture)
 
-# organic matter ####
-organic_matter <- lm(
-  soil_om_percentage ~ physiotope + site,
+# Model without site
+moisture_lm <- lm(
+  soil_moisture_percentage ~ physiotope,
   data = envdata
 )
 
-Anova(organic_matter, type = 2)
-emmeans(organic_matter, pairwise ~ site, adjust = "holm")
-emmeans(organic_matter, pairwise ~ physiotope, adjust = "holm")
+# Model with site as random effect
+moisture_lmer <- lmer(
+  soil_moisture_percentage ~ physiotope + (1 | site),
+  data = envdata,
+  REML = FALSE
+)
+
+AIC(moisture_lm, moisture_lmer, moisture_log)
+
+# use model without random effect 
+# check assumptions
+par(mfrow = c(2, 2))
+plot(moisture_log)
+
+anova(moisture_lm)
+
+emmeans(
+  moisture_lm,
+  pairwise ~ physiotope,
+  adjust = "tukey"
+)
+
+# log transformed
+moisture_log <- lm(
+  log(soil_moisture_percentage) ~ physiotope,
+  data = envdata
+)
+
+
+moisture_log_lmer <- lmer(
+  log(soil_moisture_percentage) ~ physiotope + (1 | site),
+  data = envdata,
+  REML = FALSE
+)
+
+AIC(moisture_log, moisture_log_lmer)
+
+performance::check_singularity(moisture_log)
+
+anova(moisture_log)
+
+emmeans(
+  moisture_log,
+  pairwise ~ physiotope,
+  adjust = "tukey"
+)
+
+library(emmeans)
+library(multcomp)
+
+emm_moisture <- emmeans(
+  moisture_log,
+  ~ physiotope
+)
+
+moisture_letters <- cld(
+  emm_moisture,
+  adjust = "tukey",
+  Letters = letters
+)
+
+moisture_letters
+
+# organic matter ####
+
+organic_matter <- lmer(
+  soil_om_percentage ~ physiotope + (1 | site),
+  data = envdata,
+  REML = FALSE
+)
+# model assumptions
+performance::check_model(organic_matter)
+
+# singularity
+check_singularity(organic_matter)
+
+VarCorr(organic_matter)
+
+
+organic_matter_simple <- lm(
+  soil_om_percentage ~ physiotope,
+  data = envdata
+)
+
+AIC(organic_matter_simple, organic_matter)
+
+# keep lmm 
+
+# use model with random effect 
+# check assumptions
+performance::check_model(
+  organic_matter)
+
+#try log transformed 
+
+# log transformed
+moisture_log <- lm(
+  log(soil_moisture_percentage) ~ physiotope,
+  data = envdata
+)
+
+
+moisture_log_lmer <- lmer(
+  log(soil_moisture_percentage) ~ physiotope + (1 | site),
+  data = envdata,
+  REML = FALSE
+)
+
+AIC(moisture_log, moisture_log_lmer)
+
+performance::check_singularity(moisture_log)
+
+anova(moisture_log)
+
+emmeans(
+  moisture_log,
+  pairwise ~ physiotope,
+  adjust = "tukey"
+)
+
+library(emmeans)
+library(multcomp)
+
+emm_moisture <- emmeans(
+  moisture_log,
+  ~ physiotope
+)
+
+moisture_letters <- cld(
+  emm_moisture,
+  adjust = "tukey",
+  Letters = letters
+)
+
+moisture_letters
+
+
 
 # D50  #### 
 D50 <- lm(
