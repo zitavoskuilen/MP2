@@ -62,11 +62,6 @@ feedingmode_filtered <- feedingmode %>%
 
 nrow(feedingmode_filtered)
 
-setdiff(
-  species_keep,
-  feedingmode_filtered$species_name
-)
-
 
 feedingmode_long <- feedingmode_filtered %>%
   pivot_longer(
@@ -86,12 +81,16 @@ feedingmode_long <- feedingmode_filtered %>%
 
 feedingmode
 
+
 feedingmode_long <- feedingmode_long %>%
   group_by(species_name) %>%
   mutate(
     feeding_prop = score / sum(score, na.rm = TRUE)
   ) %>%
   ungroup()
+
+names(feedingmode_long)
+head(feedingmode_long)
 
 
 feeding_abundance <- abundance_long %>%
@@ -109,6 +108,7 @@ feeding_abundance %>%
 
 
 feeding_phys <- feeding_abundance %>%
+  filter(!is.na(feeding_mode)) %>%
   group_by(physiotope, feeding_mode) %>%
   summarise(
     abundance = sum(feeding_abundance, na.rm = TRUE),
@@ -123,30 +123,42 @@ feeding_cols <- c(
   "predator"    = "#A65365"   # donker oudroze/rood
 )
 
-#plot
+# relatieve contribution per physiotope
+feeding_phys_rel <- feeding_phys %>%
+  filter(!is.na(feeding_mode)) %>%
+  group_by(physiotope) %>%
+  mutate(
+    proportion = abundance / sum(abundance, na.rm = TRUE),
+    percentage = proportion * 100
+  ) %>%
+  ungroup()
 
-barplot <- ggplot(
-  feeding_phys,
+unique(feeding_phys_rel$physiotope)
+
+
+
+#plot
+feeding_barplot <- ggplot(
+  feeding_phys_rel,
   aes(
     x = physiotope,
-    y = abundance,
+    y = proportion,
     fill = feeding_mode
   )
 ) +
-  geom_col() +
-  
+  geom_col(width = 0.8) +
   geom_text(
     aes(
       label = ifelse(
-        abundance >= 5,
-        abundance,
+        percentage >= 5,
+        paste0(round(percentage, 1), "%"),
         ""
       )
     ),
     position = position_stack(vjust = 0.5),
     size = 3.5
   ) +
-  
+
   scale_fill_manual(
     values = feeding_cols,
     labels = c(
@@ -157,16 +169,31 @@ barplot <- ggplot(
       "predator"    = "Predator"
     )
   ) +
-  
+  scale_x_discrete(
+    limits = c(
+      "B",
+      "LD",
+      "HD",
+      "DS",
+      "FD",
+      "B2",
+      "FD2"
+    )
+  ) +
+
+  scale_y_continuous(
+    labels = scales::percent,
+    expand = c(0, 0)
+  ) +
+
   labs(
     x = "Physiotope",
-    y = "Abundance",
+    y = "Relative feeding-mode contribution",
     fill = "Feeding mode",
-    title = "Feeding mode abundance across physiotopes"
-  ) +
-  
+     title = "Feeding mode per Physiotope"  ) +
+
   theme_classic()
-barplot
+
 
 # save the plot
 ggsave(

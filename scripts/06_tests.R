@@ -63,7 +63,7 @@ pairwise_phys_species <- pairwiseAdonis::pairwise.adonis2(
 pairwise_phys_species
 
 # tabel van de resultaten maken 
-\pw <- pairwise_phys_species[-1]
+pw <- pairwise_phys_species[-1]
 
 results <- data.frame(
   comparison = names(pw),
@@ -119,9 +119,11 @@ disp_physio <- betadisper(
 permutest(disp_physio, permutations = 999)
 
 
-## Permanova environmaental variables physiotopes ####
+## Tests environmental variables physiotopes ####
+
+# didnt use this??
 env_scaled <- scale(env_pca_data)
-env_dist <- dist(env_scaled, method = "euclidean")
+env_dist <- dist(env_pca_data, method = "euclidean")
 
 permanova_env <- adonis2(
   env_dist ~ physiotope + site,
@@ -133,32 +135,24 @@ permanova_env <- adonis2(
 permanova_env
 
 
-# moisture 
-moisture <- lm(
-  soil_moisture_percentage ~ physiotope + site,
+# moisture #### 
+
+moisture <- lmer(
+  soil_moisture_percentage ~ physiotope + (1 | site),
   data = envdata
 )
 
-Anova(moisture, type = 2)
-emmeans(moisture, pairwise ~ physiotope , adjust = "holm")
+# model assumptions
+performance::check_model(moisture)
+library(see)
+install.packages("see")
+# singularity
+check_singularity(moisture)
 
-moisture <- emmeans(
-  moisture,
-  ~ physiotope
-)
+# test effect physiotope
+anova(moisture)
 
-letters_moisture <- emmeans:::cld.emmGrid(
-  moisture,
-  adjust = "holm",
-  Letters = letters,
-  alpha = 0.05
-)
-
-class(moisture)
-
-letters_moisture
-
-# organic matter 
+# organic matter ####
 organic_matter <- lm(
   soil_om_percentage ~ physiotope + site,
   data = envdata
@@ -168,7 +162,7 @@ Anova(organic_matter, type = 2)
 emmeans(organic_matter, pairwise ~ site, adjust = "holm")
 emmeans(organic_matter, pairwise ~ physiotope, adjust = "holm")
 
-# D50 
+# D50  #### 
 D50 <- lm(
   D50 ~ physiotope + site,
   data = envdata
@@ -177,7 +171,7 @@ D50 <- lm(
 Anova(D50, type = 2)
 emmeans(D50, pairwise ~ physiotope, adjust = "holm")
 
-# grain sorting 
+# grain sorting  #### 
 grain_sorting <- lm(
   grain_sorting ~ physiotope + site,
   data = envdata
@@ -186,7 +180,7 @@ grain_sorting <- lm(
 Anova(grain_sorting, type = 2)
 emmeans(grain_sorting, pairwise ~site, adjust = "holm")
 
-# plant richness 
+# plant richness  #### 
 plantrichness <- lm(
   richness ~ physiotope + site,
   data = envdata
