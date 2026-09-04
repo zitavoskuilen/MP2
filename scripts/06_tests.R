@@ -305,45 +305,111 @@ om_letters
 
 
 # D50  #### 
-D50 <- lm(
-  D50 ~ physiotope + site,
+D50 <- lmer(
+  D50 ~ physiotope + (1 | site),
+  data = envdata, 
+  REML = FALSE
+)
+
+D50_lm <- lm(
+  D50 ~ physiotope,
   data = envdata
 )
 
-Anova(D50, type = 2)
-emmeans(D50, pairwise ~ physiotope, adjust = "holm")
+AIC(D50, D50_lm)
+# simpler model is better 
+
+D50_final <- lm(
+  D50 ~ physiotope,
+  data = envdata
+)
+
+par(mfrow = c(2, 2))
+plot(D50_final)
+
+# looks fine 
+
+anova(D50_final)
+# no sign effect of physiotope
+
+
 
 # grain sorting  #### 
-grain_sorting <- lm(
-  grain_sorting ~ physiotope + site,
+grain_sorting <- lmer(
+  grain_sorting ~ physiotope + (1|site),
+  data = envdata, 
+  REML = FALSE
+)
+
+grain_sorting_lm <- lm(
+  grain_sorting ~ physiotope,
   data = envdata
 )
 
-Anova(grain_sorting, type = 2)
-emmeans(grain_sorting, pairwise ~site, adjust = "holm")
+AIC(grain_sorting, grain_sorting_lm)
+
+
+performance::check_singularity(grain_sorting)
+
+grain_sorting_final <- lmer(
+  grain_sorting ~ physiotope + (1|site),
+  data = envdata, 
+  REML = TRUE
+)
+
+performance::check_model(grain_sorting_final)
+# looks good 
+
+anova(grain_sorting_final)
+# no physiotope effect 
+
 
 # plant richness  #### 
-plantrichness <- lm(
-  richness ~ physiotope + site,
-  data = envdata
+# is a count variable, so glm with poisson family 
+plantrichness <- glm(
+  richness ~ physiotope,
+  data = envdata,
+  family = poisson(link = "log")
 )
 
-Anova(plantrichness, type = 2)
-emmeans(plantrichness, pairwise ~physiotope, adjust = "holm")
-emmeans(plantrichness, pairwise ~ site, adjust = "holm")
-
-plantrichness <- emmeans(
-  plantrichness,
-  ~ physiotope
+# with random effect
+plantrichness_glmer <- glmer(
+  richness ~ physiotope + (1 | site),
+  data = envdata,
+  family = poisson(link = "log")
 )
 
+AIC(plantrichness, plantrichness_glmer)
+# keep the model with site as random effect
 
-letters_plantrichness<- emmeans:::cld.emmGrid(
-  plantrichness,
-  adjust = "holm",
-  Letters = letters,
-  alpha = 0.05
+performance::check_singularity(plantrichness_glmer)
+VarCorr(plantrichness_glmer)
+
+# check overdispersion 
+performance::check_overdispersion(plantrichness_glmer)
+
+car::Anova(
+  plantrichness_glmer,
+  type = 3
 )
 
+# post hoc 
+richness_emm <- emmeans(
+  plantrichness_glmer,
+  ~ physiotope,
+  type = "response"
+)
 
-letters_plantrichness
+pairs(
+  richness_emm,
+  adjust = "tukey"
+)
+
+# letters 
+richness_letters <- cld(
+  richness_emm,
+  adjust = "tukey",
+  Letters = letters
+)
+
+richness_letters
