@@ -41,8 +41,9 @@ library(pairwiseAdonis)
 ## Permanova abundance physiotopes  ####
 set.seed(123)
 permanova_phys <- adonis2(
-  bray ~ physiotope,
+  species_hel ~ physiotope,
   data = metadata,
+  method = "euclidean",
   permutations = 999,
   strata = metadata$location)
 
@@ -54,8 +55,9 @@ permanova_phys
 metadata_df <- as.data.frame(metadata)
 
 pairwise_phys_species <- pairwiseAdonis::pairwise.adonis2(
-  bray ~ physiotope,
+  species_hel ~ physiotope,
   data = metadata_df,
+  method = "euclidean",
   strata = "location",
   nperm = 999
 )
@@ -76,6 +78,41 @@ results$p_holm <- p.adjust(results$p, method = "holm")
 
 results
 
+# beta dispr
+# Euclidische afstand op Hellinger-getransformeerde soortendata
+dist_hel <- dist(species_hel, method = "euclidean")
+
+# Test op homogeniteit van multivariate dispersie
+disp_phys <- betadisper(
+  dist_hel,
+  group = metadata$physiotope,
+  type = "median"
+)
+
+# Permutaties beperken binnen location
+perm_design <- permute::how(
+  nperm = 999,
+  blocks = metadata$location
+)
+
+# Permutatietest
+disp_test <- permutest(
+  disp_phys,
+  permutations = perm_design
+)
+
+disp_test
+boxplot(
+  disp_phys,
+  xlab = "Physiotope",
+  ylab = "Distance to group median"
+)
+
+aggregate(
+  disp_phys$distances,
+  by = list(physiotope = metadata$physiotope),
+  FUN = mean
+)
 
 ## Permanova traits physiotopes ####
 
