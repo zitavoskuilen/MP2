@@ -79,44 +79,18 @@ results
 
 ## Permanova traits physiotopes ####
 
-meta_traits <- traits_per_pot_wide %>%
-  dplyr::select(pot_ID, physiotope) %>%
-  mutate(
-    location = sub("_.*", "", pot_ID)
-  )
+traits_per_pot_wide <- traits_per_pot_wide %>%
+  mutate(site = sub("_.*", "", pot_ID))
 
-# scaled because some traits 
-trait_matrix_scaled <- scale(trait_matrix)
-
-permanova_traits <- adonis2(
-  trait_matrix_scaled ~ location + physiotope,
-  data = meta_traits,
+trait_perm <- adonis2(
+  traits_hel ~ physiotope,
+  data = traits_per_pot_wide,
   method = "euclidean",
-  permutations = 999, 
-  by = "margin"
+  permutations = 999,
+  strata = traits_per_pot_wide$site
 )
 
-permanova_traits
-
-# which physiotopes differ from each other?
-pairwise_physio <- pairwiseAdonis::pairwise.adonis(
-  trait_matrix_scaled,
-  meta_traits$physiotope,
-  sim.method = "euclidean",
-  p.adjust.m = "holm",
-  perm = 999
-)
-
-pairwise_physio
-
-trait_dist <- dist(trait_matrix_scaled, method = "euclidean")
-
-disp_physio <- betadisper(
-  trait_dist,
-  meta_traits$physiotope
-)
-
-permutest(disp_physio, permutations = 999)
+trait_perm
 
 
 ## Tests environmental variables physiotopes ####
@@ -324,7 +298,7 @@ D50_final <- lm(
   data = envdata
 )
 
-par(mfrow = c(2, 2))
+par(mfrow = c(1,1))
 plot(D50_final)
 
 # looks fine 

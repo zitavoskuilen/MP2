@@ -145,158 +145,24 @@ data_env <- data_two_summed_final %>%
     )
   )
 
-
-
-###############################################
-# PART 7: ADD GROUPING AND LABLES TO NMDS (OPTIONAL)
-###############################################
-# Example: color by LOCATION
-group <- factor(data_env$location)
-
-ordiplot(nmds_res, type = "n")
-points(nmds_res, display = "sites", col = as.numeric(group), pch = 19)
-legend("topright", legend = levels(group), col = 1:length(levels(group)), pch = 19)
-
-# ADDING LABELS TO POINTS 
-point_labels <- data_env$pot_ID
-
-# NMDS-scores 
-site_scores <- vegan::scores(
-  nmds_res,
-  display = "sites"
-)
-
-#PLOT
-ordiplot(nmds_res, type = "n")
-
-points(
-  site_scores,
-  col = as.numeric(group),
-  pch = 19
-)
-
-#LABELS
-text(
-  site_scores[, 1],
-  site_scores[, 2],
-  labels = point_labels,
-  pos = 4,
-  cex = 0.7
-)
-
-#legend(
-  "topright",
-  legend = levels(group),
-  col = as.numeric(group),
-  pch = 19,
-  bty = "n"
-)
-
-# Eén kleur per locatie
-location_cols <- setNames(
-  seq_along(levels(group)),
-  levels(group)
-)
-
-# Kleuren in dezelfde volgorde als de factorlevels
-ellipse_cols <- location_cols[levels(group)]
-
-
-ordiellipse(
-  nmds_res,
-  groups = group,
-  display = "sites",
-  kind = "sd",
-  draw = "polygon",
-  col = as.numeric(group),
-  alpha = 10,
-  border = ellipse_cols
-)
-
-
-# save the plot 
-ggsave("plots/NMDS_data_two_with_eliipse_location.png", width = 8, height = 6, dpi = 300)
-
-# the same but then elipse for physiotope 
-
-
-physio_group <- factor(data_env$physiotope)
-
-physio_cols <- c(
-  "bare"        = "#D9C28F",  # licht zand
-  "bare2"       = "#BFA36A",  # donkerder zand
-  "duneslack"   = "#4FA3A5",  # blauwgroen, natte duinvallei
-  "foredune"    = "#E5B84B",  # geel/goud, helm en open duin
-  "foredune2"   = "#C98F2E",  # donkerder goud
-  "lowdensity"  = "#8FBF68",  # lichtgroen, lage vegetatiedichtheid
-  "highdensity" = "#356B3A"   # donkergroen, dichte vegetatie
-)
-
-levels(physio_group)
-
-physio_cols[levels(physio_group)]
-
-sum(is.na(physio_cols[as.character(physio_group)]))
-
-site_scores <- scores(nmds_res, display = "sites")
-
-ordiplot(nmds_res, type = "n", main = "NMDS with Physiotope Grouping")
-
-points(
-  site_scores,
-  col = physio_cols[as.character(physio_group)],
-  pch = 19,
-  cex = 1.2
-)
-
-ordiellipse(
-  nmds_res,
-  groups = physio_group,
-  display = "sites",
-  kind = "sd",
-  draw = "polygon",
-  col = adjustcolor(
-    physio_cols[levels(physio_group)],
-    alpha.f = 0.2
-  ),
-  border = physio_cols[levels(physio_group)]
-)
-
-legend(
-  "topright",
-  legend = levels(physio_group),
-  col = physio_cols[levels(physio_group)],
-  pch = 19,
-  bty = "n"
-)
-
-
-
 ###############################################
 # PART 8: ADD GROUPING TO PCA BASED ON PHYSIOTOPE
 ###############################################
 
 # Define grouping variable
-
-
 group_phys <- factor(data_env$physiotope)
-group_loc <- factor(data_env$location)
 
 phys_cols <- c(
   "bare"        = "#E8D7B0",  # heel licht zand
   "bare2"       = "#9B6F3E",  # duidelijk donkerder bruin-zand
-  
   "duneslack"   = "#4FA3A5",  # blauwgroen
-  
-  "foredune"    = "#F2C94C",  # helder geel
-  "foredune2"   = "#D97706",  # duidelijk oranje
-  
   "lowdensity"  = "#8FBF68",  # lichtgroen
-  "highdensity" = "#356B3A"   # donkergroen
+  "highdensity" = "#356B3A",  # donkergroen
+  "foredune"    = "#F2C94C",  # helder geel
+  "foredune2"   = "#D97706"  # duidelijk oranje
 )
 
-site_scores <- scores(pca_res_2, display = "sites", scaling = "symmetric")
-
+######## PLOT
 
 # Site scores
 site_scores <- scores(
@@ -305,37 +171,46 @@ site_scores <- scores(
   scaling = "symmetric"
 )
 
-# Percentage variance explained automatisch berekenen
+# Percentage variance explained
 eig <- eigenvals(pca_res_2)
 var_exp <- eig / sum(eig) * 100
 
-# Kleuren per punt
-point_cols <- phys_cols[as.numeric(group_phys)]
+# BELANGRIJK: kleuren koppelen aan naam physiotope
+point_cols <- phys_cols[as.character(group_phys)]
 
-# PCA plot
+# volgorde die ordiellipse gebruikt
+group_order <- names(table(group_phys))
+ellipse_cols <- phys_cols[group_order]
+
+
+################################################
+## PCA plot
+
+par(mar = c(5, 4, 4, 12), xpd = FALSE)
+
 plot(
-  pca_res_2,
-  display = "sites", type = "n", scaling = "symmetric",
+  site_scores[, 1],
+  site_scores[, 2],
+  type = "n",
   main = "PCA – Physiotope",
   xlab = paste0("PC1 (", round(var_exp[1], 1), "%)"),
   ylab = paste0("PC2 (", round(var_exp[2], 1), "%)"),
   las = 1,
-  bty = "l", 
-  xlim = c(-0.6, 1),
-ylim = c(-0.8, 0.50)
+  bty = "l",
+  xlim = c(-0.8, 1),
+  ylim = c(-0.9, 0.6),
+  xaxs = "i",
+  yaxs = "i"
 )
 
-# points 
-points(
-  site_scores[,1],
-  site_scores[,2],
-  pch = 21,                
-  bg = point_cols,
-  cex = 1,
-  lwd = 0.8
+abline(
+  h = 0,
+  v = 0,
+  lty = 2,
+  col = "grey70"
 )
 
-# Ellipses per physiotope
+# Ellipsen FIRST
 ordiellipse(
   pca_res_2,
   groups = group_phys,
@@ -344,46 +219,52 @@ ordiellipse(
   kind = "sd",
   draw = "polygon",
   col = adjustcolor(
-    phys_cols[seq_along(levels(group_phys))],
-    alpha.f = 0.15
+    ellipse_cols,alpha.f = 0.05
   ),
-  border = phys_cols[seq_along(levels(group_phys))],
-  lwd = 2
+  border = adjustcolor(
+    ellipse_cols, alpha.f = 0.6
+  ),
+  lwd = 1.3
 )
 
-# Points again 
+# Punten DAARNA
 points(
-  site_scores[,1],
-  site_scores[,2],
-  pch = 21,
-  bg = point_cols,
-  col = "grey20",
-  cex = 1,
-  lwd = 0.8
+  site_scores[, 1],
+  site_scores[, 2],
+  col = point_cols,
+  pch = 19,
+  cex = 1)
+
+
+legend_order <- c(
+  "bare",
+  "bare2", 
+  "lowdensity",
+  "highdensity",
+ "duneslack",
+  "foredune",
+  "foredune2"  
 )
 
-
-# Legenda
-
-legend_labels <- c(
-  "Bare",
-  "Bare 2",
-  "Duneslack",
-  "Foredune",
-  "Foredune 2",
-  "High-density dunes",
-  "Low-density dunes"
-)
-
-legend(
-  "topright",
-  legend = legend_labels,
-  pt.bg = phys_cols[seq_along(levels(group_phys))],
-  col = "grey20",
-  pch = 21,
-  pt.cex = 1.3,
-  bty = "n",
-  title = "Physiotopes"
+# adding legend 
+legend("right",
+        inset = c(-0.28, 0),
+       xpd = NA,
+       legend = c(
+    "Bare",
+    "Bare 2",    
+    "Low-density dunes",
+    "High-density dunes", 
+    "Green Beach",
+    "Foredune",
+    "Foredune 2"
+    
+  ),
+       col = phys_cols[legend_order],
+       pch = 19,
+       bty = "n",
+       title = "Physiotope",
+       cex = 0.8
 )
 
 # Calculate distance from origin
@@ -396,23 +277,36 @@ top3
 top7 <- names(sort(dist_sp, decreasing = TRUE))[1:7]
 top7
 
+top10 <- names(sort(dist_sp, decreasing = T))[1:10]
+top10
 
 text(
-  sp_scores[top7, 1],
-  sp_scores[top7, 2],
-  labels = gsub("_sp", "", top7),
+  sp_scores[top10, 1],
+  sp_scores[top10, 2],
+  labels = gsub("_sp", "", top10),
   cex = 0.8,
   col = "#274C77",
   font = 3
 )
 
-# plot opslaan 
-ggsave("plots/PCA_data_two_with_eliipse_physio_14_8.png", width = 8, height = 6, dpi = 300)
+dev.copy(
+  png,
+  filename = "PCA_phys.png",
+  width = 9,
+  height = 6,
+  units = "in",
+  res = 600
+)
+
+dev.off()
+
+################### 
 
 
 ###############
 # MAKE THE SAME ORDINATION PLOT BUT MAKE ELLIPS BASED ON LOCATION 
 ################
+group_loc <- factor(data_env$location)
 
 loc_col <- c(
   "Kaap Hoorn"        = "#1F7579",  # blauwgroen

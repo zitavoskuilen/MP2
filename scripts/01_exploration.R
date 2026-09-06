@@ -41,7 +41,7 @@ list_of_packages_used <- c("here", "ggplot2", "car",
                            "vegan", "renv", "lme4", "multcomp", 
                             "DHARMa", "emmeans", "performance",  "lme4", "lmerTest", 
                            "brglm2", "glmmTMB", "MuMIn", "remotes", "pairwiseAdonis", 
-                           "gridExtra", "multcompView", "survival", "see", "insight",
+                           "gridExtra", "multcompView", "survival", "see",
                            "survminer", "readr", "lme4", "MASS",
                            "minqa", "ggnewscale", "qqplotr", "tidyr", "stringr"
 )
@@ -61,6 +61,7 @@ lapply(list_of_packages_used, library, character.only = TRUE)
 
 renv::snapshot(type = "implicit")  # to save a snapshot of my project package 
 # versions into a file called renv.lock
+
 
 
 ###############################################
