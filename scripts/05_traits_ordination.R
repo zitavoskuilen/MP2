@@ -366,13 +366,6 @@ site_scores <- scores(
 
 group <- factor(traits_per_pot_wide$physiotope)
 
-png(
-  "PCA_traits_AL.png",
-  width = 9,
-  height = 6,
-  units = "in",
-  res = 600
-)
 
 # make extra space for legend
 par(mar = c(5, 4, 4, 12),xpd = FALSE)
@@ -381,7 +374,7 @@ ordiplot(
   trait_pca,
   type = "n",
   scaling = "symmetric",
-  main = "PCA -Adult Locomotion Traits",
+  main = "PCA - Adult Locomotion Traits",
   xlab = paste0("PC1 (", round(eig_percent[1], 1), "%)"),
   ylab = paste0("PC2 (", round(eig_percent[2], 1), "%)"),
   xlim = c(-0.6, 0.8),
@@ -395,13 +388,13 @@ ordiellipse(
   display = "sites",
   scaling = "symmetric",
   kind = "sd",
-  draw = "polygon",,
+  draw = "polygon",
   col = adjustcolor(
-    phys_cols[seq_along(levels(group_phys))],
+    phys_cols[levels(group)],
     alpha.f = 0.05
   ),
   border = adjustcolor(
-    phys_cols[seq_along(levels(group))],
+    phys_cols[levels(group)],
     alpha.f = 0.6
   ),
   lwd = 1.3
@@ -419,7 +412,7 @@ points(
 # legend 
 legend(
   "right",
-  inset = c(-0.32, 0),
+  inset = c(-0.14, 0),
   xpd = NA,
   legend = c(
     "Bare",
@@ -434,9 +427,9 @@ legend(
   col = phys_cols[c("B", "B2", "LD", "HD", "DS", "FD", "FD2")],
   pch = 19,
   bty = "n",
-  title = "Physiotopes"
+  title = "Physiotopes",
+    title.adj = 0.2
 )
-
 
 
 # Trait-scores uit PCA halen
@@ -491,19 +484,20 @@ arrows(
   length = 0.08
 )
 
+dev.copy(
+  png,
+  filename = "PCA_traits_AL.png",
+  width = 9,
+  height = 6,
+  units = "in",
+  res = 600
+)
 
 
 dev.off()
 
 
 # make a figure with the LDL traits 
-png(
-  "PCA_traits_other.png",
-  width = 9,
-  height = 6,
-  units = "in",
-  res = 600
-)
 
 
 # make extra space for legend
@@ -527,13 +521,13 @@ ordiellipse(
   display = "sites",
   scaling = "symmetric",
   kind = "sd",
-  draw = "polygon",,
+  draw = "polygon",
   col = adjustcolor(
-    phys_cols[seq_along(levels(group_phys))],
+    phys_cols[levels(group)],
     alpha.f = 0.05
   ),
   border = adjustcolor(
-    phys_cols[seq_along(levels(group))],
+    phys_cols[levels(group)],
     alpha.f = 0.6
   ),
   lwd = 1.3
@@ -551,7 +545,7 @@ points(
 # legend 
 legend(
   "right",
-  inset = c(-0.32, 0),
+  inset = c(-0.14, 0),
   xpd = NA,
   legend = c(
     "Bare",
@@ -566,7 +560,8 @@ legend(
   col = phys_cols[c("B", "B2", "LD", "HD", "DS", "FD", "FD2")],
   pch = 19,
   bty = "n",
-  title = "Physiotopes"
+  title = "Physiotopes",
+    title.adj = 0.2
 )
 
 trait_scores_df_other <- trait_scores_df %>%
@@ -608,6 +603,16 @@ text(
   cex = 0.7
 )
 
+# save the plot 
+dev.copy(
+  png,
+  filename = "PCA_traits_other.png",
+  width = 9,
+  height = 6,
+  units = "in",
+  res = 600
+)
+
 
 dev.off()
 
@@ -627,3 +632,51 @@ write.csv(
   trait_scores_all,
   "trait_PCA_scores.csv"
 )
+
+## TRAITS PER PHYSTIOPE OVERVIEW ####
+# I want a table with the traits per phystiope so we can see which traits are more common in which physiotope. 
+
+traits_per_pot_wide
+
+# make a column of phystiope 
+traits_per_pot_wide_new <- traits_per_pot_wide %>%
+  mutate(
+    location = sub("_.*", "", pot_ID),
+    physiotope = sub(".*_", "", pot_ID)
+  ) %>%
+  relocate(physiotope, location, .after = pot_ID)
+
+
+# in how many of the pltos do traits occur 
+trait_overview <- traits_per_pot_wide_new %>%
+  pivot_longer(
+    cols = -c(pot_ID, physiotope, location),
+    names_to = "trait",
+    values_to = "value"
+  ) %>%
+  group_by(physiotope, trait) %>%
+  summarise(
+    n_pots = n_distinct(pot_ID),
+    n_present = sum(value > 0, na.rm = TRUE),
+    presence_pct = n_present / n_pots * 100,
+    mean_value = mean(value, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# how many traits per physiotope 
+traits_total_phys <- traits_per_pot_wide_new %>%
+  group_by(physiotope) %>%
+  summarise(
+    across(
+      -c(pot_ID, location),
+      ~ any(.x > 0, na.rm = TRUE)
+    )
+  ) %>%
+  mutate(
+    total_traits = rowSums(across(-physiotope))
+  ) %>%
+  dplyr::select(physiotope, total_traits)
+
+traits_total_phys
+
+
