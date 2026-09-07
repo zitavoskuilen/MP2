@@ -190,6 +190,7 @@ envdata <- envdata %>%
       dplyr::select(
         site,
         physiotope,
+        cover,
         PlantRichness,
         PlantsShannon
       ),

@@ -8,7 +8,9 @@ env_pca_data <- envdata %>%
     soil_om_percentage,
     D50,
     grain_sorting, 
-    richness
+    richness,
+    cover
+    
   )
 
 # correlatie van de variabelen testen 

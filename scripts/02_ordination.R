@@ -116,7 +116,7 @@ plot(ca_res, main = "CA")
 ### NMDS plot
 plot(nmds_res, type = "t", main = "NMDS")
 
-###########
+
 # CHANGING LABELS 
 ###################
 
@@ -183,8 +183,8 @@ group_order <- names(table(group_phys))
 ellipse_cols <- phys_cols[group_order]
 
 
-################################################
-## PCA plot
+##
+## PCA plot####
 
 par(mar = c(5, 4, 4, 12), xpd = FALSE)
 
@@ -300,12 +300,11 @@ dev.copy(
 
 dev.off()
 
-################### 
 
 
-###############
-# MAKE THE SAME ORDINATION PLOT BUT MAKE ELLIPS BASED ON LOCATION 
-################
+###########
+# MAKE THE SAME ORDINATION PLOT BUT MAKE ELLIPS BASED ON LOCATION ####
+####
 group_loc <- factor(data_env$location)
 
 loc_col <- c(
@@ -375,5 +374,59 @@ legend("bottomright",
 ggsave("plots/PCA_data_two_with_eliipse_location_10_8.png", width = 8, height = 6, dpi = 300)
 
 
-###########
 
+###########
+## SPECIES RICHNESS PER PHYSIOTOPE ####
+
+# total species richness per phystiope 
+
+species_richness_phys <- data_two_summed_final %>%
+  group_by(physiotope) %>%
+  summarise(
+    across(
+      -pot_ID,
+      ~ any(.x > 0, na.rm = TRUE)
+    )
+  ) %>%
+  mutate(
+    species_richness = rowSums(across(-physiotope))
+  ) %>%
+  dplyr::select(physiotope, species_richness)
+
+species_richness_phys
+
+# per potID
+species_richness_pot <- data_two_summed_final %>%
+  mutate(
+    species_richness = rowSums(
+      dplyr::select(., -pot_ID, -physiotope,- location) > 0
+    )
+  ) %>%
+  dplyr::select(pot_ID, physiotope, species_richness)
+
+species_richness_pot
+
+# ik zien welke soorten er wel in FD en niet in FD2 voorkomen 
+species_FD_not_FD2 <- data_two_summed_final %>%
+  dplyr::filter(physiotope %in% c("FD", "FD2")) %>%
+  dplyr::select(-pot_ID, -location) %>%
+  group_by(physiotope) %>%
+  summarise(
+    across(
+      where(is.numeric),
+      ~ any(.x > 0, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  ) %>%
+  pivot_longer(
+    cols = -physiotope,
+    names_to = "species",
+    values_to = "present"
+  ) %>%
+  pivot_wider(
+    names_from = physiotope,
+    values_from = present
+  ) %>%
+dplyr::filter(!FD & FD2)
+
+species_FD_not_FD2
