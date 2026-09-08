@@ -8,7 +8,7 @@ env_pca_data <- envdata %>%
     soil_om_percentage,
     D50,
     grain_sorting, 
-    richness,
+    PlantRichness,
     cover
     
   )
@@ -163,12 +163,12 @@ dev.off()
 )
 
 
-## Boxplots of the individual environmental variables 
+## Boxplots of the individual environmental variables ####
 
 env_long <- envdata %>%
   dplyr::select(
     physiotope,
-    location,
+    site,
     soil_moisture_percentage,
     soil_om_percentage,
     D50,
@@ -176,6 +176,7 @@ env_long <- envdata %>%
     PlantRichness, 
     percentage_physiotope, 
     beach_width, 
+    cover,
     slope
   ) %>%
   pivot_longer(
@@ -187,23 +188,56 @@ env_long <- envdata %>%
       PlantRichness, 
       percentage_physiotope, 
     beach_width, 
+    cover,
     slope
     ),
     names_to = "variable",
     values_to = "value"
   )
 
-env_long$variable <- factor(
-  env_long$variable,
+# supplementary figure 
+env_long_supp <- env_long %>%
+  dplyr::filter(
+    variable %in% c(
+      "beach_width",
+      "slope",
+      "percentage_physiotope"
+    )
+  )
+
+env_long_supp$variable <- factor(
+  env_long_supp$variable,
+  levels = c(
+    "beach_width",
+    "slope",
+    "percentage_physiotope"
+  ),
+  labels = c(
+    "Beach width", 
+    "Slope", 
+    "Percentage Physiotope"
+  )
+)
+
+# figure in report 
+env_long_rest <- env_long %>%
+  dplyr::filter(
+    !variable %in% c(
+      "beach_width",
+      "slope",
+      "percentage_physiotope"
+    )
+  )
+
+env_long_rest$variable <- factor(
+  env_long_rest$variable,
   levels = c(
     "soil_moisture_percentage",
     "soil_om_percentage",
     "D50",
     "grain_sorting",
     "PlantRichness", 
-    "percentage_physiotope", 
-    "beach_width", 
-    "slope"
+    "cover"
   ),
   labels = c(
     "Soil moisture (%)",
@@ -211,16 +245,23 @@ env_long$variable <- factor(
     "D50",
     "Grain sorting (D10/D90)",
     "Plant richness", 
-    "Percentage Physiotope", 
-    "Beach width", 
-    "Slope"
+    "Plant cover (%)"
   )
 )
 
+phys_cols <- c(
+  "B"   = "#E8D7B0",
+  "B2"  = "#9B6F3E",
+  "DS"  = "#4FA3A5",
+  "LD"  = "#8FBF68",
+  "HD"  = "#356B3A",
+  "FD"  = "#F2C94C",
+  "FD2" = "#D97706"
+)
 
 # plot 
-env_plot <-ggplot(
-  env_long,
+env_plot_supp <-ggplot(
+  env_long_supp,
   aes(x = physiotope, y = value, fill = physiotope)
 ) +
   geom_boxplot(
@@ -232,7 +273,7 @@ env_plot <-ggplot(
     width = 0.15,
     size = 2,
     alpha = 0.8
-  ) +
+  )+
   facet_wrap(
     ~ variable,
     scales = "free_y"
@@ -250,6 +291,55 @@ env_plot <-ggplot(
     strip.text = element_text(face = "bold")
   )
 
-# save the plot 
-ggsave("plots/env_boxplot_extra.png", width = 8, height = 6, dpi = 300)
 
+env_plot_supp
+
+
+# save the plot 
+ggsave("plots/env_boxplot_supp.png", width = 8, height = 6, dpi = 300)
+
+# change order of physiotopes for the plot 
+env_long_rest$physiotope <- factor(
+  env_long_rest$physiotope,
+  levels = c("B", "B2", "LD", "HD", "DS", "FD", "FD2")
+)
+
+# other plot 
+env_plot_rest <-ggplot(
+  env_long_rest,
+  aes(x = physiotope, y = value, fill = physiotope)
+) +
+  geom_boxplot(
+    alpha = 0.6,
+    outlier.shape = NA
+  ) +
+  geom_jitter(
+    aes(color = physiotope),
+    width = 0.15,
+    size = 2,
+    alpha = 0.8
+  )+
+  facet_wrap(
+    ~ variable,
+    scales = "free_y"
+  ) +
+  scale_fill_manual(values = phys_cols) +
+  scale_color_manual(values = phys_cols) +
+  labs(
+    x = "Physiotope",
+    y = NULL
+  ) +
+  scale_y_continuous(
+  expand = expansion(mult = c(0.05, 0.20))
+) +
+  theme_classic() +
+  theme(
+    legend.position = "none",
+    strip.background = element_blank(),
+    strip.text = element_text(face = "bold")
+  )
+
+env_plot_rest
+
+# save the plot 
+ggsave("plots/env_boxplot_rest.png", width = 8, height = 6, dpi = 300)

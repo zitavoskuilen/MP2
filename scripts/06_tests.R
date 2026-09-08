@@ -145,6 +145,10 @@ permanova_env <- adonis2(
 
 permanova_env
 
+# correlations between variables 
+
+
+
 
 # moisture #### 
 
@@ -378,14 +382,14 @@ anova(grain_sorting_final)
 # plant richness  #### 
 # is a count variable, so glm with poisson family 
 plantrichness <- glm(
-  richness ~ physiotope,
+  PlantRichness ~ physiotope,
   data = envdata,
   family = poisson(link = "log")
 )
 
 # with random effect
 plantrichness_glmer <- glmer(
-  richness ~ physiotope + (1 | site),
+  PlantRichness ~ physiotope + (1 | site),
   data = envdata,
   family = poisson(link = "log")
 )
@@ -424,3 +428,47 @@ richness_letters <- cld(
 )
 
 richness_letters
+
+# cover ####
+
+envdata$cover_prop <- envdata$cover / 100
+
+cover_mod_ord <- glmmTMB(
+  cover_prop ~ physiotope + location,
+  data = envdata,
+  family = ordbeta(link = "logit")
+)
+
+
+summary(cover_mod_ord)
+car::Anova(cover_mod_ord, type = 3)
+
+emmeans(
+  cover_mod_ord,
+  pairwise ~ physiotope,
+  type = "response",
+  adjust = "tukey"
+)
+
+library(DHARMa)
+
+res_cover <- simulateResiduals(cover_mod_ord)
+plot(res_cover)
+
+
+# Estimated marginal means
+emm_cover <- emmeans(
+  cover_mod_ord,
+  ~ physiotope,
+  type = "response"
+)
+
+# Tukey pairwise comparisons
+letters_cover <- cld(
+  emm_cover,
+  adjust = "tukey",
+  Letters = letters
+) %>%
+  mutate(.group = trimws(.group))
+
+letters_cover

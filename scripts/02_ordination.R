@@ -267,6 +267,14 @@ legend("right",
        cex = 0.8
 )
 
+# envfit arrows
+plot(
+  ef,
+  p.max = 0.05,
+  col = "black",
+  cex = 0.8
+)
+
 # Calculate distance from origin
 dist_sp <- sqrt(sp_scores[,1]^2 + sp_scores[,2]^2)
 
@@ -430,3 +438,49 @@ species_FD_not_FD2 <- data_two_summed_final %>%
 dplyr::filter(!FD & FD2)
 
 species_FD_not_FD2
+
+##############
+## ENV FIT ####
+
+env_vars <- envdata %>%
+  dplyr::select(
+    soil_moisture_percentage,
+    soil_om_percentage,
+    D50,
+    slope,
+    beach_width,
+    PlantsShannon,
+    percentage_physiotope,
+    grain_sorting,
+    PlantRichness,
+    cover
+  )
+
+# check correlation 
+cor_matrix <- cor(
+  env_vars,
+  use = "pairwise.complete.obs",
+  method = "spearman"
+)
+
+corrplot(
+  cor_matrix,
+  method = "color",
+  type = "upper",
+  addCoef.col = "black",
+  tl.col = "black",
+  tl.srt = 45,
+  diag = FALSE
+)
+
+
+ef <- envfit(
+  pca_res_2,
+  env_vars,
+  permutations = 999,
+  strata = metadata$location
+)
+
+
+
+ef
