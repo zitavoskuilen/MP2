@@ -156,9 +156,8 @@ feeding_barplot <- ggplot(
       )
     ),
     position = position_stack(vjust = 0.5),
-    size = 3.5
+    size = 5
   ) +
-
   scale_fill_manual(
     values = feeding_cols,
     labels = c(
@@ -170,38 +169,69 @@ feeding_barplot <- ggplot(
     )
   ) +
   scale_x_discrete(
-    limits = c(
-      "B",
-      "LD",
-      "HD",
-      "DS",
-      "FD",
-      "B2",
-      "FD2"
+    limits = c("B", "B2", "LD", "HD", "DS", "FD", "FD2"),
+    labels = c(
+      "B"   = "B",
+      "B2"  = "B2",
+      "LD"  = "LD",
+      "HD"  = "HD",
+      "DS"  = "GB",
+      "FD"  = "FD",
+      "FD2" = "FD2"
     )
   ) +
-
   scale_y_continuous(
     labels = scales::percent,
     expand = c(0, 0)
   ) +
-
   labs(
     x = "Physiotope",
     y = "Relative feeding-mode contribution",
-    fill = "Feeding mode",
-     title = "Feeding mode per Physiotope"  ) +
-
-  theme_classic()
+    fill = "Feeding mode"
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(face = "bold", size = 12),
+    legend.text = element_text(size = 12),
+    strip.background = element_blank(),
+    strip.text = element_text(
+      face = "bold",
+      size = 12,
+      hjust = 0,
+      margin = margin(b = 6)
+    ),
+    axis.text = element_text(size = 14),
+    axis.title.x = element_text(
+      size = 14,
+      margin = margin(t = 8)
+    ),
+    axis.title.y = element_text(
+      size = 14,
+      margin = margin(r = 8)
+    ),
+    panel.spacing = unit(1.1, "lines")
+  )
+feeding_barplot
 
 
 # save the plot
 ggsave(
   filename = "feeding_mode_barplot.png",
-  plot = barplot,
+  plot = feeding_barplot,
   width = 8,
   height = 6,
   dpi = 300
 )
 
+# make a panel plot of abundance and feeding mode 
+p_abundance <- p_abundance +
+  theme(legend.position = "none")
 
+feeding_barplot <- feeding_barplot +
+  theme(legend.position = "right")
+
+
+combined_plot <- (p_abundance / feeding_barplot) +
+  plot_annotation(tag_levels = "A") &
+  common_theme

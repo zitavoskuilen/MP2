@@ -129,6 +129,45 @@ trait_perm <- adonis2(
 
 trait_perm
 
+# see which phystiopes are most similiar based on the centroid distances
+
+trait_centroids <- aggregate(
+  traits_hel,
+  by = list(physiotope = traits_per_pot_wide$physiotope),
+  FUN = mean
+)
+
+# keep physiotopes names 
+physio_names <- trait_centroids$physiotope
+
+# only trait columns 
+centroid_traits <- trait_centroids[, -1]
+
+# distances 
+centroid_dist <- as.matrix(dist(centroid_traits, method = "euclidean"))
+
+rownames(centroid_dist) <- physio_names
+colnames(centroid_dist) <- physio_names
+
+round(centroid_dist, 3)
+
+# make a dataframe of the distances between physiotopes
+dist_df <- as.data.frame(as.table(centroid_dist))
+
+dist_df <- dist_df %>%
+  filter(Var1 != Var2) %>%
+  mutate(
+    pair = ifelse(
+      as.character(Var1) < as.character(Var2),
+      paste(Var1, Var2, sep = " - "),
+      paste(Var2, Var1, sep = " - ")
+    )
+  ) %>%
+  distinct(pair, .keep_all = TRUE) %>%
+  arrange(Freq)
+
+dist_df
+
 
 ## Tests environmental variables physiotopes ####
 
@@ -472,3 +511,66 @@ letters_cover <- cld(
   mutate(.group = trimws(.group))
 
 letters_cover
+
+
+# elevation ####
+
+# no random effect 
+elevation_lm <- lm(
+  elevation ~ physiotope,
+  data = envdata
+)
+
+# with random effect 
+elevation_lmer <- lmer(
+  elevation ~ physiotope + (1 | site),
+  data = envdata,
+  REML = FALSE
+)
+
+
+AIC(elevation_lm, elevation_lmer)
+# lmer better 
+
+# check whether random effect is singular
+performance::check_singularity(elevation_lmer)
+
+# variance explained by site
+VarCorr(elevation_lmer)
+
+# model assumptions
+performance::check_model(elevation_lmer)
+
+# looks good 
+
+# final model 
+elevation_lmer <- lmer(
+  elevation ~ physiotope + (1 | site),
+  data = envdata,
+  REML = TRUE
+)
+
+# test 
+car::Anova(
+  elevation_lmer,
+  type = 3
+)
+
+elevation_emm <- emmeans(
+  elevation_lmer,
+  ~ physiotope
+)
+
+pairs(
+  elevation_emm,
+  adjust = "tukey"
+)
+
+
+elevation_letters <- cld(
+  elevation_emm,
+  adjust = "tukey",
+  Letters = letters
+)
+
+elevation_letters

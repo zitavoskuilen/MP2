@@ -172,6 +172,7 @@ env_long <- envdata %>%
     soil_moisture_percentage,
     soil_om_percentage,
     D50,
+    elevation,
     grain_sorting,
     PlantRichness, 
     percentage_physiotope, 
@@ -184,6 +185,7 @@ env_long <- envdata %>%
       soil_moisture_percentage,
       soil_om_percentage,
       D50,
+      elevation,
       grain_sorting,
       PlantRichness, 
       percentage_physiotope, 
@@ -201,7 +203,8 @@ env_long_supp <- env_long %>%
     variable %in% c(
       "beach_width",
       "slope",
-      "percentage_physiotope"
+      "percentage_physiotope", 
+      "grain_sorting"
     )
   )
 
@@ -210,12 +213,15 @@ env_long_supp$variable <- factor(
   levels = c(
     "beach_width",
     "slope",
-    "percentage_physiotope"
+    "percentage_physiotope", 
+    "grain_sorting"
   ),
   labels = c(
     "Beach width", 
     "Slope", 
-    "Percentage Physiotope"
+    "Percentage Physiotope", 
+    "Grain Sorting (D10/D90)"
+  
   )
 )
 
@@ -225,7 +231,8 @@ env_long_rest <- env_long %>%
     !variable %in% c(
       "beach_width",
       "slope",
-      "percentage_physiotope"
+      "percentage_physiotope", 
+      "grain_sorting"
     )
   )
 
@@ -235,7 +242,7 @@ env_long_rest$variable <- factor(
     "soil_moisture_percentage",
     "soil_om_percentage",
     "D50",
-    "grain_sorting",
+    "elevation",
     "PlantRichness", 
     "cover"
   ),
@@ -243,7 +250,7 @@ env_long_rest$variable <- factor(
     "Soil moisture (%)",
     "Soil organic matter (%)",
     "D50",
-    "Grain sorting (D10/D90)",
+    "Elevation (m)",
     "Plant richness", 
     "Plant cover (%)"
   )
@@ -260,12 +267,12 @@ phys_cols <- c(
 )
 
 # plot 
-env_plot_supp <-ggplot(
+env_plot_supp <- ggplot(
   env_long_supp,
   aes(x = physiotope, y = value, fill = physiotope)
 ) +
   geom_boxplot(
-    alpha = 0.6,
+    alpha = 1,
     outlier.shape = NA
   ) +
   geom_jitter(
@@ -273,13 +280,36 @@ env_plot_supp <-ggplot(
     width = 0.15,
     size = 2,
     alpha = 0.8
-  )+
+  ) +
   facet_wrap(
     ~ variable,
     scales = "free_y"
   ) +
   scale_fill_manual(values = phys_cols) +
   scale_color_manual(values = phys_cols) +
+  scale_x_discrete(
+    labels = c(
+      "B"   = "B",
+      "B2"  = "B2",
+      "DS"  = "GB",
+      "LD"  = "LD",
+      "HD"  = "HD",
+      "FD"  = "FD",
+      "FD2" = "FD2"
+    )
+  ) +
+  scale_x_discrete(
+  limits = c("B", "B2", "LD", "HD", "DS", "FD", "FD2"),
+  labels = c(
+    "B"   = "B",
+    "B2"  = "B2",
+    "LD"  = "LD",
+    "HD"  = "HD",
+    "DS"  = "GB",
+    "FD"  = "FD",
+    "FD2" = "FD2"
+  )
+) +
   labs(
     x = "Physiotope",
     y = NULL
@@ -290,8 +320,6 @@ env_plot_supp <-ggplot(
     strip.background = element_blank(),
     strip.text = element_text(face = "bold")
   )
-
-
 env_plot_supp
 
 
@@ -305,12 +333,12 @@ env_long_rest$physiotope <- factor(
 )
 
 # other plot 
-env_plot_rest <-ggplot(
+env_plot_rest <- ggplot(
   env_long_rest,
   aes(x = physiotope, y = value, fill = physiotope)
 ) +
   geom_boxplot(
-    alpha = 0.6,
+    alpha = 1,
     outlier.shape = NA
   ) +
   geom_jitter(
@@ -318,27 +346,57 @@ env_plot_rest <-ggplot(
     width = 0.15,
     size = 2,
     alpha = 0.8
-  )+
+  ) +
   facet_wrap(
     ~ variable,
-    scales = "free_y"
+    scales = "free_y",
+    ncol = 3,
+    axes = "all_x",
+    axis.labels = "margins"
   ) +
   scale_fill_manual(values = phys_cols) +
   scale_color_manual(values = phys_cols) +
+
+  scale_x_discrete(
+    limits = c("B", "B2", "LD", "HD", "DS", "FD", "FD2"),
+    labels = c(
+      "B"   = "B",
+      "B2"  = "B2",
+      "LD"  = "LD",
+      "HD"  = "HD",
+      "DS"  = "GB",
+      "FD"  = "FD",
+      "FD2" = "FD2"
+    )
+  ) +
+
   labs(
     x = "Physiotope",
     y = NULL
   ) +
+
   scale_y_continuous(
-  expand = expansion(mult = c(0.05, 0.20))
-) +
+    expand = expansion(mult = c(0.05, 0.32))
+  ) +
+
   theme_classic() +
   theme(
     legend.position = "none",
     strip.background = element_blank(),
-    strip.text = element_text(face = "bold")
+    strip.text = element_text(
+      face = "bold",
+      size = 12,
+      hjust = 0,
+      margin = margin(b = 6)
+    ),
+    axis.text = element_text(size = 10, face = "bold"),
+    axis.title.x = element_text(
+      face = "bold",
+      size = 12,
+      margin = margin(t = 8)
+    ),
+    panel.spacing = unit(1.1, "lines")
   )
-
 env_plot_rest
 
 # save the plot 

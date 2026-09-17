@@ -63,6 +63,34 @@ renv::snapshot(type = "implicit")  # to save a snapshot of my project package
 # versions into a file called renv.lock
 
 
+####################################
+# setting a theme
+
+common_theme <- theme_classic() +
+  theme(
+    axis.text = element_text(
+      size = 14,
+      face = "plain"
+    ),
+    axis.title = element_text(
+      size = 14,
+      face = "bold"
+    ),
+    axis.title.x = element_text(
+      margin = margin(t = 8)
+    ),
+    axis.title.y = element_text(
+      margin = margin(r = 8)
+    ),
+    legend.title = element_text(
+      face = "bold",
+      size = 12
+    ),
+    legend.text = element_text(
+      size = 12
+    )
+  )
+
 
 ###############################################
 # PART 2: LOAD DATA Macrofauna Fact 2026 ----
@@ -330,80 +358,5 @@ data_two_summed_final <- data_two_summed_final %>%
     Xantholinus_sp = Xantholinus
   )
 
-##############
-# DATA_THREE  
-#############
 
-# select only the harvest TS3 and TS4 BUT HK1, HK2 en HK3 
-
-data_three <- data %>%
-  dplyr::filter(harvest %in% c("HK1", "HK2", "HK3", "TS3", "TS4"))
-
-
-pot_ID_count <- data_three %>%
-  count(pot_ID)
-
-# now i have to add the rows toegteher that have the same pot_ID 
-# first i'll do ot for the harvests seperately 
-
-metadata_cols <- c(
-  "Done.",
-  "Harvest_total",
-  "harvest",
-  "days",
-  "pot_ID",
-  "physiotope",
-  "poll_no_poll",
-  "Poskey"
-)
-
-# Alle overige kolommen zijn soortkolommen
-species_cols <- names(data_three)[9:ncol(data_three)]
-
-data_summed_three <- data_three %>%
-  mutate(
-    across(
-      all_of(species_cols),
-      ~ {
-        x <- trimws(as.character(.x))
-        x[x == ""] <- NA
-        suppressWarnings(as.numeric(x))
-      }
-    )
-  ) %>%
-  mutate(
-    pot_group = sub("_[^_]+$", "", pot_ID)
-  ) %>%
-  group_by(harvest, pot_group) %>%
-  summarise(
-    Harvest_total = first(Harvest_total),
-    days = first(days),
-    physiotope = first(physiotope),
-    n_rows = n(),
-    across(
-      all_of(species_cols),
-      ~ sum(.x, na.rm = TRUE)
-    ),
-    .groups = "drop"
-  ) %>%
-  rename(pot_ID = pot_group)
-
-
-# now add all the pot_ID's together that have the same pot_ID but different harvests
-data_three_summed_final <- data_summed_three %>%
-  group_by(pot_ID) %>%
-  summarise(
-    Harvest_total = first(Harvest_total),
-    days = first(days),
-    physiotope = first(physiotope),
-    n_rows = sum(n_rows),
-    across(
-      all_of(species_cols),
-      ~ sum(.x, na.rm = TRUE)
-    ),
-    .groups = "drop"
-  ) %>%
-  dplyr::select(-n_rows, -days, -Harvest_total)
-
-str(data_three_summed_final)
 

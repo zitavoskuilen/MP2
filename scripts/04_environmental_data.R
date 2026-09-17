@@ -425,3 +425,97 @@ ggsave(filename = "plots/shannon_plot.png",
   height = 5,
   dpi = 300
 )
+
+# 6.0 Elevation adding to the envdata dataframe
+
+# load the data 
+
+elevationTS <-read.csv("~/Msc Ecology & Conservation/Master project 2/JOB_202604-Terschelling-Janne.csv")
+
+elevationNLCOAST <- read.csv("~/Msc Ecology & Conservation/Master project 2/JOB_202605.NLCOAST.JANNE.csv")
+
+# select only the data point taht we need and make one data frame of it 
+
+# terschelling only select where ObjName has KH, SDL, or KWA in it 
+elv_ts<- elevationTS %>%
+  filter(
+    str_detect(ObjName, "^(KH|SDL|KWA)"),
+    !str_detect(ObjName, "GRID")
+  )
+
+elevation <- elv_ts %>%
+  mutate(
+    physiotope_plot = str_remove(ObjName, "[-_]\\d+$"),
+    physiotope_plot = str_replace_all(physiotope_plot, "-", "_")
+  ) %>%
+  group_by(physiotope_plot) %>%
+  summarise(
+    elevation = mean(Ht, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+elevation
+
+# do the same for the other data set 
+elv_nlcoast <- elevationNLCOAST %>%
+  filter(
+    str_detect(ObjName, "^(IJM|HBD)"))
+
+elv_nlcoast_clean <- elv_nlcoast %>%
+  filter(ObjName != "IJM_B") %>%
+  mutate(
+    ObjName = str_replace(
+      ObjName,
+      "^IJM_(LD|HD|FD|DS|B)([123])$",
+      "IJM_\\1_\\2"
+    )
+  )
+
+elevation_mean_nlcoast <- elv_nlcoast_clean %>%
+  mutate(
+    location = str_extract(ObjName, "^[^_]+"),
+    physiotope = str_extract(ObjName, "(?<=_)[^_]+(?=_\\d+$)")
+  ) %>%
+  group_by(location, physiotope) %>%
+  summarise(
+    Ht = mean(Ht, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+elevation_mean_nlcoast
+
+# make the same as the other 
+elevation_nl <- elevation_mean_nlcoast %>%
+  transmute(
+    site = location,
+    physiotope = physiotope,
+    elevation = Ht
+  )
+
+# split into physiotope 
+
+elevation <- elevation %>%
+  separate(
+    physiotope_plot,
+    into = c("site", "physiotope"),
+    sep = "_"
+  )
+
+
+# bind 
+elevation_all <- bind_rows(elevation, elevation_nl)
+
+# change WS to DS to match the other dataset 
+elevation_all <- elevation_all %>%
+  mutate(
+    physiotope = ifelse(physiotope == "WS", "DS", physiotope)
+  )
+
+
+# add it to the envdata set
+envdata <- envdata %>%
+  dplyr::select(-elevation) %>%
+  left_join(
+    elevation_all,
+    by = c("site", "physiotope")
+  )

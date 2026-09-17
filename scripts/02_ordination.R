@@ -386,6 +386,63 @@ ggsave("plots/PCA_data_two_with_eliipse_location_10_8.png", width = 8, height = 
 ###########
 ## SPECIES RICHNESS PER PHYSIOTOPE ####
 
+# total individuals per physiotope 
+abundance_physiotope <- data_two_summed_final %>%
+  mutate(total_abundance = rowSums(across(4:94), na.rm = TRUE)) %>%
+  group_by(physiotope) %>%
+  summarise(
+    abundance = sum(total_abundance),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    physiotope = factor(
+      physiotope,
+      levels = c("B", "B2", "LD", "HD", "DS", "FD", "FD2")
+    )
+  )
+
+physiotope_colors <- c(
+  "B"   = "#E8D7B0",
+  "B2"  = "#9B6F3E",
+  "DS"  = "#4FA3A5",
+  "LD"  = "#8FBF68",
+  "HD"  = "#356B3A",
+  "FD"  = "#F2C94C",
+  "FD2" = "#D97706"
+)
+
+p_abundance <- ggplot(abundance_physiotope,
+       aes(x = physiotope, y = abundance, fill = physiotope)) +
+  geom_col() +
+  scale_fill_manual(values = physiotope_colors) +
+  scale_x_discrete(labels = c(
+    "B" = "B",
+    "B2" = "B2",
+    "DS" = "GB",
+    "LD" = "LD",
+    "HD" = "HD",
+    "FD" = "FD",
+    "FD2" = "FD2"
+  )) +
+  labs(
+    x = "",
+    y = "Total abundance"
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = "none"
+  )
+
+# check if abundance is right 
+data_two_summed_final %>%
+  dplyr::mutate(total_abundance = rowSums(across(4:94), na.rm = TRUE)) %>%
+  filter(physiotope %in% c("B", "B2")) %>%
+  dplyr::select(pot_ID, location, physiotope, total_abundance)
+
+
+# save the figure 
+ggsave("plots/abundance_per_physiotope.png", width = 8, height = 6, dpi = 300)
+
 # total species richness per phystiope 
 
 species_richness_phys <- data_two_summed_final %>%
