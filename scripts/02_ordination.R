@@ -192,7 +192,6 @@ plot(
   site_scores[, 1],
   site_scores[, 2],
   type = "n",
-  main = "PCA – Physiotope",
   xlab = paste0("PC1 (", round(var_exp[1], 1), "%)"),
   ylab = paste0("PC2 (", round(var_exp[2], 1), "%)"),
   las = 1,
@@ -267,15 +266,63 @@ legend("right",
        cex = 0.8
 )
 
-# envfit arrows
-plot(
-  ef,
-  p.max = 0.05,
-  col = "black",
-  cex = 0.8
+# envfit arrows ####
+
+# Plant richness vector
+# Extract Plant richness vector
+rich_vec <- scores(ef, display = "vectors")["PlantRichness", ]
+
+# Extract elevation vector
+elev_vec <- scores(ef_elevation, display = "vectors")[1, ]
+
+# Combine
+env_vectors <- rbind(
+  "Plant richness" = rich_vec,
+  "Elevation" = elev_vec
 )
 
-# Calculate distance from origin
+env_vectors
+
+arrow_mult <- ordiArrowMul(env_vectors)
+
+env_vectors_plot <- env_vectors * arrow_mult
+
+arrows(
+  x0 = 0,
+  y0 = 0,
+  x1 = env_vectors_plot[, 1],
+  y1 = env_vectors_plot[, 2],
+  length = 0.08,
+  lwd = 1.5,
+  col = "grey30"
+)
+
+# Plant richness
+text(
+  env_vectors_plot["Plant richness", 1],
+  env_vectors_plot["Plant richness", 2],
+  labels = "Plant richness",
+  cex = 0.8,
+  font = 1,
+  col = "black",
+  pos = 4,
+  offset = 0.2
+)
+
+# Elevation
+text(
+  env_vectors_plot["Elevation", 1],
+  env_vectors_plot["Elevation", 2],
+  labels = "Elevation",
+  cex = 0.8,
+  font = 1,
+  col = "black",
+  pos = 1,
+  offset = 0.2
+)
+
+
+# Calculate distance from origin for species namen 
 dist_sp <- sqrt(sp_scores[,1]^2 + sp_scores[,2]^2)
 
 # Select 3 most extreme species
@@ -300,7 +347,7 @@ text(
 dev.copy(
   png,
   filename = "PCA_phys.png",
-  width = 9,
+  width = 11,
   height = 6,
   units = "in",
   res = 600
@@ -313,9 +360,12 @@ dev.off()
 ###########
 # MAKE THE SAME ORDINATION PLOT BUT MAKE ELLIPS BASED ON LOCATION ####
 ####
-group_loc <- factor(data_env$location)
+group_loc <- factor(
+  data_two_summed_final$location,
+  levels = c("HBD", "IJM", "KH", "KWA", "SDL")
+)
 
-loc_col <- c(
+loc_cols <- c(
   "Kaap Hoorn"        = "#1F7579",  # blauwgroen
   "Schouwen-Duiveland"= "#BD7C0D",  # oranje
   "IJmuiden"          = "#D7B116",  # geel
@@ -339,20 +389,27 @@ site_scores <- scores(pca_res_2, display = "sites", scaling = "symmetric")
 # Calculate distance from origin
 dist_sp <- sqrt(sp_scores[,1]^2 + sp_scores[,2]^2)
 
-
+dev.copy(
+  png,
+  filename = "PCA_location.png",
+  width = 11,
+  height = 6,
+  units = "in",
+  res = 600
+)
 # Base PCA plot
 plot(pca_res_2, display = "sites", type = "n", scaling = "symmetric", 
-     main = "PCA  with Physiotope and Location Grouping (DATA_TWO)", 
+     main = "PCA Location Grouping", 
      xlab = "PC1 (15.8%)", 
     ylab = "PC2 (13.1%)")
 
 # Add sites (samples)
 points(
-  site_scores[,1],
-  site_scores[,2],
-  col = loc_col[as.numeric(group_loc)],
-  pch = phys_shapes[as.numeric(group_phys)],
-  cex = 1.2
+  site_scores[, 1],
+  site_scores[, 2],
+  col = loc_cols[group_loc],
+  pch = 19,
+  cex = 1
 )
 
 # Add ellipses per location
@@ -371,12 +428,10 @@ legend("topright",
        pch = 19,
        bty = "n")
 
-# add legend physiotpes 
-legend("bottomright",
-       legend = levels(group_phys),
-       pch = phys_shapes,
-       col = "black",
-       bty = "n")
+#save the plot 
+
+
+dev.off()
 
 # save the plot
 ggsave("plots/PCA_data_two_with_eliipse_location_10_8.png", width = 8, height = 6, dpi = 300)
@@ -499,6 +554,19 @@ species_FD_not_FD2
 ##############
 ## ENV FIT ####
 
+# first make sure the order of envdata is the same as the pca data 
+
+envdata <- envdata %>%
+  mutate(
+    pot_ID = paste(site, physiotope, sep = "_")
+  )
+
+
+envdata <- envdata[
+  match(data_two_summed_final$pot_ID, envdata$pot_ID),
+]
+
+
 env_vars <- envdata %>%
   dplyr::select(
     soil_moisture_percentage,
@@ -520,6 +588,7 @@ cor_matrix <- cor(
   method = "spearman"
 )
 
+
 corrplot(
   cor_matrix,
   method = "color",
@@ -535,9 +604,30 @@ ef <- envfit(
   pca_res_2,
   env_vars,
   permutations = 999,
-  strata = metadata$location
+  strata = envdata$site, 
+  na.rm = T
 )
 
 
 
 ef
+
+# env fit for elevation becasue of missing values for Heartbreak 
+
+
+pca_scores <- scores(pca_res_2, display = "sites")
+
+keep_elev <- !is.na(envdata$elevation)
+
+ef_elevation <- envfit(
+  pca_scores[keep_elev, , drop = FALSE],
+  envdata$elevation[keep_elev],
+  permutations = 999,
+  strata = envdata$site[keep_elev]
+)
+
+ef_elevation
+
+
+
+

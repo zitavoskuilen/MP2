@@ -410,7 +410,7 @@ points(
 )
 
 # legend 
-legend(
+# legend(
   "right",
   inset = c(-0.14, 0),
   xpd = NA,
@@ -501,7 +501,8 @@ dev.off()
 
 
 # make extra space for legend
-par(mar = c(5, 4, 4, 12),xpd = FALSE)
+par(mar = c(5, 4, 4, 10
+            ),xpd = FALSE)
 
 ordiplot(
   trait_pca,
@@ -678,5 +679,4 @@ traits_total_phys <- traits_per_pot_wide_new %>%
   dplyr::select(physiotope, total_traits)
 
 traits_total_phys
-
 
