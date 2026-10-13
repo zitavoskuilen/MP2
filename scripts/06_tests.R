@@ -114,6 +114,65 @@ aggregate(
   FUN = mean
 )
 
+
+## Testing richness and shannon between ecotopes ####
+
+library(dplyr)
+library(vegan)
+library(ggplot2)
+
+diversity_df <- data_two_summed_final %>%
+  mutate(
+    richness = specnumber(as.matrix(select(., -(1:3)))),
+    shannon = diversity(as.matrix(select(., -(1:3))),
+                        index = "shannon")
+  ) %>%
+  select(pot_ID, location, physiotope, richness, shannon)
+
+diversity_df
+
+diversity_summary <- diversity_df %>%
+  group_by(physiotope) %>%
+  summarise(
+    n = n(),
+    mean_richness = mean(richness),
+    sd_richness = sd(richness),
+    mean_shannon = mean(shannon),
+    sd_shannon = sd(shannon),
+    .groups = "drop"
+  )
+
+diversity_summary
+
+
+model_richness <- glm(
+  richness ~ location + physiotope,
+  family = poisson,
+  data = diversity_df
+)
+
+# Test het effect van physiotope,
+# nadat rekening is gehouden met location
+drop1(model_richness, test = "Chisq")
+
+# Controleer overdispersie
+sum(residuals(model_richness, type = "pearson")^2) /
+  df.residual(model_richness)
+
+model_shannon <- lm(
+  shannon ~ location + physiotope,
+  data = diversity_df
+)
+
+drop1(model_shannon, test = "F")
+
+# Controleer de modelaannames
+par(mfrow = c(2, 2))
+plot(model_shannon)
+par(mfrow = c(1, 1))
+
+
+
 ## Permanova traits physiotopes ####
 
 traits_per_pot_wide <- traits_per_pot_wide %>%
@@ -192,7 +251,7 @@ permanova_env
 # moisture #### 
 
 moisture <- lmer(
-  soil_moisture_percentage ~ physiotope + (1 | site),
+  moisture_LRR ~ physiotope + (1 | site),
   data = envdata
 )
 
@@ -207,62 +266,38 @@ anova(moisture)
 
 # Model without site
 moisture_lm <- lm(
-  soil_moisture_percentage ~ physiotope,
+  moisture_LRR ~ physiotope,
   data = envdata
 )
 
 # Model with site as random effect
 moisture_lmer <- lmer(
-  soil_moisture_percentage ~ physiotope + (1 | site),
+  moisture_LRR ~ physiotope + (1 | site),
   data = envdata,
   REML = FALSE
 )
 
-AIC(moisture_lm, moisture_lmer, moisture_log)
+AIC(moisture_lm, moisture_lmer)
 
-# use model without random effect 
+# use model with random effect 
 # check assumptions
 par(mfrow = c(2, 2))
-plot(moisture_log)
+plot(moisture_lmer)
 
-anova(moisture_lm)
+anova(moisture_lmer)
 
 emmeans(
-  moisture_lm,
+  moisture_lmer,
   pairwise ~ physiotope,
   adjust = "tukey"
 )
 
-# log transformed
-moisture_log <- lm(
-  log(soil_moisture_percentage) ~ physiotope,
-  data = envdata
-)
-
-
-moisture_log_lmer <- lmer(
-  log(soil_moisture_percentage) ~ physiotope + (1 | site),
-  data = envdata,
-  REML = FALSE
-)
-
-AIC(moisture_log, moisture_log_lmer)
-
-performance::check_singularity(moisture_log)
-
-anova(moisture_log)
-
-emmeans(
-  moisture_log,
-  pairwise ~ physiotope,
-  adjust = "tukey"
-)
 
 library(emmeans)
 library(multcomp)
 
 emm_moisture <- emmeans(
-  moisture_log,
+  moisture_lmer,
   ~ physiotope
 )
 

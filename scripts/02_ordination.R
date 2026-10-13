@@ -23,7 +23,6 @@ species_data_two <- species_data_two[, colSums(species_data_two) > 0]
 
 #view(species_data_two)
 
-
 ###############################################
 # PART 3: DETERMINE BEST ORDINATION METHOD
 ###############################################

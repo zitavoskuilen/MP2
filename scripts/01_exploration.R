@@ -262,16 +262,16 @@ data <- data %>%
 
 colnames(data)
 
+
 # take out columns that have all zero's in them
 data <- data[, colSums(data != 0) > 0]
 
 
 ############ 
-# MAKE TWO DATASETS
+# MAKE DATASETS
 ############
 
 # DATA_TWO =  TWO HARVESTS OF EVERY LOCATION 
-# DATA_THREE = TWO HARVESTS OF TS AND THREE OF THE DUTCH COAST 
 
 ###########
 # DATA_TWO 
@@ -350,7 +350,7 @@ data_two_summed_final <- data_summed_two %>%
 
 str(data_two_summed_final)
 
-# een paar namen kloppen nog niet
+# few names are not right yet 
 data_two_summed_final <- data_two_summed_final %>%
   dplyr::rename(
     Aphididae_sp = Aphidoidae_sp,

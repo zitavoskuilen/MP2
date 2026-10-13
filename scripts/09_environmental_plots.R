@@ -162,6 +162,18 @@ dev.off()
   col = "grey20"
 )
 
+# making a log response ratio for the moisture as this is a field measure not taken at the same time so we will compare all measures to the mean of the ecotope FD as this is the most dry ecotope 
+
+envdata <- envdata %>%
+  group_by(site) %>%
+  mutate(
+    moisture_LRR = log(
+      soil_moisture_percentage /
+        soil_moisture_percentage[physiotope == "FD"]
+    )
+  ) %>%
+  ungroup()
+
 
 ## Boxplots of the individual environmental variables ####
 
@@ -169,7 +181,7 @@ env_long <- envdata %>%
   dplyr::select(
     physiotope,
     site,
-    soil_moisture_percentage,
+    moisture_LRR,
     soil_om_percentage,
     D50,
     elevation,
@@ -182,7 +194,7 @@ env_long <- envdata %>%
   ) %>%
   pivot_longer(
     cols = c(
-      soil_moisture_percentage,
+      moisture_LRR,
       soil_om_percentage,
       D50,
       elevation,
@@ -239,7 +251,7 @@ env_long_rest <- env_long %>%
 env_long_rest$variable <- factor(
   env_long_rest$variable,
   levels = c(
-    "soil_moisture_percentage",
+    "moisture_LRR",
     "soil_om_percentage",
     "D50",
     "elevation",
@@ -247,9 +259,9 @@ env_long_rest$variable <- factor(
     "cover"
   ),
   labels = c(
-    "Soil moisture (%)",
+    "Relative soil moisture (LRR)",
     "Soil organic matter (%)",
-    "D50",
+    "D50 (µm)",
     "Elevation (m)",
     "Plant richness", 
     "Plant cover (%)"
@@ -266,7 +278,7 @@ phys_cols <- c(
   "FD2" = "#D97706"
 )
 
-# plot 
+# plot supplementary 
 env_plot_supp <- ggplot(
   env_long_supp,
   aes(x = physiotope, y = value, fill = physiotope)
@@ -311,7 +323,7 @@ env_plot_supp <- ggplot(
   )
 ) +
   labs(
-    x = "Physiotope",
+    x = "Ecotope",
     y = NULL
   ) +
   theme_classic() +
@@ -371,7 +383,7 @@ env_plot_rest <- ggplot(
   ) +
 
   labs(
-    x = "Physiotope",
+    x = "Ecotope",
     y = NULL
   ) +
 

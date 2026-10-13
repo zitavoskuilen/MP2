@@ -112,6 +112,9 @@ str(traits)
 
 # i have to make sure that the species names in the traits data can match the ones in the data_two_summed_final data frame. 
 colnames(data_two_summed_final)
+names(data_two_summed_final)[
+  names(data_two_summed_final) == "Philopedon_plagiatus"
+] <- "Philopedon_plagiatum"
 traits$Species
 
 # checking species ooccurence for the traits table 
@@ -177,7 +180,7 @@ species_check <- data.frame(
 
 species_check
 
-# i have to change the names in data_two_species_traits om ze te machten met de namen in de traits dataset
+# i have to change the names in data_two_species_traits to match the names in the traits dataset 
 
 names(data_two_species_traits) <- dplyr::recode(
   names(data_two_species_traits),
@@ -216,6 +219,7 @@ traits_long <- traits_filtered %>%
 # nu heb ik een long format van de traits data, 
 # nu moet ik nog een long format van mn abundantie species data 
 
+
 ## LONG FORMAT OF THE ABUNDANCE DATA & JOINING THE DATA SETS ####
 data_two_species_traits
 
@@ -226,6 +230,14 @@ data_two_long <- data_two_species_traits %>%
     values_to = "abundance"
   ) %>% 
   dplyr::select(-c(physiotope))
+
+data_two_long <- data_two_species_traits %>%
+  dplyr::select(-physiotope) %>%
+  pivot_longer(
+    cols = -pot_ID,
+    names_to = "Species",
+    values_to = "abundance"
+  )
 
 
 ## LEFT JOINING THE TWO LONG FORMAT TABLES ## 
@@ -333,7 +345,7 @@ if (gradient_length < 3) {
 
 traits_hel <- decostand(trait_matrix, method = "hellinger")
 
-trait_pca <- rda(
+ trait_pca <- rda(
   traits_hel
 )
 
@@ -410,7 +422,7 @@ points(
 )
 
 # legend 
-# legend(
+#legend(
   "right",
   inset = c(-0.14, 0),
   xpd = NA,
@@ -679,4 +691,100 @@ traits_total_phys <- traits_per_pot_wide_new %>%
   dplyr::select(physiotope, total_traits)
 
 traits_total_phys
+
+
+###############################################
+## interpretation of the pca arrows from the traits_abunance fuzzy codes ####
+
+# Seasonal restriction:
+
+seasonal_cwm <- traits_abundance %>%
+  filter(trait == "seasonal_restriction") %>%
+  group_by(pot_ID) %>%
+  summarise(
+    seasonal_restriction = sum(weighted_trait, na.rm = TRUE) /
+                           sum(abundance, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  left_join(
+    data_two_summed_final %>%
+      dplyr::select(pot_ID, location, physiotope),
+    by = "pot_ID"
+  )
+
+seasonal_cwm
+
+seasonal_cwm_summary <- seasonal_cwm %>%
+  group_by(physiotope) %>%
+  summarise(
+    mean = mean(seasonal_restriction, na.rm = TRUE),
+    sd = sd(seasonal_restriction, na.rm = TRUE),
+    min = min(seasonal_restriction, na.rm = TRUE),
+    max = max(seasonal_restriction, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(mean))
+
+seasonal_cwm_summary
+
+# diurnal activity 
+
+diurnal_cwm <- traits_abundance %>%
+  filter(trait == "diurnal_activity") %>%
+  group_by(pot_ID) %>%
+  summarise(
+    diurnal_activity = sum(weighted_trait, na.rm = TRUE) /
+                       sum(abundance, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  left_join(
+    data_two_summed_final %>%
+      dplyr::select(pot_ID, location, physiotope),
+    by = "pot_ID"
+  )
+
+diurnal_cwm_summary <- diurnal_cwm %>%
+  group_by(physiotope) %>%
+  summarise(
+    mean = mean(diurnal_activity, na.rm = TRUE),
+    sd = sd(diurnal_activity, na.rm = TRUE),
+    min = min(diurnal_activity, na.rm = TRUE),
+    max = max(diurnal_activity, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(mean))
+
+
+diurnal_cwm_summary
+
+# parental care 
+parental_care_cwm <- traits_abundance %>%
+  filter(trait == "parental_care") %>%
+  group_by(pot_ID) %>%
+  summarise(
+    parental_care = sum(weighted_trait, na.rm = TRUE) /
+                    sum(abundance, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  left_join(
+    data_two_summed_final %>%
+      dplyr::select(pot_ID, location, physiotope),
+    by = "pot_ID"
+  )
+
+parental_care_cwm_summary <- parental_care_cwm %>%
+  group_by(physiotope) %>%
+  summarise(
+    mean = mean(parental_care, na.rm = TRUE),
+    sd = sd(parental_care, na.rm = TRUE),
+    min = min(parental_care, na.rm = TRUE),
+    max = max(parental_care, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(mean))
+
+parental_care_cwm_summary
+
+###############################################
+
 
