@@ -101,10 +101,21 @@ data <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTU
 str(data)
 
 
+# Percentage lege vangsten per ecotoop
+empty_summary <- empty_pitfalls %>%
+  group_by(physiotope) %>%
+  summarise(
+    total_samples = n(),
+    empty_samples = sum(empty),
+    percentage_empty = round(mean(empty) * 100, 1),
+    .groups = "drop"
+  )
+
+empty_summary
+
 # now filter only the rows that have "done" in the first column
 data <- data %>%
   filter(Done. == "done")
-
 
 # replace all NA's with zero's
 
@@ -268,10 +279,7 @@ data <- data[, colSums(data != 0) > 0]
 
 
 ############ 
-# MAKE DATASETS
-############
 
-# DATA_TWO =  TWO HARVESTS OF EVERY LOCATION 
 
 ###########
 # DATA_TWO 
@@ -281,9 +289,59 @@ data <- data[, colSums(data != 0) > 0]
 data_two <- data %>%
   dplyr::filter(harvest %in% c("HK2", "HK3", "TS3", "TS4"))
 
+# see which pitfalls are empty
+species_cols <- names(data_two)[9:ncol(data_two)]
+
+# total abundance per pitfall 
+empty_pitfalls <- data_two %>%
+  mutate(
+    across(
+      all_of(species_cols),
+      ~ suppressWarnings(as.numeric(trimws(as.character(.x))))
+    ),
+    total_abundance = rowSums(
+      across(all_of(species_cols)),
+      na.rm = TRUE
+    ),
+    empty = total_abundance == 0
+  )
+
+# empty pitfalls per ecotoop
+empty_summary <- empty_pitfalls %>%
+  group_by(physiotope) %>%
+  summarise(
+    total_samples = n(),
+    empty_samples = sum(empty),
+    percentage_empty = round(100 * mean(empty), 1),
+    .groups = "drop"
+  )
+
+empty_summary
+
 
 pot_ID_count <- data_two %>%
   count(pot_ID)
+
+# see how many pots are empty 
+empty_pitfalls <- data %>%
+  mutate(
+    total_abundance = rowSums(
+      across(where(is.numeric)),
+      na.rm = TRUE
+    ),
+    empty = total_abundance == 0
+  )
+
+empty_summary <- empty_pitfalls %>%
+  group_by(physiotope) %>%
+  summarise(
+    total_samples = n(),
+    empty_samples = sum(empty),
+    percentage_empty = round(mean(empty) * 100, 1),
+    .groups = "drop"
+  )
+
+empty_summary
 
 # now i have to add the rows toegteher that have the same pot_ID 
 # first i'll do ot for the harvests seperately 
@@ -360,3 +418,251 @@ data_two_summed_final <- data_two_summed_final %>%
 
 
 
+
+
+# Abundance and species richness ####
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+physio_order <- c("B", "B2", "LD", "HD", "GB", "FD", "FD2")
+physio_colors <- c(
+  "B"   = phys_cols["bare"],
+  "B2"  = phys_cols["bare2"],
+  "LD"  = phys_cols["lowdensity"],
+  "HD"  = phys_cols["highdensity"],
+  "GB"  = phys_cols["duneslack"],
+  "FD"  = phys_cols["foredune"],
+  "FD2" = phys_cols["foredune2"]
+)
+
+# Verwijder de oorspronkelijke namen
+physio_colors <- unname(physio_colors)
+names(physio_colors) <- physio_order
+
+
+# Taxonkolommen selecteren
+species_data <- data_two_summed_final %>%
+  dplyr::select(-pot_ID, -location, -physiotope)
+
+# Totale abundantie en gepoolde richness
+plot_data <- data_two_summed_final %>%
+  mutate(
+    physiotope = recode(physiotope, "DS" = "GB"),
+    total_per_sample = rowSums(species_data, na.rm = TRUE)
+  ) %>%
+  group_by(physiotope) %>%
+  summarise(
+    total_abundance = sum(total_per_sample),
+    richness = sum(
+      colSums(across(all_of(names(species_data))), na.rm = TRUE) > 0
+    ),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    physiotope = factor(physiotope, levels = physio_order)
+  )
+
+physio_order <- c("B", "B2", "LD", "HD", "GB", "FD", "FD2")
+
+physio_colors <- c(
+  "B"   = "#E8D7B0",
+  "B2"  = "#9B6F3E",
+  "LD"  = "#8FBF68",
+  "HD"  = "#356B3A",
+  "GB"  = "#4FA3A5",
+  "FD"  = "#F2C94C",
+  "FD2" = "#D97706"
+)
+
+# Gemiddelde abundantie en SD
+abundance_plot_data <- abundance_df %>%
+  mutate(physiotope = recode(as.character(physiotope), "DS" = "GB")) %>%
+  group_by(physiotope) %>%
+  summarise(
+    mean = mean(abundance),
+    sd = sd(abundance),
+    .groups = "drop"
+  ) %>%
+  mutate(physiotope = factor(physiotope, levels = physio_order))
+
+# Gemiddelde richness en SD
+physio_order <- c("B", "B2", "LD", "HD", "GB", "FD", "FD2")
+
+abundance_box_data <- abundance_df %>%
+  mutate(
+    physiotope = recode(as.character(physiotope), "DS" = "GB"),
+    physiotope = factor(physiotope, levels = physio_order)
+  )
+
+# Significantiegroepen
+abundance_letters <- data.frame(
+  physiotope = factor(physio_order, levels = physio_order),
+  letter = c("bc", "bc", "a", "bc", "ab", "c", "abc")
+)
+
+# Positie van de letters
+letter_positions <- abundance_box_data %>%
+  group_by(physiotope) %>%
+  summarise(
+    y = max(abundance, na.rm = TRUE) + 12,
+    .groups = "drop"
+  ) %>%
+  left_join(abundance_letters, by = "physiotope")
+
+# Boxplot
+plot_abundance <- ggplot(
+  abundance_box_data,
+  aes(x = physiotope, y = abundance)
+) +
+  geom_boxplot(
+    aes(fill = physiotope),
+    width = 0.65,
+    alpha = 1,
+    outlier.shape = NA,
+    linewidth = 0.6
+  ) +
+  geom_jitter(
+    width = 0.12,
+    size = 2.5,
+    alpha = 1
+  ) +
+  geom_text(
+    data = letter_positions,
+    aes(x = physiotope, y = y, label = letter),
+    inherit.aes = FALSE,
+    size = 5
+  ) +
+  scale_fill_manual(values = physio_colors) +
+  scale_y_continuous(
+    expand = expansion(mult = c(0.02, 0.15))
+  ) +
+  labs(
+    x = NULL,
+    y = "Macrofauna abundance per sample"
+  ) +
+  theme_classic(base_size = 16) +
+  theme(
+    legend.position = "none"
+  )
+
+plot_abundance
+
+ggsave(
+  plot_abundance,
+  filename = "plots/abundance_boxplot.png",
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+
+richness_box_data <- diversity_df %>%
+  mutate(
+    physiotope = recode(as.character(physiotope), "DS" = "GB"),
+    physiotope = factor(physiotope, levels = physio_order)
+  )
+
+plot_richness <- ggplot(
+  richness_box_data,
+  aes(x = physiotope, y = richness)
+) +
+  geom_boxplot(
+    aes(fill = physiotope),
+    width = 0.65,
+    alpha = 1,
+    outlier.shape = NA,
+    linewidth = 0.6
+  ) +
+  geom_jitter(
+    width = 0.1,
+    height = 0,
+    size = 2.5,
+    alpha = 0.85
+  ) +
+  scale_fill_manual(values = physio_colors) +
+  scale_y_continuous(
+    breaks = seq(0, 30, 5),
+    expand = expansion(mult = c(0.02, 0.1))
+  ) +
+  labs(
+    x = NULL,
+    y = "Taxonomic richness per sample"
+  ) +
+  theme_classic(base_size = 16) +
+  theme(
+    legend.position = "none"
+  )
+
+plot_richness
+
+ggsave(
+  plot_richness,
+  filename = "plots/richness_boxplot.png",
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+
+# see which species are in FD but not in FD2 ####
+library(dplyr)
+
+# Alleen de taxonkolommen
+species_cols <- setdiff(
+  names(data_two_summed_final),
+  c("pot_ID", "location", "physiotope")
+)
+
+# Totale abundantie per taxon in FD
+fd <- data_two_summed_final %>%
+  filter(physiotope == "FD") %>%
+  summarise(across(all_of(species_cols), ~sum(.x, na.rm = TRUE)))
+
+# Totale abundantie per taxon in FD2
+fd2 <- data_two_summed_final %>%
+  filter(physiotope == "FD2") %>%
+  summarise(across(all_of(species_cols), ~sum(.x, na.rm = TRUE)))
+
+# Taxa aanwezig in FD, afwezig in FD2
+only_fd <- species_cols[
+  as.numeric(fd[1, species_cols]) > 0 &
+  as.numeric(fd2[1, species_cols]) == 0
+]
+
+only_fd
+length(only_fd)
+
+only_fd2 <- species_cols[
+  as.numeric(fd2[1, species_cols]) > 0 &
+  as.numeric(fd[1, species_cols]) == 0
+]
+
+only_fd2
+length(only_fd2)
+
+
+fd_unique_table <- data.frame(
+  Taxon = only_fd,
+  Abundance_FD = as.numeric(fd[1, only_fd])
+) %>%
+  arrange(desc(Abundance_FD))
+
+fd2_unique_table <- data.frame(
+  Taxon = only_fd2,
+  Abundance_FD2 = as.numeric(fd2[1, only_fd2])
+) %>%
+  arrange(desc(Abundance_FD2))
+
+fd_unique_table
+fd2_unique_table
+
+fd_comparison <- diversity_df %>%
+  filter(physiotope %in% c("FD", "FD2")) %>%
+  dplyr::select(location, physiotope, richness) %>%
+  pivot_wider(
+    names_from = physiotope,
+    values_from = richness
+  ) %>%
+  mutate(
+    richness_difference = FD - FD2
+  )
+
+fd_comparison

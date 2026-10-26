@@ -173,6 +173,132 @@ par(mfrow = c(1, 1))
 
 
 
+## Testing abundance between ecotopes ####
+abundance_df <- data_two_summed_final %>%
+  mutate(
+    abundance = rowSums(
+      as.matrix(select(., -pot_ID, -location, -physiotope)),
+      na.rm = TRUE
+    )
+  ) %>%
+  select(pot_ID, location, physiotope, abundance)
+
+abundance_summary <- abundance_df %>%
+  group_by(physiotope) %>%
+  summarise(
+    n = n(),
+    total_abundance = sum(abundance),
+    mean_abundance = mean(abundance),
+    sd_abundance = sd(abundance),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(total_abundance))
+
+abundance_summary
+table(abundance_df$location, abundance_df$physiotope)
+
+
+model_abundance_nb <- glm.nb(
+  abundance ~ location + physiotope,
+  data = abundance_df
+)
+
+drop1(model_abundance_nb, test = "Chisq")
+
+emmeans(
+  model_abundance_nb,
+  pairwise ~ physiotope,
+  adjust = "holm",
+  type = "response"
+)
+top_species_LD <- data_two_summed_final %>%
+  filter(physiotope == "LD") %>%
+  dplyr::select(-pot_ID, -location, -physiotope) %>%
+  summarise(across(everything(), sum)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "species",
+    values_to = "abundance"
+  ) %>%
+  arrange(desc(abundance)) %>%
+  slice_head(n = 15)
+
+top_species_LD
+
+# Bepaal de 10 talrijkste soorten in LD
+top10 <- top_species_LD %>%
+  slice_head(n = 10) %>%
+  pull(species)
+
+# Vergelijk hun abundantie tussen fysiotopen
+species_comparison <- data_two_summed_final %>%
+  pivot_longer(
+    cols = -c(pot_ID, location, physiotope),
+    names_to = "species",
+    values_to = "abundance"
+  ) %>%
+  filter(species %in% top10) %>%
+  group_by(physiotope, species) %>%
+  summarise(
+    total_abundance = sum(abundance),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = physiotope,
+    values_from = total_abundance,
+    values_fill = 0
+  )
+
+# how many duptera in DS
+data_two_summed_final %>%
+  filter(physiotope == "DS") %>%
+  summarise(
+    total_diptera = sum(Diptera_sp, na.rm = TRUE),
+    total_abundance = 341,
+    percentage_diptera = round(total_diptera / total_abundance * 100, 1)
+  )
+
+# in any ecotope 
+diptera_summary <- data_two_summed_final %>%
+  mutate(
+    total_abundance = rowSums(
+      across(-c(pot_ID, location, physiotope)),
+      na.rm = TRUE
+    )
+  ) %>%
+  group_by(physiotope) %>%
+  summarise(
+    total_abundance = sum(total_abundance),
+    total_diptera = sum(Diptera_sp, na.rm = TRUE),
+    percentage_diptera = round(
+      total_diptera / total_abundance * 100, 1
+    ),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(percentage_diptera))
+
+diptera_summary
+
+# abundance withoout diptera 
+abundance_without_diptera <- data_two_summed_final %>%
+  mutate(
+    abundance = rowSums(
+      across(-c(pot_ID, location, physiotope, Diptera_sp)),
+      na.rm = TRUE
+    )
+  ) %>%
+  dplyr::select(pot_ID, location, physiotope, abundance)
+
+library(MASS)
+
+model_no_diptera <- MASS::glm.nb(
+  abundance ~ location + physiotope,
+  data = abundance_without_diptera
+)
+
+drop1(model_no_diptera, test = "Chisq")
+
+
 ## Permanova traits physiotopes ####
 
 traits_per_pot_wide <- traits_per_pot_wide %>%
@@ -508,7 +634,7 @@ richness_letters
 envdata$cover_prop <- envdata$cover / 100
 
 cover_mod_ord <- glmmTMB(
-  cover_prop ~ physiotope + location,
+  cover_prop ~ physiotope + (1|site),
   data = envdata,
   family = ordbeta(link = "logit")
 )
@@ -609,3 +735,6 @@ elevation_letters <- cld(
 )
 
 elevation_letters
+
+
+

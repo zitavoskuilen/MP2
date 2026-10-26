@@ -191,7 +191,6 @@ names(data_two_species_traits) <- dplyr::recode(
 
 ## FOR NOW ONLY SELECT THE SPECIES THAT I HAVE FILLED IN THE TRAITS DATA 
 
-
 traits_filtered <- traits %>%
   dplyr::filter(Species %in% species_in_traits_data) %>%
   dplyr::arrange(match(Species, species_in_traits_data)) 
