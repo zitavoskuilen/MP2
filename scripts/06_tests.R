@@ -1,9 +1,12 @@
 ###
 
+# all peranova's on macrofauna and trais analysis
+# and univariate models for environmental variables 
+
 ## Permanova abundance location ####
 # TESTING IF LOCATION HAS AN EFFECT ON THE ABUNDANCE OF THE SPECIES 
 
-#eerst een kolom maken die locatie bevat 
+# make location column 
 data_two_summed_final <- data_two_summed_final %>%
   dplyr::mutate( location = sub("_.*", "", pot_ID)) %>%
   relocate(location, .after = pot_ID)
@@ -12,7 +15,7 @@ data_two_summed_final <- data_two_summed_final %>%
 metadata <- data_two_summed_final %>%
   dplyr::select(pot_ID, physiotope, location)
 
-# Alleen soorten
+# only species 
 species <- data_two_summed_final %>%
   dplyr::select(-pot_ID, -physiotope, -location)
 
@@ -20,7 +23,7 @@ species <- data_two_summed_final %>%
 bray <- vegdist(species, method = "bray")
 
 
-## VERSCHILT DE ABUNDANTIE TUSSEN DE LOCATIES 
+## ABUNDANCE DIFFERENCES BETWEEN LOCATIONS 
 
 # test voor verschil tussen loaties 
 permanova <- adonis2(
@@ -49,8 +52,8 @@ permanova_phys <- adonis2(
 
 permanova_phys
 
-# welke physiotope paren verschillen significant van elkaar?
-# moet met adonis twee maar dan moet je er daarna een tabel van maken 
+# which physiotope differ significantly?
+# make atble with adonis 2 
 
 metadata_df <- as.data.frame(metadata)
 
@@ -64,7 +67,7 @@ pairwise_phys_species <- pairwiseAdonis::pairwise.adonis2(
 
 pairwise_phys_species
 
-# tabel van de resultaten maken 
+# results table 
 pw <- pairwise_phys_species[-1]
 
 results <- data.frame(
@@ -79,23 +82,23 @@ results$p_holm <- p.adjust(results$p, method = "holm")
 results
 
 # beta dispr
-# Euclidische afstand op Hellinger-getransformeerde soortendata
+# Euclidische distance on Hellinger-transformed species data 
 dist_hel <- dist(species_hel, method = "euclidean")
 
-# Test op homogeniteit van multivariate dispersie
+#  Test for homogeneity of variances in multivariate analysis
 disp_phys <- betadisper(
   dist_hel,
   group = metadata$physiotope,
   type = "median"
 )
 
-# Permutaties beperken binnen location
+# Permutaties wihtin location
 perm_design <- permute::how(
   nperm = 999,
   blocks = metadata$location
 )
 
-# Permutatietest
+# permutation tests 
 disp_test <- permutest(
   disp_phys,
   permutations = perm_design
@@ -151,11 +154,10 @@ model_richness <- glm(
   data = diversity_df
 )
 
-# Test het effect van physiotope,
-# nadat rekening is gehouden met location
+# Test  effect of  physiotope,after accounting for location 
 drop1(model_richness, test = "Chisq")
 
-# Controleer overdispersie
+#  check overdispersion
 sum(residuals(model_richness, type = "pearson")^2) /
   df.residual(model_richness)
 
@@ -166,7 +168,7 @@ model_shannon <- lm(
 
 drop1(model_shannon, test = "F")
 
-# Controleer de modelaannames
+# check model assumptions 
 par(mfrow = c(2, 2))
 plot(model_shannon)
 par(mfrow = c(1, 1))
@@ -225,12 +227,12 @@ top_species_LD <- data_two_summed_final %>%
 
 top_species_LD
 
-# Bepaal de 10 talrijkste soorten in LD
+# top 10 species in LD
 top10 <- top_species_LD %>%
   slice_head(n = 10) %>%
   pull(species)
 
-# Vergelijk hun abundantie tussen fysiotopen
+# compare abundances 
 species_comparison <- data_two_summed_final %>%
   pivot_longer(
     cols = -c(pot_ID, location, physiotope),
@@ -355,23 +357,6 @@ dist_df
 
 
 ## Tests environmental variables physiotopes ####
-
-# didnt use this??
-env_scaled <- scale(env_pca_data)
-env_dist <- dist(env_pca_data, method = "euclidean")
-
-permanova_env <- adonis2(
-  env_dist ~ physiotope + site,
-  data = envdata,
-  permutations = 999,
-  by = "margin"
-)
-
-permanova_env
-
-# correlations between variables 
-
-
 
 
 # moisture #### 

@@ -10,7 +10,6 @@ envdata <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxua
 # can be imported with: 
 # envdata <- read_csv("~/Msc Ecology & Conservation/Master project 2/Thesis_Zita_Voskuilen_2026/data/Environmental_data.csv")
 
-
 envdata
 str(envdata)
 

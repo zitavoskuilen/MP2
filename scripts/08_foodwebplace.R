@@ -3,7 +3,7 @@
 ###
 
 # read in the feeding mode data 
-feedingmode <- read_delim("feedingmode.csv", 
+feedingmode <- read_delim("Feeding_mode_data.csv", 
      delim = ";", escape_double = FALSE, trim_ws = TRUE)
 
 str(feedingmode)
@@ -116,11 +116,11 @@ feeding_phys <- feeding_abundance %>%
   )
 
 feeding_cols <- c(
-  "microbivore" = "#756BB1",  # paars
-  "detrivore"   = "#B87333",  # koper/bruin
-  "herbivore"   = "#7A9E66",  # zacht groen
-  "granivore"   = "#D4A84F",  # oker
-  "predator"    = "#A65365"   # donker oudroze/rood
+  "microbivore" = "#756BB1",  
+  "detrivore"   = "#B87333",  
+  "herbivore"   = "#7A9E66",  
+  "granivore"   = "#D4A84F",  
+  "predator"    = "#A65365"   
 )
 
 # relatieve contribution per physiotope
