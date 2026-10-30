@@ -1,6 +1,5 @@
-
-## PCA WITH ENVIRONMENTAL VARIABLES BETWEEN PHYSTIOPES ####
-# nog niet af want ik heb nog niet alle variables, en tot nu toe maken er veel ook niks uit 
+##################################
+## PCA WITH ENVIRONMENTAL VARIABLES BETWEEN PHYSTIOPES (not used in report) ####
 
 env_pca_data <- envdata %>%
   dplyr::select(
@@ -162,6 +161,9 @@ dev.off()
   col = "grey20"
 )
 
+#####################################
+# Making BOXPLOTS  of the environmental variables between physiotopes ####
+#####################
 # making a log response ratio for the moisture as this is a field measure not taken at the same time so we will compare all measures to the mean of the ecotope FD as this is the most dry ecotope 
 
 envdata <- envdata %>%
