@@ -4,8 +4,10 @@
 ## CLEANING THE TRAITS DATA ####
 
 # read in the traits data 
-traits <- read_delim("traits_5.csv", delim = ";", 
+traits <- read_delim("Traits_data.csv", delim = ";", 
      escape_double = FALSE, trim_ws = TRUE)
+
+traits <- read.csv
 
 ncol(traits)
 view(traits)

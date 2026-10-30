@@ -99,6 +99,8 @@ common_theme <- theme_classic() +
 data <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=1054653854&single=true&output=csv")
 
 # an offline version of this data was included in the data folder of the zip file project under the name macrofauna_data
+# can be imported with: 
+# data <- read_csv("~/Msc Ecology & Conservation/Master project 2/Thesis_Zita_Voskuilen_2026/data/Macrofauna_data.csv")
 
 str(data)
 

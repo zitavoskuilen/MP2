@@ -6,6 +6,11 @@
 
 envdata <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=1256365017&single=true&output=csv")
 
+# an offline version of this data was included in the data folder of the zip file project under the name Environmental_data
+# can be imported with: 
+# envdata <- read_csv("~/Msc Ecology & Conservation/Master project 2/Thesis_Zita_Voskuilen_2026/data/Environmental_data.csv")
+
+
 envdata
 str(envdata)
 
@@ -150,6 +155,10 @@ ggsave(
 
 flora_data <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=144268895&single=true&output=csv")
 
+# an offline version of this data was included in the data folder of the zip file project under the name Flora_data
+# can be imported with: 
+# flora_data <- read_csv("~/Msc Ecology & Conservation/Master project 2/Thesis_Zita_Voskuilen_2026/data/Flora_data.csv")
+
 str(flora_data)
 
 # select only the columns that include site and physiotope and all the species 
@@ -204,7 +213,7 @@ str(flora_data)
 
 
 #############
-# 0.5 Calculate plant diversity and shannon index per plot 
+# 05. Calculate plant diversity and shannon index per plot 
 ############
 
 species_data <- flora_data %>%
@@ -259,13 +268,14 @@ ggsave(filename = "plots/shannon_plot.png",
   dpi = 300
 )
 
-# 6.0 Elevation adding to the envdata dataframe ####
+# 06. Elevation adding to the envdata dataframe ####
 
 # load the data 
 
 elevationTS <-read.csv("~/Msc Ecology & Conservation/Master project 2/JOB_202604-Terschelling-Janne.csv")
 
 elevationNLCOAST <- read.csv("~/Msc Ecology & Conservation/Master project 2/JOB_202605.NLCOAST.JANNE.csv")
+
 
 # select only the data point taht we need and make one data frame of it 
 

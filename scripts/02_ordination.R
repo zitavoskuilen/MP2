@@ -26,6 +26,25 @@ species_data_two <- species_data_two[, colSums(species_data_two) > 0]
 ###############################################
 # PART 3: DETERMINE BEST ORDINATION METHOD
 ###############################################
+# The dataset structure:
+# columns 1 and 2 are pot_ID and physiotope, rest are species data.
+
+species_data_two <- data_two_summed_final[,3:ncol(data_two_summed_final)]
+str(species_data_two)
+
+# Replace NAs by 0 (important for community data)
+species_data_two <- species_data_two %>%
+  mutate(across(everything(), ~replace_na(.x, 0)))
+
+str(species_data_two)
+
+# remove columns with all zero's
+species_data_two <- species_data_two[, colSums(species_data_two) > 0]
+
+
+#view(species_data_two)
+
+
 # Key idea from Lefcheck:
 # Use DCA gradient length (axis 1) to decide:
 # < 3  -> linear methods (PCA, RDA)
@@ -33,8 +52,8 @@ species_data_two <- species_data_two[, colSums(species_data_two) > 0]
 # > 4  -> unimodal methods (CA, CCA, NMDS)
 
 species_dca_2 <- species_data_two %>%
-  dplyr::select(where(~ sum(.x, na.rm = TRUE) > 0)) %>%   # remove empty species
-  filter(rowSums(.) > 0)                          # ✅ remove empty sites
+  dplyr::select(where(~ sum(.x, na.rm = TRUE) > 0)) %>%   
+  filter(rowSums(.) > 0)                          
 
 dca_res_2 <- decorana(species_dca_2)
 print(dca_res_2) 
@@ -52,9 +71,6 @@ axis_lengths
 gradient_length <- axis_lengths[1]
 
 
-###############################################
-# INTERPRETATION RULE
-###############################################
 if (gradient_length < 3) {
   cat("→ Linear methods recommended: PCA or RDA\n")
 } else if (gradient_length >= 3 & gradient_length <= 4) {
@@ -174,15 +190,13 @@ site_scores <- scores(
 eig <- eigenvals(pca_res_2)
 var_exp <- eig / sum(eig) * 100
 
-# BELANGRIJK: kleuren koppelen aan naam physiotope
+# match colors and physiotopes 
 point_cols <- phys_cols[as.character(group_phys)]
 
-# volgorde die ordiellipse gebruikt
+# order for ordi ellips 
 group_order <- names(table(group_phys))
 ellipse_cols <- phys_cols[group_order]
 
-
-##
 ## PCA plot####
 
 par(mar = c(5, 4, 4, 12), xpd = FALSE)
@@ -225,7 +239,7 @@ ordiellipse(
   lwd = 1.3
 )
 
-# Punten DAARNA
+# Points after 
 points(
   site_scores[, 1],
   site_scores[, 2],
@@ -438,9 +452,9 @@ ggsave("plots/PCA_data_two_with_eliipse_location_10_8.png", width = 8, height = 
 
 
 ###########
-## SPECIES RICHNESS PER PHYSIOTOPE ####
+## SPECIES RICHNESS and individuals PER PHYSIOTOPE ####
 
-# total individuals per physiotope 
+# total individuals per physiotope ####
 abundance_physiotope <- data_two_summed_final %>%
   mutate(total_abundance = rowSums(across(4:94), na.rm = TRUE)) %>%
   group_by(physiotope) %>%
@@ -497,8 +511,7 @@ data_two_summed_final %>%
 # save the figure 
 ggsave("plots/abundance_per_physiotope.png", width = 8, height = 6, dpi = 300)
 
-# total species richness per phystiope 
-
+# total species richness per phystiope ####
 species_richness_phys <- data_two_summed_final %>%
   group_by(physiotope) %>%
   summarise(
@@ -518,43 +531,18 @@ species_richness_phys
 species_richness_pot <- data_two_summed_final %>%
   mutate(
     species_richness = rowSums(
-      dplyr::select(., -pot_ID, -physiotope,- location) > 0
+      dplyr::select(., -pot_ID, -physiotope) > 0
     )
   ) %>%
   dplyr::select(pot_ID, physiotope, species_richness)
 
 species_richness_pot
 
-# ik zien welke soorten er wel in FD en niet in FD2 voorkomen 
-species_FD_not_FD2 <- data_two_summed_final %>%
-  dplyr::filter(physiotope %in% c("FD", "FD2")) %>%
-  dplyr::select(-pot_ID, -location) %>%
-  group_by(physiotope) %>%
-  summarise(
-    across(
-      where(is.numeric),
-      ~ any(.x > 0, na.rm = TRUE)
-    ),
-    .groups = "drop"
-  ) %>%
-  pivot_longer(
-    cols = -physiotope,
-    names_to = "species",
-    values_to = "present"
-  ) %>%
-  pivot_wider(
-    names_from = physiotope,
-    values_from = present
-  ) %>%
-dplyr::filter(!FD & FD2)
-
-species_FD_not_FD2
 
 ##############
 ## ENV FIT ####
 
 # first make sure the order of envdata is the same as the pca data 
-
 envdata <- envdata %>%
   mutate(
     pot_ID = paste(site, physiotope, sep = "_")
@@ -612,8 +600,6 @@ ef <- envfit(
 ef
 
 # env fit for elevation becasue of missing values for Heartbreak 
-
-
 pca_scores <- scores(pca_res_2, display = "sites")
 
 keep_elev <- !is.na(envdata$elevation)
