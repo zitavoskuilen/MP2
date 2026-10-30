@@ -95,23 +95,12 @@ common_theme <- theme_classic() +
 ###############################################
 # PART 2: LOAD DATA Macrofauna Fact 2026 ----
 
-# load in the data from the google drive 
+# load in the data from the online google drive 
 data <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQU4-VqDxuaSTUqruH83CrjeW6sTD95GdQlZnfCFKQLsLkcKOdmxxXD4G7mSRLf2AJeC3agHe8p_cOo/pub?gid=1054653854&single=true&output=csv")
 
+# an offline version of this data was included in the data folder of the zip file project under the name macrofauna_data
+
 str(data)
-
-
-# Percentage lege vangsten per ecotoop
-empty_summary <- empty_pitfalls %>%
-  group_by(physiotope) %>%
-  summarise(
-    total_samples = n(),
-    empty_samples = sum(empty),
-    percentage_empty = round(mean(empty) * 100, 1),
-    .groups = "drop"
-  )
-
-empty_summary
 
 # now filter only the rows that have "done" in the first column
 data <- data %>%
@@ -133,11 +122,10 @@ letters_per_column <- lapply(data, function(x) {
   ])
 })
 
-# Alleen kolommen tonen waarin iets gevonden is
+# select only columns where letters are found 
 letters_per_column <- letters_per_column[
   lengths(letters_per_column) > 0
 ]
-
 
 letters_per_column
 
@@ -172,6 +160,17 @@ data <- data %>%
 
 str(data)
 
+# Percentage empty pitfalls per ecotoop
+empty_summary <- empty_pitfalls %>%
+  group_by(physiotope) %>%
+  summarise(
+    total_samples = n(),
+    empty_samples = sum(empty),
+    percentage_empty = round(mean(empty) * 100, 1),
+    .groups = "drop"
+  )
+
+empty_summary
 
 
 
@@ -357,7 +356,7 @@ metadata_cols <- c(
   "Poskey"
 )
 
-# Alle overige kolommen zijn soortkolommen
+# make new dataset with only species columns 
 species_cols <- names(data_two)[9:ncol(data_two)]
 
 data_summed_two <- data_two %>%
@@ -417,13 +416,8 @@ data_two_summed_final <- data_two_summed_final %>%
   )
 
 
-
-
-
 # Abundance and species richness ####
-library(dplyr)
-library(ggplot2)
-library(tidyr)
+
 physio_order <- c("B", "B2", "LD", "HD", "GB", "FD", "FD2")
 physio_colors <- c(
   "B"   = phys_cols["bare"],
@@ -435,16 +429,16 @@ physio_colors <- c(
   "FD2" = phys_cols["foredune2"]
 )
 
-# Verwijder de oorspronkelijke namen
+# Delete orginal names 
 physio_colors <- unname(physio_colors)
 names(physio_colors) <- physio_order
 
 
-# Taxonkolommen selecteren
+#  select taxon columns 
 species_data <- data_two_summed_final %>%
   dplyr::select(-pot_ID, -location, -physiotope)
 
-# Totale abundantie en gepoolde richness
+# total abundance and pooled richness 
 plot_data <- data_two_summed_final %>%
   mutate(
     physiotope = recode(physiotope, "DS" = "GB"),
@@ -474,7 +468,7 @@ physio_colors <- c(
   "FD2" = "#D97706"
 )
 
-# Gemiddelde abundantie en SD
+# Mean abundance and SD
 abundance_plot_data <- abundance_df %>%
   mutate(physiotope = recode(as.character(physiotope), "DS" = "GB")) %>%
   group_by(physiotope) %>%
@@ -485,7 +479,7 @@ abundance_plot_data <- abundance_df %>%
   ) %>%
   mutate(physiotope = factor(physiotope, levels = physio_order))
 
-# Gemiddelde richness en SD
+# mean richness and SD
 physio_order <- c("B", "B2", "LD", "HD", "GB", "FD", "FD2")
 
 abundance_box_data <- abundance_df %>%
@@ -494,13 +488,13 @@ abundance_box_data <- abundance_df %>%
     physiotope = factor(physiotope, levels = physio_order)
   )
 
-# Significantiegroepen
+# Significance groups 
 abundance_letters <- data.frame(
   physiotope = factor(physio_order, levels = physio_order),
   letter = c("bc", "bc", "a", "bc", "ab", "c", "abc")
 )
 
-# Positie van de letters
+# letter positions 
 letter_positions <- abundance_box_data %>%
   group_by(physiotope) %>%
   summarise(
@@ -605,23 +599,23 @@ ggsave(
 # see which species are in FD but not in FD2 ####
 library(dplyr)
 
-# Alleen de taxonkolommen
+# select onlt taxon columns
 species_cols <- setdiff(
   names(data_two_summed_final),
   c("pot_ID", "location", "physiotope")
 )
 
-# Totale abundantie per taxon in FD
+# Total abundance per taxon in FD
 fd <- data_two_summed_final %>%
   filter(physiotope == "FD") %>%
   summarise(across(all_of(species_cols), ~sum(.x, na.rm = TRUE)))
 
-# Totale abundantie per taxon in FD2
+# Total abundance per taxon in FD2
 fd2 <- data_two_summed_final %>%
   filter(physiotope == "FD2") %>%
   summarise(across(all_of(species_cols), ~sum(.x, na.rm = TRUE)))
 
-# Taxa aanwezig in FD, afwezig in FD2
+# Taxa present  in FD, not present in FD2
 only_fd <- species_cols[
   as.numeric(fd[1, species_cols]) > 0 &
   as.numeric(fd2[1, species_cols]) == 0

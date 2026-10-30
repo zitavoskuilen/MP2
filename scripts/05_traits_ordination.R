@@ -118,21 +118,20 @@ names(data_two_summed_final)[
 traits$Species
 
 # checking species ooccurence for the traits table 
-
 species_data_occ <- data_two_summed_final[, 5:ncol(data_two_summed_final)]
 
-# Aantal plekken waarop elke soort voorkomt
+# occurence per species in the dataset
 occurence <- colSums(species_data_occ > 0, na.rm = TRUE)
 
-# totale abundatie per soort 
+# total abundance per species 
 total_abundance <- colSums(species_data_occ, na.rm = TRUE)
 
-# singletons = op 1 plke en minder dan 3 individuen 
+# singletons = less than 3 individuals and occurence in only one pitfall
 singletons <- names(occurence[occurence == 1  & total_abundance < 3])
 
 singletons
 
-# doubletons = op twee plekken en minder dan 3 individuen
+# doubletons = less than 3 individuals and occurence in only two pitfall
 doubletons <- names(occurence[occurence == 2 & total_abundance < 3])
 
 
@@ -144,7 +143,7 @@ remove_species <- c(singletons, doubletons)
 
 length(remove_species)
 
-# met ook diptera, lepidoptera larve en hymeoptera want dat zijn gevleugelde soorten 
+# remove diptera, hymenoptera and the larvae of coleoptera and lepidoptera 
 extra_remove <- c(
   "Diptera_sp",
   "Hymenoptera_sp",
@@ -153,7 +152,7 @@ extra_remove <- c(
 )
 
 
-# haal deze soorten uit de data_two_summed_final data frame 
+# take same species from  data_two_summed_final data frame 
 data_two_species_traits <- data_two_summed_final %>%
   dplyr::select(-any_of(c(remove_species, extra_remove)))
 
@@ -163,7 +162,6 @@ data_two_species_traits
 colnames(data_two_species_traits)
 
 # now i need to only take the rows from the traits data that contain the species that are in my data_two_species_traits data frame. so i will make a vector of the species names in the data_two_species_traits data frame and then filter the traits data frame for those species.
-
 colnames(data_two_species_traits)
 species_in_traits_data <- colnames(data_two_species_traits)[3:ncol(data_two_species_traits)]
 
@@ -189,7 +187,7 @@ names(data_two_species_traits) <- dplyr::recode(
   "Prostigmata_sp" = "Trombidiidae_sp"
 )
 
-## FOR NOW ONLY SELECT THE SPECIES THAT I HAVE FILLED IN THE TRAITS DATA 
+## ONLY SELECT THE SPECIES THAT I HAVE FILLED IN THE TRAITS DATA 
 
 traits_filtered <- traits %>%
   dplyr::filter(Species %in% species_in_traits_data) %>%
@@ -215,8 +213,8 @@ traits_long <- traits_filtered %>%
     value = parse_number(value, locale = locale(decimal_mark = ","))
   )
 
-# nu heb ik een long format van de traits data, 
-# nu moet ik nog een long format van mn abundantie species data 
+# now we have a long format of the traits data base 
+# and need a long format of abundantie species data 
 
 
 ## LONG FORMAT OF THE ABUNDANCE DATA & JOINING THE DATA SETS ####
@@ -420,28 +418,6 @@ points(
   cex = 1
 )
 
-# legend 
-#legend(
-  "right",
-  inset = c(-0.14, 0),
-  xpd = NA,
-  legend = c(
-    "Bare",
-    "Bare 2",
-    "Low-density dunes",
-    "High-density dunes",
-    "Green Beach",
-    "Foredune",
-    "Foredune 2"
-    
-  ),
-  col = phys_cols[c("B", "B2", "LD", "HD", "DS", "FD", "FD2")],
-  pch = 19,
-  bty = "n",
-  title = "Physiotopes",
-    title.adj = 0.2
-)
-
 
 # Trait-scores uit PCA halen
 trait_scores <- scores(
@@ -451,7 +427,7 @@ trait_scores <- scores(
   choices = c(1, 2)
 )
 
-# Afstand tot oorsprong berekenen
+# distance to origin 
 trait_scores_df <- data.frame(
   trait = rownames(trait_scores),
   PC1 = trait_scores[, 1],
@@ -464,7 +440,6 @@ trait_scores_df <- data.frame(
 
  
 #only the arrows for the AL traits 
-
 trait_scores_df_AL <- trait_scores_df %>%
  dplyr::filter(startsWith(trait, "AL"))
 
